@@ -212,3 +212,33 @@ function createFallingHearts() {
 
 // สั่งรันทันที
 createFallingHearts();
+
+// ==========================================
+// 📸 ระบบเปิด/ปิด แกลเลอรี่
+// ==========================================
+
+function setupGallery() {
+    const modal = document.getElementById('gallery-modal');
+    const btn = document.getElementById('galleryBtn');
+    const span = document.getElementById('closeGallery');
+
+    // เมื่อกดปุ่ม -> เปิด
+    btn.onclick = function() {
+        modal.classList.add('show');
+    }
+
+    // เมื่อกดกากบาท -> ปิด
+    span.onclick = function() {
+        modal.classList.remove('show');
+    }
+
+    // เมื่อกดพื้นที่ว่างๆ ข้างนอก -> ปิด
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.classList.remove('show');
+        }
+    }
+}
+
+// เรียกใช้งานทันที
+setupGallery();
