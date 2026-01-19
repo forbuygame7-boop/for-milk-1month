@@ -170,18 +170,29 @@ function listenForMessages() {
         
         // เคลียร์หน้าจอแล้ววาดใหม่
         chatArea.innerHTML = '<div class="date-divider">วันนี้</div>'; 
-        
         if (data) {
             Object.values(data).forEach(msg => {
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('msg', msg.sender === 'user' ? 'user' : 'bot');
                 
+                // --- ส่วนที่แก้: เช็คว่าเป็นลิงก์รูปภาพหรือไม่ ---
+                let contentHTML = msg.text;
+                
+                // เช็คว่าข้อความลงท้ายด้วย .jpg, .png, .gif หรือไม่
+                if (msg.text.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+                    contentHTML = `<br><img src="${msg.text}" style="max-width: 100%; border-radius: 10px; margin-top: 5px;">`;
+                }
+                // เช็คว่าเป็น YouTube หรือไม่
+                else if (msg.text.includes("youtube.com") || msg.text.includes("youtu.be")) {
+                    // แปลงลิงก์ YouTube ให้เป็นตัวเล่นวีดิโอ (ง่ายๆ)
+                    contentHTML = `ส่งวีดิโอมา: <a href="${msg.text}" target="_blank" style="color: white; text-decoration: underline;">คลิกเพื่อดู</a>`;
+                }
+                // ------------------------------------------
+
                 if (msg.sender === 'user') {
-                    // ฝั่ง User มีคำว่า Read
-                    msgDiv.innerHTML = `${msg.text} <span class="read-label">Read</span>`;
+                    msgDiv.innerHTML = `${contentHTML} <span class="read-label">Read</span>`;
                 } else {
-                    // ฝั่ง Bot/Admin
-                    msgDiv.innerText = msg.text;
+                    msgDiv.innerHTML = contentHTML;
                 }
                 chatArea.appendChild(msgDiv);
             });
@@ -195,6 +206,7 @@ function listenForMessages() {
         }
     });
 }
+        
 
 // --- ฟังสถานะบอท (Auto/Manual) ---
 function listenForBotStatus() {
@@ -259,36 +271,25 @@ window.sendUserMessage = function() {
 function getSmartReply(text) {
     const cleanText = text.toLowerCase().trim();
 
-    // 1. เช็คจาก config.js
-    if (typeof CONFIG !== 'undefined' && CONFIG.smartReplySets) {
-        for (const set of CONFIG.smartReplySets) {
-            for (const keyword of set.keywords) {
-                if (cleanText.includes(keyword.toLowerCase())) {
-                    const answers = set.replies;
-                    return answers[Math.floor(Math.random() * answers.length)];
-                }
-            }
-        }
-    }
-
-    // 2. เช็คจาก brain.js (แก้ตรงนี้!)
+    // เช็คจาก brain.js อย่างเดียวเลย (รวมพลังมาแล้ว)
     if (typeof window.GENERAL_BRAIN !== 'undefined') {
         for (const set of window.GENERAL_BRAIN) {
             for (const keyword of set.keywords) {
                 if (cleanText.includes(keyword.toLowerCase())) {
-                    const answers = set.reply; // brain.js ใช้ key 'reply' (ไม่มี s)
+                    // ใช้ key 'reply' (ไม่มี s) ตามใน brain.js ใหม่
+                    const answers = set.reply;
                     return answers[Math.floor(Math.random() * answers.length)];
                 }
             }
         }
     }
     
-    // 3. ถ้าไม่เจอเลย
+    // ถ้าไม่เจอเลย ใช้คำตอบสำรองจาก Config
     if (typeof CONFIG !== 'undefined' && CONFIG.defaultReplies) {
         return CONFIG.defaultReplies[Math.floor(Math.random() * CONFIG.defaultReplies.length)];
     }
     
-    return "รักนะครับ"; 
+    return "รักนะครับ"; // กันเหนียวสุดๆ
 }
 
 // ==========================================
