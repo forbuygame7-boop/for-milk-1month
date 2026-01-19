@@ -46,12 +46,13 @@
     </div>
     <div class="music-controls">
         <div class="song-info">
-            <span id="song-name">🎵 เพลง: รวมเพลงรัก</span>
+            <span id="song-name">🎵 กำลังโหลดเพลง...</span>
         </div>
     </div>
-    <audio id="bg-music" loop>
-        <source src="lovesong.mp3" type="audio/mpeg">
-    </audio>
+    
+    <div id="youtube-player-container">
+        <div id="youtube-player"></div>
+    </div>
 </div>
 
 <style>
@@ -59,7 +60,7 @@
     .music-widget {
         position: fixed;
         bottom: 20px;
-        left: 20px; /* อยู่มุมซ้ายล่าง (คนละฝั่งกับแชท) */
+        left: 20px;
         z-index: 9999;
         display: flex;
         align-items: center;
@@ -84,7 +85,7 @@
     }
     
     .vinyl-record:hover {
-        transform: scale(1.1); /* ขยายตอนเอาเมาส์ชี้ */
+        transform: scale(1.1);
     }
 
     .vinyl-record img {
@@ -94,7 +95,6 @@
         object-fit: cover;
     }
 
-    /* อนิเมชั่นหมุนติ้วๆ */
     .spinning {
         animation: spin 3s linear infinite;
     }
@@ -112,12 +112,12 @@
         max-width: 150px;
         white-space: nowrap;
         overflow: hidden;
-        display: none; /* ซ่อนไว้ก่อน จะโชว์ตอนเล่นเพลง */
+        display: none;
     }
 
     .song-info span {
         display: inline-block;
-        animation: marquee 5s linear infinite; /* ตัวหนังสือวิ่ง */
+        animation: marquee 5s linear infinite;
         color: #ff4d4d;
         font-weight: bold;
         font-size: 14px;
@@ -127,33 +127,56 @@
         0% { transform: translateX(100%); }
         100% { transform: translateX(-100%); }
     }
+
+    /* ซ่อน YouTube Player ไม่ให้เห็น (เอาไปไว้นอกจอ) */
+    #youtube-player-container {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        visibility: hidden;
+    }
 </style>
 
 <script>
-    // JS ควบคุมเพลง
-    const music = document.getElementById('bg-music');
+    // --- ตั้งค่า ID เพลงตรงนี้ ---
+    // ตัวอย่างลิงก์: https://www.youtube.com/watch?v=kYQ8j4y2b3c
+    // ID คือตัวหลัง v= ก็คือ "kYQ8j4y2b3c"
+    const YOUTUBE_VIDEO_ID = "bZDIiBewKVE"; // <--- เปลี่ยน ID ตรงนี้!!!
+    const SONG_NAME = "🎵 เพลง: รวมเพลงรัก (YouTube)"; // <--- เปลี่ยนชื่อเพลงตรงนี้!!!
+
+    // ตัวแปรควบคุม
+    let player;
+    let isPlaying = false;
     const vinyl = document.querySelector('.vinyl-record');
     const info = document.querySelector('.music-controls');
-    let isPlaying = false;
+    const nameLabel = document.getElementById('song-name');
 
-    function toggleMusic() {
-        if (isPlaying) {
-            music.pause();
-            vinyl.classList.remove('spinning'); // หยุดหมุน
-            info.style.display = 'none'; // ซ่อนชื่อเพลง
-        } else {
-            music.play();
-            vinyl.classList.add('spinning'); // เริ่มหมุน
-            info.style.display = 'block'; // โชว์ชื่อเพลง
-        }
-        isPlaying = !isPlaying;
+    // โหลด YouTube IFrame API
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // ฟังก์ชันสร้าง Player เมื่อ API โหลดเสร็จ
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('youtube-player', {
+            height: '200',
+            width: '200',
+            videoId: YOUTUBE_VIDEO_ID,
+            playerVars: {
+                'playsinline': 1,
+                'controls': 0,
+                'loop': 1,
+                'playlist': YOUTUBE_VIDEO_ID // จำเป็นสำหรับ Loop
+            },
+            events: {
+                'onReady': onPlayerReady
+            }
+        });
     }
 
-    // พยายามเล่นอัตโนมัติเมื่อกดปุ่มหัวใจกลางจอ (เพราะ Browser บล็อก Auto-play)
-    document.getElementById('heartButton').addEventListener('click', function() {
-        if (!isPlaying) toggleMusic();
-    });
-</script>
+    function onPlayerReady(event) {
+        nameLabel.innerText = SONG_
 </body>
 
 </html>
