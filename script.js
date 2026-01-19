@@ -99,26 +99,27 @@ async function startFlashMessagesSequence() {
 }
 
 // ==========================================
-// 🐱 ระบบแมวเฝ้าหัวใจ (Naughty Cat AI)
+// 🐱 ระบบแมวเฝ้าหัวใจ (Updated for CSS Sprite)
 // ==========================================
-
-let catInterval;
 
 function initNaughtyCat() {
     const catContainer = document.getElementById('cat-container');
-    const catImg = document.getElementById('naughty-cat');
+    // เปลี่ยน id เป็นตัวใหม่
+    const catSprite = document.getElementById('naughty-cat-sprite');
     const speech = document.getElementById('cat-speech');
-    
-    // เริ่มต้นแมวอยู่ตรงกลาง
-    catContainer.style.top = '50%';
-    catContainer.style.left = '50%';
 
-    // สั่งให้แมวเริ่มเดิน
+    if (!catContainer || !catSprite) return; // ป้องกัน Error ถ้าหาไม่เจอ
+
+    // เริ่มต้นให้เดินเข้ามาจากนอกจอ
+    setTimeout(() => {
+        moveCatRandomly();
+    }, 500);
+
+    // สั่งให้แมวเริ่มเดินอัตโนมัติ
     startCatWalking();
 
     // เมื่อคลิกที่แมว (ไล่แมว)
-    catImg.addEventListener('click', function() {
-        // แมวร้อง (ใส่เสียงได้ถ้าต้องการ)
+    catSprite.addEventListener('click', function() {
         speech.innerText = "เมี๊ยว! อย่าจับเค้า 😾";
         speech.classList.remove('hidden');
         
@@ -132,57 +133,52 @@ function initNaughtyCat() {
 }
 
 function startCatWalking() {
-    // ให้แมวขยับทุกๆ 3 วินาที
-    catInterval = setInterval(() => {
-        const hearts = document.querySelectorAll('.hidden-heart'); // หาหัวใจทั้งหมดในจอ
+    // ให้แมวขยับทุกๆ 3.5 วินาที (ปรับเวลาให้สัมพันธ์กับความเร็วเดินใน CSS)
+    setInterval(() => {
+        const hearts = document.querySelectorAll('.hidden-heart');
         
-        // 50% ให้เดินไปหาหัวใจ, 50% เดินมั่ว
-        if (hearts.length > 0 && Math.random() > 0.5) {
-            // เลือกหัวใจมา 1 ดวงเพื่อไปนั่งทับ
+        // 60% เดินไปหาหัวใจ, 40% เดินเล่น
+        if (hearts.length > 0 && Math.random() > 0.4) {
             const targetHeart = hearts[Math.floor(Math.random() * hearts.length)];
             moveCatToElement(targetHeart);
         } else {
-            // เดินเล่นไปเรื่อย
             moveCatRandomly();
         }
-    }, 3000);
+    }, 3500);
 }
 
 function moveCatRandomly() {
-    const x = Math.random() * 80 + 10; // สุ่มตำแหน่ง 10-90%
-    const y = Math.random() * 80 + 10;
+    // สุ่มตำแหน่งที่ปลอดภัย (ไม่ชิดขอบเกินไป)
+    const x = Math.random() * 70 + 15; 
+    const y = Math.random() * 70 + 15;
     moveCat(x, y);
 }
 
 function moveCatToElement(element) {
-    // คำนวณตำแหน่งของหัวใจเป้าหมาย
+    if(!element) return;
     const rect = element.getBoundingClientRect();
-    
-    // แปลงเป็น % เพื่อให้เข้ากับ position fixed
+    // แปลงตำแหน่งหัวใจเป็น %
     const x = (rect.left / window.innerWidth) * 100;
     const y = (rect.top / window.innerHeight) * 100;
-    
-    // สั่งเดินไปทับ (ปรับลบเล็กน้อยเพื่อให้ตัวแมวอยู่ตรงกลางหัวใจ)
-    moveCat(x - 2, y - 5);
+    // เดินไปทับ (ปรับตำแหน่งให้แมวอยู่กึ่งกลางหัวใจพอดี)
+    moveCat(x - 2.5, y - 3);
 }
 
 function moveCat(x, y) {
     const catContainer = document.getElementById('cat-container');
-    const catImg = document.getElementById('naughty-cat');
+    const catSprite = document.getElementById('naughty-cat-sprite');
     
-    // เช็คว่าเดินไปซ้ายหรือขวา เพื่อหันหน้าแมว
+    // เช็คทิศทางเพื่อหันหน้าแมว
     const currentLeft = parseFloat(catContainer.style.left || 50);
-    
     if (x < currentLeft) {
-        catImg.classList.add('flip-cat'); // หันซ้าย
+        catSprite.classList.add('flip-cat'); // หันซ้าย
     } else {
-        catImg.classList.remove('flip-cat'); // หันขวา
+        catSprite.classList.remove('flip-cat'); // หันขวา
     }
 
     catContainer.style.left = x + '%';
     catContainer.style.top = y + '%';
 }
 
-// เรียกใช้งานแมวตอนโหลดหน้าเว็บ
-// (เพิ่มบรรทัดนี้ต่อท้าย window.onload เดิม หรือเรียกตรงนี้เลยก็ได้)
-setTimeout(initNaughtyCat, 1000); // รอ 1 วิให้เว็บโหลดเสร็จค่อยปล่อยแมว
+// เรียกใช้งาน
+setTimeout(initNaughtyCat, 1000);
