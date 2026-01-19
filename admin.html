@@ -45,8 +45,14 @@
         
         // อย่าลืมเอา firebaseConfig ของตัวเองมาใส่นะ!
         const firebaseConfig = {
-            // ... (ใส่ Config แบบเดียวกับไฟล์ config.js) ...
-        };
+        apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
+        authDomain: "love-chat-1month.firebaseapp.com",
+        databaseURL: "https://love-chat-1month-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "love-chat-1month",
+        storageBucket: "love-chat-1month.firebasestorage.app",
+        messagingSenderId: "434980133810",
+        appId: "1:434980133810:web:12929b8f2843dd07c162ab"
+    };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
