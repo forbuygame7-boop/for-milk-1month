@@ -40,6 +40,8 @@
     <script src="config.js"></script>
     <script src="brain.js"></script> <script src="script.js"></script>
     <script type="module" src="chat-core.js"></script>
+
+    
     <div id="music-widget" class="music-widget">
     <div class="vinyl-record" onclick="toggleMusic()">
         <img id="music-cover" src="https://static.vecteezy.com/system/resources/previews/009/428/325/non_2x/3d-social-media-icons-music-free-png.png" alt="Music">
@@ -82,6 +84,7 @@
         justify-content: center;
         align-items: center;
         transition: transform 0.2s;
+        animation: none; /* เริ่มต้นยังไม่หมุน */
     }
     
     .vinyl-record:hover {
@@ -96,7 +99,7 @@
     }
 
     .spinning {
-        animation: spin 3s linear infinite;
+        animation: spin 3s linear infinite !important;
     }
 
     @keyframes spin {
@@ -112,7 +115,7 @@
         max-width: 150px;
         white-space: nowrap;
         overflow: hidden;
-        display: none;
+        display: none; /* ซ่อนตอนแรก */
     }
 
     .song-info span {
@@ -139,10 +142,8 @@
 
 <script>
     // --- ตั้งค่า ID เพลงตรงนี้ ---
-    // ตัวอย่างลิงก์: https://www.youtube.com/watch?v=kYQ8j4y2b3c
-    // ID คือตัวหลัง v= ก็คือ "kYQ8j4y2b3c"
-    const YOUTUBE_VIDEO_ID = "bZDIiBewKVE"; // <--- เปลี่ยน ID ตรงนี้!!!
-    const SONG_NAME = "🎵 เพลง: รวมเพลงรัก (YouTube)"; // <--- เปลี่ยนชื่อเพลงตรงนี้!!!
+    const YOUTUBE_VIDEO_ID = "bZDIiBewKVE"; // เพลงรักความหมายดี
+    const SONG_NAME = "🎵 เพลง: รวมเพลงรัก (YouTube)"; 
 
     // ตัวแปรควบคุม
     let player;
@@ -176,10 +177,47 @@
     }
 
     function onPlayerReady(event) {
-        nameLabel.innerText = SONG_
+        nameLabel.innerText = SONG_NAME;
+        // ปรับความดัง (0-100)
+        event.target.setVolume(70);
+        console.log("Music Player Ready!");
+    }
+
+    function toggleMusic() {
+        if (!player || !player.playVideo) {
+            console.log("Player not ready yet...");
+            return; 
+        }
+
+        if (isPlaying) {
+            player.pauseVideo();
+            vinyl.classList.remove('spinning');
+            info.style.display = 'none';
+        } else {
+            player.playVideo();
+            vinyl.classList.add('spinning');
+            info.style.display = 'block';
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // ดักจับการกดปุ่มหัวใจ ให้เพลงเล่นด้วย (ถ้ายังไม่เล่น)
+    // ใช้ setTimeout เพื่อให้แน่ใจว่า script.js โหลดเสร็จก่อน
+    setTimeout(() => {
+        const heartBtn = document.getElementById('heartButton');
+        if(heartBtn) {
+            heartBtn.addEventListener('click', function() {
+                if (!isPlaying && player && player.playVideo) {
+                    toggleMusic();
+                }
+            });
+        }
+    }, 1000);
+</script>
 </body>
 
 </html>
+
 
 
 
