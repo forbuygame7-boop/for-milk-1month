@@ -127,66 +127,124 @@ h1 {
 }
 
 /* =========================================
-   🐱 CSS แมวเฝ้าหัวใจ (Sprite Animation)
+   🐱 CSS น้องแมวฉบับเขียนโค้ดเอง (ไม่ใช้รูป)
    ========================================= */
 
-/* กล่องคอนเทนเนอร์ (ตัวกำหนดตำแหน่งบนจอ) */
+/* กล่องรวม (ตัวที่วิ่งไปมา) */
 #cat-container {
     position: fixed;
     z-index: 998;
-    pointer-events: none; /* คลิกทะลุกล่องนี้ */
-    /* ใช้ linear เพื่อให้เดินด้วยความเร็วคงที่ ดูธรรมชาติกว่า */
-    transition: top 2.5s linear, left 2.5s linear;
-    width: 64px;  /* ขนาดของตัวแมว 1 เฟรม */
-    height: 64px;
-    /* เริ่มต้นอยู่นอกจอ */
-    top: -100px;
-    left: -100px;
+    width: 80px;
+    height: 80px;
+    transition: top 2.5s linear, left 2.5s linear; /* เดินนุ่มๆ */
+    pointer-events: none; /* คลิกทะลุกล่อง */
+    top: 50%; left: 50%; /* เริ่มต้นกลางจอ */
 }
 
-/* ตัวแมว (ส่วนที่ขยับขา) */
-#naughty-cat-sprite {
-    width: 100%;
-    height: 100%;
-    /* รูป Sprite Sheet แมวเดิน (เครดิต: OpenGameArt) */
-    background-image: url('https://i.imgur.com/CecGf07.png');
-    background-repeat: no-repeat;
-    /* ดึงภาพให้คมชัดแบบ Pixel Art */ image-rendering: pixelated;
-    
-    /* --- หัวใจสำคัญของ Animation --- */
-    /* ชื่อ keyframe | เวลาครบ 1 รอบ | จำนวนท่าเดิน (8 ท่า) | วนซ้ำตลอด */
-    animation: cat-walk 0.8s steps(8) infinite;
-    
+/* ตัวแมว (ก้อนกลมๆ สีดำ) */
+#naughty-cat-body {
+    width: 60px;
+    height: 50px;
+    background: #333; /* สีตัวแมว (เทาเข้มเกือบดำ) */
+    border-radius: 50px 50px 40px 40px; /* ทำให้มนๆ */
+    position: relative;
     cursor: grab;
-    pointer-events: auto; /* ตัวแมวคลิกได้ */
+    pointer-events: auto; /* ให้ตัวแมวกดได้ */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    /* อนิเมชั่นตัวเด้งดึ๋งๆ */
+    animation: cat-bounce 0.6s infinite alternate ease-in-out;
 }
 
-/* Keyframes สั่งให้เลื่อนรูปพื้นหลังไปเรื่อยๆ */
-@keyframes cat-walk {
-    from { background-position: 0 0; }
-    to { background-position: -512px 0; } /* เลื่อนไปจนสุดความยาวรูป */
+/* หูแมว */
+.cat-ear {
+    position: absolute;
+    top: -15px;
+    width: 0; height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid #333; /* สีเดียวกับตัว */
+}
+.cat-ear.left { left: 5px; transform: rotate(-15deg); }
+.cat-ear.right { right: 5px; transform: rotate(15deg); }
+
+/* ตาแมว (กระพริบได้) */
+.cat-eye {
+    position: absolute;
+    top: 18px;
+    width: 6px; height: 6px;
+    background: white;
+    border-radius: 50%;
+    animation: cat-blink 4s infinite;
+}
+.cat-eye.left { left: 15px; }
+.cat-eye.right { right: 15px; }
+
+/* จมูก */
+.cat-nose {
+    position: absolute;
+    top: 25px; left: 28px;
+    width: 4px; height: 3px;
+    background: pink;
+    border-radius: 50%;
+}
+
+/* หาง (กระดิกได้) */
+.cat-tail {
+    position: absolute;
+    bottom: 10px; right: -20px;
+    width: 30px; height: 8px;
+    background: #333;
+    border-radius: 10px;
+    transform-origin: left center;
+    animation: tail-wag 1s infinite alternate;
+}
+
+/* ขา (ขยับนิดหน่อยให้ดูเหมือนเดิน) */
+.cat-leg {
+    position: absolute;
+    bottom: -5px;
+    width: 8px; height: 12px;
+    background: #333;
+    border-radius: 5px;
+    animation: leg-walk 0.6s infinite alternate;
+}
+.cat-leg.front { left: 15px; }
+.cat-leg.back { right: 15px; animation-delay: 0.3s; }
+
+/* --- รวมท่าทาง Animation --- */
+@keyframes cat-bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-4px); } /* ตัวลอยขึ้นลง */
+}
+@keyframes tail-wag {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(25deg); } /* หางกระดิก */
+}
+@keyframes cat-blink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); } /* ตากระพริบ */
+}
+@keyframes leg-walk {
+    from { transform: translateY(0); }
+    to { transform: translateY(-3px); }
 }
 
 /* กล่องคำพูด (เหมือนเดิม) */
 #cat-speech {
     position: absolute;
-    top: -35px;
-    left: 50%;
+    top: -40px; left: 50%;
     transform: translateX(-50%);
-    background: rgba(255,255,255,0.95);
-    padding: 4px 8px;
-    border-radius: 8px;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: bold;
     color: #333;
-    border: 1px solid #333;
+    border: 2px solid #333;
     white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 2000;
 }
-
 #cat-speech.hidden { display: none; }
 
-/* คลาสสำหรับกลับด้านแมว (หันซ้าย) */
-.flip-cat {
-    transform: scaleX(-1);
-}
+/* คลาสกลับด้าน (หันซ้าย/ขวา) */
+.flip-cat { transform: scaleX(-1); }
