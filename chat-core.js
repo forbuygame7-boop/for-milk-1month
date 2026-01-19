@@ -254,10 +254,12 @@ window.sendUserMessage = function() {
 // ==========================================
 // 5. สมองบอท (Brain & Keywords)
 // ==========================================
+// ใน chat-core.js ค้นหาฟังก์ชัน getSmartReply แล้วแก้ตามนี้
+
 function getSmartReply(text) {
     const cleanText = text.toLowerCase().trim();
 
-    // 1. เช็คจาก config.js (ข้อมูลเฉพาะของคุณ)
+    // 1. เช็คจาก config.js
     if (typeof CONFIG !== 'undefined' && CONFIG.smartReplySets) {
         for (const set of CONFIG.smartReplySets) {
             for (const keyword of set.keywords) {
@@ -269,13 +271,12 @@ function getSmartReply(text) {
         }
     }
 
-    // 2. เช็คจาก brain.js (แก้ตรงนี้ให้เรียกผ่าน window)
+    // 2. เช็คจาก brain.js (แก้ตรงนี้!)
     if (typeof window.GENERAL_BRAIN !== 'undefined') {
         for (const set of window.GENERAL_BRAIN) {
             for (const keyword of set.keywords) {
                 if (cleanText.includes(keyword.toLowerCase())) {
-                    // ใน brain.js เราใช้ key ชื่อ 'reply' (ไม่มี s)
-                    const answers = set.reply;
+                    const answers = set.reply; // brain.js ใช้ key 'reply' (ไม่มี s)
                     return answers[Math.floor(Math.random() * answers.length)];
                 }
             }
@@ -287,7 +288,7 @@ function getSmartReply(text) {
         return CONFIG.defaultReplies[Math.floor(Math.random() * CONFIG.defaultReplies.length)];
     }
     
-    return "รักนะครับ"; // กันเหนียวสุดๆ
+    return "รักนะครับ"; 
 }
 
 // ==========================================
