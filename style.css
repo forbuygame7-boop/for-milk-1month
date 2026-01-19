@@ -275,3 +275,97 @@ h1 {
         opacity: 0;
     }
 }
+
+/* =========================================
+   📸 CSS แกลเลอรี่โพลารอยด์ (Popup Modal)
+   ========================================= */
+
+/* พื้นหลังสีดำจางๆ (Overlay) */
+.modal {
+    position: fixed;
+    z-index: 2000; /* อยู่บนสุด ทับทุกอย่าง */
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.8); /* สีดำโปร่งแสง 80% */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease; /* เอฟเฟกต์ค่อยๆ โผล่ */
+}
+
+/* แสดงหน้าต่างเมื่อมี class 'show' */
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* กล่องเนื้อหาข้างใน */
+.modal-content {
+    background-color: #fff0f5; /* สีชมพูอ่อนมากๆ */
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px; /* ไม่ให้กว้างเกินไป */
+    max-height: 80vh; /* สูงไม่เกิน 80% ของจอ */
+    overflow-y: auto; /* ถ้าเนื้อหายาว ให้เลื่อนได้ */
+    position: relative;
+    box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+    text-align: center;
+    transform: scale(0.7);
+    transition: transform 0.3s ease;
+}
+
+.modal.show .modal-content {
+    transform: scale(1); /* เด้งขยายขนาด */
+}
+
+/* ปุ่มปิด (X) */
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 15px; top: 5px;
+}
+.close-btn:hover { color: #000; }
+
+/* --- โพลารอยด์ --- */
+.polaroid-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.polaroid-item {
+    background: white;
+    padding: 10px 10px 0 10px; /* ขอบขาวเหมือนโพลารอยด์ */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    width: 80%;
+    transition: transform 0.3s;
+}
+.polaroid-item:hover {
+    transform: scale(1.05) rotate(0deg) !important; /* เอาเมาส์ชี้แล้วรูปตรง */
+    z-index: 10;
+}
+
+.polaroid-item img {
+    width: 100%;
+    border-bottom: 1px solid #eee;
+}
+
+.polaroid-item p {
+    font-family: 'Sarabun', sans-serif; /* ฟอนต์ลายมือจะสวยมาก */
+    color: #555;
+    margin: 10px 0;
+    font-size: 0.9rem;
+}
+
+/* เอียงซ้ายขวาเพิ่มลูกเล่น */
+.rotate-left { transform: rotate(-3deg); }
+.rotate-right { transform: rotate(3deg); }
