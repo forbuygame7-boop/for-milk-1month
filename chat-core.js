@@ -269,11 +269,12 @@ function getSmartReply(text) {
         }
     }
 
-    // 2. เช็คจาก brain.js (ข้อมูลทั่วไป)
-    if (typeof GENERAL_BRAIN !== 'undefined') {
-        for (const set of GENERAL_BRAIN) {
+    // 2. เช็คจาก brain.js (แก้ตรงนี้ให้เรียกผ่าน window)
+    if (typeof window.GENERAL_BRAIN !== 'undefined') {
+        for (const set of window.GENERAL_BRAIN) {
             for (const keyword of set.keywords) {
                 if (cleanText.includes(keyword.toLowerCase())) {
+                    // ใน brain.js เราใช้ key ชื่อ 'reply' (ไม่มี s)
                     const answers = set.reply;
                     return answers[Math.floor(Math.random() * answers.length)];
                 }
@@ -286,9 +287,8 @@ function getSmartReply(text) {
         return CONFIG.defaultReplies[Math.floor(Math.random() * CONFIG.defaultReplies.length)];
     }
     
-    
+    return "รักนะครับ"; // กันเหนียวสุดๆ
 }
-
 
 // ==========================================
 // 6. ฟังก์ชันเสริม (UI Utility)
