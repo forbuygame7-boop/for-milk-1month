@@ -95,4 +95,94 @@ async function startFlashMessagesSequence() {
         await new Promise(resolve => setTimeout(resolve, 500));
         box.remove();
     }
+
 }
+
+// ==========================================
+// 🐱 ระบบแมวเฝ้าหัวใจ (Naughty Cat AI)
+// ==========================================
+
+let catInterval;
+
+function initNaughtyCat() {
+    const catContainer = document.getElementById('cat-container');
+    const catImg = document.getElementById('naughty-cat');
+    const speech = document.getElementById('cat-speech');
+    
+    // เริ่มต้นแมวอยู่ตรงกลาง
+    catContainer.style.top = '50%';
+    catContainer.style.left = '50%';
+
+    // สั่งให้แมวเริ่มเดิน
+    startCatWalking();
+
+    // เมื่อคลิกที่แมว (ไล่แมว)
+    catImg.addEventListener('click', function() {
+        // แมวร้อง (ใส่เสียงได้ถ้าต้องการ)
+        speech.innerText = "เมี๊ยว! อย่าจับเค้า 😾";
+        speech.classList.remove('hidden');
+        
+        // แมวตกใจหนีไปที่อื่นทันที
+        moveCatRandomly();
+        
+        setTimeout(() => {
+            speech.classList.add('hidden');
+        }, 1500);
+    });
+}
+
+function startCatWalking() {
+    // ให้แมวขยับทุกๆ 3 วินาที
+    catInterval = setInterval(() => {
+        const hearts = document.querySelectorAll('.hidden-heart'); // หาหัวใจทั้งหมดในจอ
+        
+        // 50% ให้เดินไปหาหัวใจ, 50% เดินมั่ว
+        if (hearts.length > 0 && Math.random() > 0.5) {
+            // เลือกหัวใจมา 1 ดวงเพื่อไปนั่งทับ
+            const targetHeart = hearts[Math.floor(Math.random() * hearts.length)];
+            moveCatToElement(targetHeart);
+        } else {
+            // เดินเล่นไปเรื่อย
+            moveCatRandomly();
+        }
+    }, 3000);
+}
+
+function moveCatRandomly() {
+    const x = Math.random() * 80 + 10; // สุ่มตำแหน่ง 10-90%
+    const y = Math.random() * 80 + 10;
+    moveCat(x, y);
+}
+
+function moveCatToElement(element) {
+    // คำนวณตำแหน่งของหัวใจเป้าหมาย
+    const rect = element.getBoundingClientRect();
+    
+    // แปลงเป็น % เพื่อให้เข้ากับ position fixed
+    const x = (rect.left / window.innerWidth) * 100;
+    const y = (rect.top / window.innerHeight) * 100;
+    
+    // สั่งเดินไปทับ (ปรับลบเล็กน้อยเพื่อให้ตัวแมวอยู่ตรงกลางหัวใจ)
+    moveCat(x - 2, y - 5);
+}
+
+function moveCat(x, y) {
+    const catContainer = document.getElementById('cat-container');
+    const catImg = document.getElementById('naughty-cat');
+    
+    // เช็คว่าเดินไปซ้ายหรือขวา เพื่อหันหน้าแมว
+    const currentLeft = parseFloat(catContainer.style.left || 50);
+    
+    if (x < currentLeft) {
+        catImg.classList.add('flip-cat'); // หันซ้าย
+    } else {
+        catImg.classList.remove('flip-cat'); // หันขวา
+    }
+
+    catContainer.style.left = x + '%';
+    catContainer.style.top = y + '%';
+}
+
+// เรียกใช้งานแมวตอนโหลดหน้าเว็บ
+// (เพิ่มบรรทัดนี้ต่อท้าย window.onload เดิม หรือเรียกตรงนี้เลยก็ได้)
+setTimeout(initNaughtyCat, 1000); // รอ 1 วิให้เว็บโหลดเสร็จค่อยปล่อยแมว
