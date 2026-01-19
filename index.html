@@ -20,31 +20,21 @@
             <button id="heartButton" class="heart-btn">❤️ กดตรงนี้จิ</button>
             <p id="messageDisplay" class="fade-in">...</p>
         </div>
-
         
         <footer id="footerText"></footer>
         
-        <div style="margin-top: 30px;">
-            <a href="letter.html" style="text-decoration: none; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 10px 20px; border-radius: 20px;">
+        <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 15px;">
+            <a href="letter.html" style="text-decoration: none; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 10px 20px; border-radius: 20px; display: inline-block;">
                 ✉️ เปิดจดหมายลับ (สำหรับมิ้ว)
             </a>
-        </div>
-
-    </div>
-
-
-    <div style="margin-top: 15px;"> <a href="letter.html" style="text-decoration: none; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 10px 20px; border-radius: 20px; display: inline-block; margin-bottom: 10px;">
-                ✉️ เปิดจดหมายลับ
-            </a>
-            <br>
-            <button id="galleryBtn" style="background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 1rem;">
+            
+            <button id="galleryBtn" style="background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 1rem; border: 1px solid #ff4d4d;">
                 📸 ดูรูปคู่ของเรา
             </button>
         </div>
+    </div>
 
-        
-   
-       <div id="heart-hunt-container"></div>
+    <div id="heart-hunt-container"></div>
     <div id="flash-message-container"></div>
 
     <div id="cat-container">
@@ -60,185 +50,6 @@
         </div>
         <div id="cat-speech" class="hidden">ห้ามจับ! 😼</div>
     </div>
-    <script src="config.js"></script>
-    
-    <script src="config.js"></script>
-    <script src="brain.js"></script> <script src="script.js"></script>
-    <script type="module" src="chat-core.js"></script>
-
-    
-    <div id="music-widget" class="music-widget">
-    <div class="vinyl-record" onclick="toggleMusic()">
-        <img id="music-cover" src="https://static.vecteezy.com/system/resources/previews/009/428/325/non_2x/3d-social-media-icons-music-free-png.png" alt="Music">
-    </div>
-    <div class="music-controls">
-        <div class="song-info">
-            <span id="song-name">🎵 กำลังโหลดเพลง...</span>
-        </div>
-    </div>
-    
-    <div id="youtube-player-container">
-        <div id="youtube-player"></div>
-    </div>
-</div>
-
-<style>
-    /* CSS แต่งเครื่องเล่นเพลง */
-    .music-widget {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: 'Sarabun', sans-serif;
-    }
-
-    /* แผ่นเสียง */
-    .vinyl-record {
-        width: 60px;
-        height: 60px;
-        background: #333;
-        border-radius: 50%;
-        border: 4px solid #fff;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        cursor: pointer;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: transform 0.2s;
-        animation: none; /* เริ่มต้นยังไม่หมุน */
-    }
-    
-    .vinyl-record:hover {
-        transform: scale(1.1);
-    }
-
-    .vinyl-record img {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .spinning {
-        animation: spin 3s linear infinite !important;
-    }
-
-    @keyframes spin {
-        100% { transform: rotate(360deg); }
-    }
-
-    /* กล่องชื่อเพลง */
-    .music-controls {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 8px 15px;
-        border-radius: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        max-width: 150px;
-        white-space: nowrap;
-        overflow: hidden;
-        display: none; /* ซ่อนตอนแรก */
-    }
-
-    .song-info span {
-        display: inline-block;
-        animation: marquee 5s linear infinite;
-        color: #ff4d4d;
-        font-weight: bold;
-        font-size: 14px;
-    }
-
-    @keyframes marquee {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-    }
-
-    /* ซ่อน YouTube Player ไม่ให้เห็น (เอาไปไว้นอกจอ) */
-    #youtube-player-container {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-        visibility: hidden;
-    }
-</style>
-
-<script>
-    // --- ตั้งค่า ID เพลงตรงนี้ ---
-    const YOUTUBE_VIDEO_ID = "bZDIiBewKVE"; // เพลงรักความหมายดี
-    const SONG_NAME = "🎵 เพลง: รวมเพลงรัก (YouTube)"; 
-
-    // ตัวแปรควบคุม
-    let player;
-    let isPlaying = false;
-    const vinyl = document.querySelector('.vinyl-record');
-    const info = document.querySelector('.music-controls');
-    const nameLabel = document.getElementById('song-name');
-
-    // โหลด YouTube IFrame API
-    var tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-    // ฟังก์ชันสร้าง Player เมื่อ API โหลดเสร็จ
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('youtube-player', {
-            height: '200',
-            width: '200',
-            videoId: YOUTUBE_VIDEO_ID,
-            playerVars: {
-                'playsinline': 1,
-                'controls': 0,
-                'loop': 1,
-                'playlist': YOUTUBE_VIDEO_ID // จำเป็นสำหรับ Loop
-            },
-            events: {
-                'onReady': onPlayerReady
-            }
-        });
-    }
-
-    function onPlayerReady(event) {
-        nameLabel.innerText = SONG_NAME;
-        // ปรับความดัง (0-100)
-        event.target.setVolume(70);
-        console.log("Music Player Ready!");
-    }
-
-    function toggleMusic() {
-        if (!player || !player.playVideo) {
-            console.log("Player not ready yet...");
-            return; 
-        }
-
-        if (isPlaying) {
-            player.pauseVideo();
-            vinyl.classList.remove('spinning');
-            info.style.display = 'none';
-        } else {
-            player.playVideo();
-            vinyl.classList.add('spinning');
-            info.style.display = 'block';
-        }
-        isPlaying = !isPlaying;
-    }
-
-    // ดักจับการกดปุ่มหัวใจ ให้เพลงเล่นด้วย (ถ้ายังไม่เล่น)
-    // ใช้ setTimeout เพื่อให้แน่ใจว่า script.js โหลดเสร็จก่อน
-    setTimeout(() => {
-        const heartBtn = document.getElementById('heartButton');
-        if(heartBtn) {
-            heartBtn.addEventListener('click', function() {
-                if (!isPlaying && player && player.playVideo) {
-                    toggleMusic();
-                }
-            });
-        }
-    }, 1000);
-</script>
 
     <div id="gallery-modal" class="modal hidden">
         <div class="modal-content">
@@ -247,23 +58,23 @@
             
             <div class="polaroid-grid">
                 <div class="polaroid-item rotate-left">
-                    <img src="uploads\3ea3e7dc-8b14-4e33-af38-9d4aab88efc2.jpg" alt="Photo 1">
+                    <img src="uploads/3ea3e7dc-8b14-4e33-af38-9d4aab88efc2.jpg" alt="Photo 1">
                     <p>กินเตี๋ยวว</p>
                 </div>
                 <div class="polaroid-item rotate-right">
-                    <img src="uploads\04a2f1a0-99d2-4864-91f8-c91d3b6280c1.jpg" alt="Photo 2">
+                    <img src="uploads/04a2f1a0-99d2-4864-91f8-c91d3b6280c1.jpg" alt="Photo 2">
                     <p>มิ้วสวยที่สุดในโลกก</p>
                 </div>
                 <div class="polaroid-item rotate-left">
-                    <img src="uploads\1768581316_3a5b7ab0-fad4-49af-8619-2a88901f536d.jpg" alt="Photo 3">
+                    <img src="uploads/1768581316_3a5b7ab0-fad4-49af-8619-2a88901f536d.jpg" alt="Photo 3">
                     <p>ครั้งแรกที่ได้อยู่ใกล้กัน</p>
                 </div>
                 <div class="polaroid-item rotate-right">
-                    <img src="uploads\2a413912-9f48-470d-94eb-425f32586571.jpg" alt="Photo 4">
+                    <img src="uploads/2a413912-9f48-470d-94eb-425f32586571.jpg" alt="Photo 4">
                     <p>ร้องเพลง With Milk</p>
                 </div>
                 <div class="polaroid-item rotate-left">
-                    <img src="uploads\d2ba1074-52de-4938-97f4-ef2950019849.jpg" alt="Photo 4">
+                    <img src="uploads/d2ba1074-52de-4938-97f4-ef2950019849.jpg" alt="Photo 5">
                     <p>@ Milk House</p>
                 </div>
                 <div class="polaroid-item rotate-right">
@@ -281,19 +92,108 @@
             </div>
         </div>
     </div>
-    
-</body>    
 
+    <div id="music-widget" class="music-widget">
+        <div class="vinyl-record" onclick="toggleMusic()">
+            <img id="music-cover" src="https://static.vecteezy.com/system/resources/previews/009/428/325/non_2x/3d-social-media-icons-music-free-png.png" alt="Music">
+        </div>
+        <div class="music-controls">
+            <div class="song-info">
+                <span id="song-name">🎵 กำลังโหลดเพลง...</span>
+            </div>
+        </div>
+        
+        <div id="youtube-player-container">
+            <div id="youtube-player"></div>
+        </div>
+    </div>
+
+    <style>
+        .music-widget {
+            position: fixed; bottom: 20px; left: 20px; z-index: 9999;
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'Sarabun', sans-serif;
+        }
+        .vinyl-record {
+            width: 60px; height: 60px; background: #333;
+            border-radius: 50%; border: 4px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer;
+            position: relative; display: flex;
+            justify-content: center; align-items: center;
+            transition: transform 0.2s; animation: none;
+        }
+        .vinyl-record:hover { transform: scale(1.1); }
+        .vinyl-record img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .spinning { animation: spin 3s linear infinite !important; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .music-controls {
+            background: rgba(255, 255, 255, 0.9); padding: 8px 15px;
+            border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 150px; white-space: nowrap; overflow: hidden; display: none;
+        }
+        .song-info span {
+            display: inline-block; animation: marquee 5s linear infinite;
+            color: #ff4d4d; font-weight: bold; font-size: 14px;
+        }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        
+        /* ซ่อน YouTube 100% */
+        #youtube-player-container {
+            position: fixed; top: 0; left: 0;
+            width: 1px; height: 1px; opacity: 0;
+            pointer-events: none; z-index: -100;
+            visibility: hidden;
+        }
+    </style>
+
+    <script>
+        const YOUTUBE_VIDEO_ID = "qngCJf9V6g8"; // เปลี่ยนเป็นเพลง Canon in D (Piano) เพราะเพลงเก่าอาจโดนบล็อก
+        const SONG_NAME = "🎵 เพลง: รวมเพลงรัก"; 
+
+        let player;
+        let isPlaying = false;
+        const vinyl = document.querySelector('.vinyl-record');
+        const info = document.querySelector('.music-controls');
+        const nameLabel = document.getElementById('song-name');
+
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '200', width: '200', videoId: YOUTUBE_VIDEO_ID,
+                playerVars: { 'playsinline': 1, 'controls': 0, 'loop': 1, 'playlist': YOUTUBE_VIDEO_ID },
+                events: { 'onReady': onPlayerReady }
+            });
+        }
+        function onPlayerReady(event) {
+            nameLabel.innerText = SONG_NAME;
+            event.target.setVolume(70);
+        }
+        function toggleMusic() {
+            if (!player || !player.playVideo) return;
+            if (isPlaying) {
+                player.pauseVideo();
+                vinyl.classList.remove('spinning');
+                info.style.display = 'none';
+            } else {
+                player.playVideo();
+                vinyl.classList.add('spinning');
+                info.style.display = 'block';
+            }
+            isPlaying = !isPlaying;
+        }
+        setTimeout(() => {
+            const heartBtn = document.getElementById('heartButton');
+            if(heartBtn) heartBtn.addEventListener('click', () => { if(!isPlaying && player) toggleMusic(); });
+        }, 1000);
+    </script>
+
+    <script src="config.js"></script>
+    <script src="brain.js"></script> 
+    <script src="script.js"></script> <script type="module" src="chat-core.js"></script>
+
+</body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
