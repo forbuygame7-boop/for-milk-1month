@@ -15,8 +15,8 @@ const firebaseConfig = {
   projectId: "love-chat-1month",
   storageBucket: "love-chat-1month.firebasestorage.app",
   messagingSenderId: "434980133810",
-  appId: "1:434980133810:web:12929b8f2843dd07c162ab",
-  measurementId: "G-XGG056KNF0"
+  appId: "1:434980133810:web:12929b8f2843dd07c162ab"
+  
 };
 
 // เริ่มต้นระบบ Firebase
