@@ -286,7 +286,7 @@ function getSmartReply(text) {
         return CONFIG.defaultReplies[Math.floor(Math.random() * CONFIG.defaultReplies.length)];
     }
     
-    return "รักนะครับ"; // กันเหนียวสุดๆ
+    
 }
 
 
