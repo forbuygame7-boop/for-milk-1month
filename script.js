@@ -99,31 +99,41 @@ async function startFlashMessagesSequence() {
 }
 
 // ==========================================
-// 🐱 ระบบแมวเฝ้าหัวใจ (Updated for CSS Sprite)
+// 🐱 ระบบแมวเฝ้าหัวใจ (เวอร์ชั่นแมวโค้ด CSS)
 // ==========================================
 
 function initNaughtyCat() {
     const catContainer = document.getElementById('cat-container');
-    // เปลี่ยน id เป็นตัวใหม่
-    const catSprite = document.getElementById('naughty-cat-sprite');
+    // เปลี่ยนจาก cat-sprite เป็น cat-body
+    const catBody = document.getElementById('naughty-cat-body'); 
     const speech = document.getElementById('cat-speech');
 
-    if (!catContainer || !catSprite) return; // ป้องกัน Error ถ้าหาไม่เจอ
+    if (!catContainer || !catBody) return; 
 
-    // เริ่มต้นให้เดินเข้ามาจากนอกจอ
+    // เริ่มต้นให้เดินเข้ามา
     setTimeout(() => {
         moveCatRandomly();
-    }, 500);
+    }, 1000);
 
-    // สั่งให้แมวเริ่มเดินอัตโนมัติ
-    startCatWalking();
+    // สั่งให้แมวเดินทุกๆ 3.5 วิ
+    setInterval(() => {
+        const hearts = document.querySelectorAll('.hidden-heart');
+        
+        // 60% เดินไปกวนหัวใจ, 40% เดินเล่น
+        if (hearts.length > 0 && Math.random() > 0.4) {
+            const targetHeart = hearts[Math.floor(Math.random() * hearts.length)];
+            moveCatToElement(targetHeart);
+        } else {
+            moveCatRandomly();
+        }
+    }, 3500);
 
     // เมื่อคลิกที่แมว (ไล่แมว)
-    catSprite.addEventListener('click', function() {
+    catBody.addEventListener('click', function() {
         speech.innerText = "เมี๊ยว! อย่าจับเค้า 😾";
         speech.classList.remove('hidden');
         
-        // แมวตกใจหนีไปที่อื่นทันที
+        // แมวตกใจหนีไปที่อื่น
         moveCatRandomly();
         
         setTimeout(() => {
@@ -132,23 +142,7 @@ function initNaughtyCat() {
     });
 }
 
-function startCatWalking() {
-    // ให้แมวขยับทุกๆ 3.5 วินาที (ปรับเวลาให้สัมพันธ์กับความเร็วเดินใน CSS)
-    setInterval(() => {
-        const hearts = document.querySelectorAll('.hidden-heart');
-        
-        // 60% เดินไปหาหัวใจ, 40% เดินเล่น
-        if (hearts.length > 0 && Math.random() > 0.4) {
-            const targetHeart = hearts[Math.floor(Math.random() * hearts.length)];
-            moveCatToElement(targetHeart);
-        } else {
-            moveCatRandomly();
-        }
-    }, 3500);
-}
-
 function moveCatRandomly() {
-    // สุ่มตำแหน่งที่ปลอดภัย (ไม่ชิดขอบเกินไป)
     const x = Math.random() * 70 + 15; 
     const y = Math.random() * 70 + 15;
     moveCat(x, y);
@@ -157,23 +151,22 @@ function moveCatRandomly() {
 function moveCatToElement(element) {
     if(!element) return;
     const rect = element.getBoundingClientRect();
-    // แปลงตำแหน่งหัวใจเป็น %
     const x = (rect.left / window.innerWidth) * 100;
     const y = (rect.top / window.innerHeight) * 100;
-    // เดินไปทับ (ปรับตำแหน่งให้แมวอยู่กึ่งกลางหัวใจพอดี)
-    moveCat(x - 2.5, y - 3);
+    // ปรับตำแหน่งให้ทับพอดี
+    moveCat(x - 2, y - 2);
 }
 
 function moveCat(x, y) {
     const catContainer = document.getElementById('cat-container');
-    const catSprite = document.getElementById('naughty-cat-sprite');
+    const catBody = document.getElementById('naughty-cat-body');
     
-    // เช็คทิศทางเพื่อหันหน้าแมว
+    // หันหน้าแมว
     const currentLeft = parseFloat(catContainer.style.left || 50);
     if (x < currentLeft) {
-        catSprite.classList.add('flip-cat'); // หันซ้าย
+        catBody.classList.add('flip-cat'); // หันซ้าย
     } else {
-        catSprite.classList.remove('flip-cat'); // หันขวา
+        catBody.classList.remove('flip-cat'); // หันขวา
     }
 
     catContainer.style.left = x + '%';
