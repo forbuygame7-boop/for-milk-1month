@@ -40,6 +40,121 @@
     <script src="config.js"></script>
     <script src="brain.js"></script> <script src="script.js"></script>
     <script type="module" src="chat-core.js"></script>
+    <div id="music-widget" class="music-widget">
+    <div class="vinyl-record" onclick="toggleMusic()">
+        <img id="music-cover" src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="Music">
+    </div>
+    <div class="music-controls">
+        <div class="song-info">
+            <span id="song-name">🎵 เพลง: รักมิ้วที่สุดในโลก (Demo)</span>
+        </div>
+    </div>
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+</div>
+
+<style>
+    /* CSS แต่งเครื่องเล่นเพลง */
+    .music-widget {
+        position: fixed;
+        bottom: 20px;
+        left: 20px; /* อยู่มุมซ้ายล่าง (คนละฝั่งกับแชท) */
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Sarabun', sans-serif;
+    }
+
+    /* แผ่นเสียง */
+    .vinyl-record {
+        width: 60px;
+        height: 60px;
+        background: #333;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.2s;
+    }
+    
+    .vinyl-record:hover {
+        transform: scale(1.1); /* ขยายตอนเอาเมาส์ชี้ */
+    }
+
+    .vinyl-record img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    /* อนิเมชั่นหมุนติ้วๆ */
+    .spinning {
+        animation: spin 3s linear infinite;
+    }
+
+    @keyframes spin {
+        100% { transform: rotate(360deg); }
+    }
+
+    /* กล่องชื่อเพลง */
+    .music-controls {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 15px;
+        border-radius: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        display: none; /* ซ่อนไว้ก่อน จะโชว์ตอนเล่นเพลง */
+    }
+
+    .song-info span {
+        display: inline-block;
+        animation: marquee 5s linear infinite; /* ตัวหนังสือวิ่ง */
+        color: #ff4d4d;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+</style>
+
+<script>
+    // JS ควบคุมเพลง
+    const music = document.getElementById('bg-music');
+    const vinyl = document.querySelector('.vinyl-record');
+    const info = document.querySelector('.music-controls');
+    let isPlaying = false;
+
+    function toggleMusic() {
+        if (isPlaying) {
+            music.pause();
+            vinyl.classList.remove('spinning'); // หยุดหมุน
+            info.style.display = 'none'; // ซ่อนชื่อเพลง
+        } else {
+            music.play();
+            vinyl.classList.add('spinning'); // เริ่มหมุน
+            info.style.display = 'block'; // โชว์ชื่อเพลง
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // พยายามเล่นอัตโนมัติเมื่อกดปุ่มหัวใจกลางจอ (เพราะ Browser บล็อก Auto-play)
+    document.getElementById('heartButton').addEventListener('click', function() {
+        if (!isPlaying) toggleMusic();
+    });
+</script>
 </body>
 
 </html>
+
