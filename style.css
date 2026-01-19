@@ -123,4 +123,46 @@ h1 {
 @keyframes fadeOutSmooth {
     0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+
+}
+
+/* --- แมวเฝ้าหัวใจ --- */
+#cat-container {
+    position: fixed;
+    z-index: 998; /* ต้องน้อยกว่า 999 (หัวใจ) นิดนึง พอกดได้แต่กดยาก */
+    pointer-events: none; /* ให้คลิกทะลุกล่อง container */
+    transition: top 2s ease-in-out, left 2s ease-in-out; /* เดินนุ่มๆ 2 วิ */
+    width: 100px;
+    height: 100px;
+}
+
+#naughty-cat {
+    width: 100%;
+    cursor: grab;
+    pointer-events: auto; /* ตัวแมวคลิกได้ */
+}
+
+/* กล่องคำพูดแมว */
+#cat-speech {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    border: 1px solid #ccc;
+    white-space: nowrap;
+}
+
+#cat-speech.hidden {
+    display: none;
+}
+
+/* คลาสสำหรับกลับด้านแมว (หันซ้าย/ขวา) */
+.flip-cat {
+    transform: scaleX(-1);
 }
