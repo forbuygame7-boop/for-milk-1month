@@ -1,0 +1,126 @@
+/* style.css */
+
+/* ตั้งค่าพื้นฐาน ล้างค่า default ของ browser */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Sarabun', sans-serif; /* แนะนำให้ใช้ฟอนต์ที่อ่านง่าย */
+    display: flex;
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    align-items: center;     /* จัดกึ่งกลางแนวตั้ง */
+    height: 100vh;           /* ความสูงเต็มหน้าจอ */
+    background-color: #ffe6e6; /* สีพื้นหลัง default (จะถูกทับด้วย JS) */
+    text-align: center;
+    transition: background-color 0.5s; /* เอฟเฟกต์เปลี่ยนสีนุ่มๆ */
+}
+
+.container {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px; /* ขอบมน */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); /* เงาให้ดูลอยขึ้นมา */
+    max-width: 90%;
+    width: 400px;
+}
+
+h1 {
+    color: #ff4d4d;
+    margin-bottom: 10px;
+}
+
+.timer-box {
+    background: #fff0f0;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    border: 1px dashed #ffcccc; /* เส้นประน่ารักๆ */
+}
+
+.heart-btn {
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s; /* เอฟเฟกต์ตอนกด */
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้หรือกด */
+.heart-btn:hover {
+    transform: scale(1.1); /* ขยายใหญ่ขึ้นนิดนึง */
+}
+
+.heart-btn:active {
+    transform: scale(0.9); /* หดลงตอนกดคลิก */
+}
+
+#messageDisplay {
+    margin-top: 15px;
+    font-size: 1.2rem;
+    color: #555;
+    min-height: 1.5em; /* จองพื้นที่ไว้กันหน้าจอกระตุก */
+}
+
+/* style.css (เพิ่มต่อท้ายไฟล์เดิม) */
+
+/* --- ส่วนภารกิจตามล่าหาหัวใจ --- */
+
+/* หัวใจเล็กๆ ที่ซ่อนอยู่ */
+.hidden-heart {
+    position: fixed; /* fixed คือลอยอยู่กับที่ ไม่ขยับตามการ scroll */
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 90; /* อยู่ชั้นบนเกือบสุด */
+    opacity: 0.7; /* จางๆ หน่อยจะได้หายากนิดนึง */
+    transition: transform 0.2s;
+    /* ป้องกันการลากคลุม (user select none) */
+    user-select: none; 
+}
+.hidden-heart:hover {
+    transform: scale(1.3); /* เอาเมาส์ชี้แล้วขยาย */
+    opacity: 1;
+}
+
+
+/* --- ส่วนกล่องข้อความเด้ง (Flash Messages) --- */
+
+#flash-message-container {
+    /* เป็น container ล่องหนที่อยู่ชั้นบนสุด */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; /* คลิาทะลุได้ ไม่บังปุ่มอื่น */
+    z-index: 100;
+}
+
+/* ตัวกล่องข้อความ */
+.flash-message-box {
+    position: absolute; /* ลอยอิสระใน container */
+    background: rgba(255, 255, 255, 0.95); /* สีขาวโปร่งแสงนิดๆ */
+    color: #ff4d4d;
+    padding: 15px 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+    font-size: 1.1rem;
+    font-weight: bold;
+    white-space: nowrap; /* ไม่ให้ข้อความขึ้นบรรทัดใหม่ */
+    /* จัดกึ่งกลางจุดที่ตัวเองอยู่ */
+    transform: translate(-50%, -50%); 
+}
+
+/* Animation ตอนโผล่มา (Pop In) */
+.pop-in {
+    animation: popInSmooth 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    /* cubic-bezier คือจังหวะการเด้งแบบดึ๋งๆ */
+}
+@keyframes popInSmooth {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Animation ตอนหายไป (Fade Out) */
+.pop-out {
+    animation: fadeOutSmooth 0.5s ease-in forwards;
+}
+@keyframes fadeOutSmooth {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Love Control</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #eee; }
+        .box { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .chat-log { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; background: #fafafa;}
+        .msg-row { margin-bottom: 5px; padding: 5px; border-radius: 5px; }
+        .u { background: #dcf8c6; text-align: right; } /* สีเขียว (User) */
+        .b { background: #fff; text-align: left; border: 1px solid #eee; } /* สีขาว (Bot/You) */
+        
+        input[type="text"] { width: 70%; padding: 10px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .switch-btn { padding: 15px; width: 100%; font-size: 1.2rem; cursor: pointer; border: none; border-radius: 5px; }
+        .on { background: #28a745; color: white; }
+        .off { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>🎮 ควบคุมระบบ</h2>
+        <button id="botSwitch" class="switch-btn on" onclick="toggleBot()">
+            บอททำงานอยู่ (Auto)
+        </button>
+    </div>
+
+    <div class="box">
+        <h2>💬 ห้องแชท Real-time</h2>
+        <div class="chat-log" id="adminChatLog">Loading...</div>
+        
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="adminInput" placeholder="พิมพ์ตอบเองในนามบอท...">
+            <button onclick="adminSend()">ส่ง</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, onValue, set, query, limitToLast } 
+        from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        
+        // อย่าลืมเอา firebaseConfig ของตัวเองมาใส่นะ!
+        const firebaseConfig = {
+            // ... (ใส่ Config แบบเดียวกับไฟล์ config.js) ...
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 1. ดักฟังสถานะบอท
+        const botStatusRef = ref(db, 'bot_status');
+        onValue(botStatusRef, (snapshot) => {
+            const isActive = snapshot.val();
+            const btn = document.getElementById('botSwitch');
+            if (isActive) {
+                btn.innerText = "✅ บอททำงานอยู่ (กดเพื่อปิด)";
+                btn.className = "switch-btn on";
+            } else {
+                btn.innerText = "⚠️ บอทปิดอยู่ (คุณต้องตอบเอง)";
+                btn.className = "switch-btn off";
+            }
+        });
+
+        // 2. ดักฟังแชท
+        const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
+        onValue(chatRef, (snapshot) => {
+            const data = snapshot.val();
+            const logDiv = document.getElementById('adminChatLog');
+            logDiv.innerHTML = '';
+            
+            if (data) {
+                Object.values(data).forEach(msg => {
+                    const d = document.createElement('div');
+                    d.className = `msg-row ${msg.sender === 'user' ? 'u' : 'b'}`;
+                    d.innerText = `${msg.sender === 'user' ? 'มิ้ว' : 'คุณ/บอท'}: ${msg.text}`;
+                    logDiv.appendChild(d);
+                });
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        });
+
+        // 3. ฟังก์ชัน Admin
+        window.toggleBot = function() {
+            const btn = document.getElementById('botSwitch');
+            const isCurrentlyOn = btn.classList.contains('on');
+            set(botStatusRef, !isCurrentlyOn); // สลับค่า True/False ใน Database
+        };
+
+        window.adminSend = function() {
+            const input = document.getElementById('adminInput');
+            if(input.value.trim() === "") return;
+            
+            push(ref(db, 'chat_logs'), {
+                text: input.value,
+                sender: 'bot', // ส่งในนามบอท (แต่จริงๆ คือคุณตอบ)
+                timestamp: Date.now()
+            });
+            input.value = '';
+        };
+    </script>
+</body>
+</html>

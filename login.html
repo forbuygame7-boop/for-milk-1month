@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ความลับของมิ้ว 🔒</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .login-input {
+            padding: 10px;
+            border-radius: 20px;
+            border: 2px solid #ffcccc;
+            width: 80%;
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+            color: #ff4d4d;
+        }
+        .login-input:focus {
+            border-color: #ff4d4d; /* เปลี่ยนสีขอบเมื่อกดพิมพ์ */
+        }
+        .error-msg {
+            color: red;
+            font-size: 0.9rem;
+            height: 20px; /* จองพื้นที่ไว้กันกระตุก */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🔒 Locked</h1>
+        <p>กรุณาใส่รหัสผ่านเพื่อเปิดกล่องหัวใจ</p>
+        <p style="font-size: 0.8rem; color: #888;">(ใบ้: วันครบรอบของเรา ววดดปปปป)</p>
+        
+        <input type="password" id="passInput" class="login-input" placeholder="เช่น 17122025">
+        
+        <p id="errorText" class="error-msg"></p>
+
+        <button id="loginBtn" class="heart-btn" style="font-size: 1.2rem;">🔓 เปิดดูข้างใน</button>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>
