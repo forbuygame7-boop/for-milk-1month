@@ -252,21 +252,35 @@
         window.toggleBot = () => { set(botStatusRef, document.getElementById('botSwitch').innerText.includes('OFF')); };
         
         const chatRef = query(ref(db, 'chat_logs'), limitToLast(20));
-        onValue(chatRef, (snap) => {
-            const div = document.getElementById('adminChatLog');
-            div.innerHTML = '';
-            if(snap.val()) Object.values(snap.val()).forEach(msg => {
-                div.innerHTML += `<div class="msg-row ${msg.sender==='user'?'u':'b'}">${msg.text}</div>`;
-            });
-            div.scrollTop = div.scrollHeight;
+        // 1. ส่วนดึงค่า (onValue)
+        onValue(ref(db, 'site_config'), (snapshot) => {
+            const data = snapshot.val() || {};
+            
+            // ... (โค้ดเดิม) ...
+            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+
+            // ✅ เพิ่มบรรทัดนี้: ดึง Key มาโชว์
+            document.getElementById('conf_api_key').value = data.apiKey || ""; 
+
+            // ... (โค้ดเดิม) ...
         });
-        window.adminSend = () => {
-            const inp = document.getElementById('adminInput');
-            if(inp.value) push(ref(db, 'chat_logs'), { text: inp.value, sender: 'bot', timestamp: Date.now() });
-            inp.value='';
+
+        // 2. ส่วนบันทึก (saveAllSettings)
+        window.saveAllSettings = function() {
+            const updates = {};
+            
+            // ... (โค้ดเดิม) ...
+            updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
+            
+            // ✅ เพิ่มบรรทัดนี้: บันทึก Key ลง Firebase
+            updates['site_config/apiKey'] = document.getElementById('conf_api_key').value.trim();
+
+            // ... (โค้ดเดิม) ...
+            update(ref(db), updates)...
         };
         window.clearChat = () => { if(confirm("ลบแชท?")) remove(ref(db, 'chat_logs')); };
     </script>
 </body>
 </html>
+
 
