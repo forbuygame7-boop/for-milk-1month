@@ -1,4 +1,4 @@
-// chat-core.js (Version: Gemini 2.5 Flash - Future Ready 🚀)
+// chat-core.js (Secure Mode: Fetch Key from Firebase 🛡️)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,8 +19,20 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 API Key (ใช้ตัวที่ปลดล็อกเป็น None แล้ว)
-const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
+// 🔥 ไม่ใส่ Key ตรงนี้แล้ว (ปลอดภัยจาก GitHub) 🔥
+let GEMINI_API_KEY = ""; 
+
+// --- 🏦 ฟังก์ชันไปเบิกกุญแจจาก Firebase ---
+const keyRef = ref(db, 'gemini_api_key'); // ชื่อต้องตรงกับที่สร้างใน Database
+onValue(keyRef, (snapshot) => {
+    const key = snapshot.val();
+    if (key) {
+        GEMINI_API_KEY = key;
+        console.log("✅ กุญแจสมองมาแล้ว พร้อมทำงาน!");
+    } else {
+        console.error("❌ หากุญแจไม่เจอ! (อย่าลืมสร้าง gemini_api_key ใน Database นะ)");
+    }
+});
 
 // ==========================================
 // 1. ส่วน UI (หน้าจอมือถือ) - เหมือนเดิม
@@ -111,7 +123,6 @@ function listenForMessages() {
         chatArea.innerHTML = '<div class="date-divider">วันนี้</div>'; 
         if (data) {
             Object.values(data).forEach(msg => {
-                // 🛡️ กรอง Error: ถ้าเป็นข้อความ Error สำหรับแอดมิน ให้ข้ามไปเลย
                 if (msg.sender === 'admin_error') return;
 
                 const msgDiv = document.createElement('div');
@@ -169,6 +180,13 @@ window.sendUserMessage = async function() {
             return;
         }
 
+        // เช็คว่ากุญแจมาหรือยัง
+        if (!GEMINI_API_KEY) {
+            console.error("❌ API Key ยังไม่โหลดจาก Firebase");
+            sendBotReply("รอแป๊บนึงนะครับ สมองพี่หมีกำลังโหลด..."); 
+            return;
+        }
+
         // B. ถาม AI
         try {
             const aiReply = await askGeminiAI(text);
@@ -181,7 +199,6 @@ window.sendUserMessage = async function() {
                 timestamp: Date.now() 
             });
 
-            // Fallback หวานๆ
             const sweetFallbacks = [
                 "รักนะครับ (จุ๊บๆ)",
                 "คิดถึงจังเลย",
@@ -214,10 +231,10 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ใช้ Gemini 2.5 Flash ตัวล่าสุดปี 2026!)
+// 🤖 ฟังก์ชันคุยกับ AI (ใช้ตัวแปร GEMINI_API_KEY ที่ดึงมาจาก Firebase)
 async function askGeminiAI(userText) {
-    // ใช้ endpoint gemini-2.5-flash ตามที่ลูกพี่เช็คมา
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // ใช้ 1.5 flash เพราะเสถียรสุดตอนนี้
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
@@ -235,7 +252,6 @@ async function askGeminiAI(userText) {
 
     if (!response.ok) {
         const errorData = await response.json();
-        // ส่ง Error กลับไปให้ function sendUserMessage จัดการ
         throw new Error(errorData.error.message || `API Error: ${response.status}`);
     }
 
