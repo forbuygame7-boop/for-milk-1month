@@ -49,6 +49,49 @@
         </button>
     </div>
 
+    <div style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 15px; border: 2px solid #ddd;">
+    <h2 style="color: #333;">⚙️ แผงควบคุมระบบ (Real-time)</h2>
+
+    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">🎨 ธีมสี</h3>
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div>
+            <label>สีพื้นหลัง:</label><br>
+            <input type="color" id="conf_bg" style="width: 50px; height: 30px;">
+        </div>
+        <div>
+            <label>สีตัวหนังสือ:</label><br>
+            <input type="color" id="conf_text" style="width: 50px; height: 30px;">
+        </div>
+        <div>
+            <label>สีปุ่ม:</label><br>
+            <input type="color" id="conf_btn" style="width: 50px; height: 30px;">
+        </div>
+        <div>
+            <label>สีแมว 🐱:</label><br>
+            <input type="color" id="conf_cat" style="width: 50px; height: 30px;">
+        </div>
+    </div>
+
+    <br><hr><br>
+
+    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">📝 ข้อความหลัก</h3>
+    <label>พาดหัว (Headline):</label><br>
+    <input type="text" id="conf_headline" style="width: 90%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;"><br><br>
+    
+    <label>ชื่อคู่รัก:</label><br>
+    <input type="text" id="conf_names" style="width: 90%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;"><br><br>
+
+    <br><hr><br>
+
+    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">❤️ เกมหัวใจ</h3>
+    <label>จำนวนหัวใจสูงสุด (Max Hearts):</label><br>
+    <input type="number" id="conf_max_hearts" style="width: 100px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;"><br><br>
+    
+    <button onclick="saveAllSettings()" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; transition: 0.3s;">
+        💾 บันทึกการตั้งค่าทั้งหมด
+    </button>
+</div>
+
     <div class="box">
         <h2>💬 ห้องแชท Real-time</h2>
         <div class="chat-log" id="adminChatLog">Loading...</div>
@@ -162,5 +205,73 @@
             }
         };
     </script>
+
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+    // Config Firebase ของลูกพี่
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
+      authDomain: "love-chat-1month.firebaseapp.com",
+      databaseURL: "https://love-chat-1month-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "love-chat-1month",
+      storageBucket: "love-chat-1month.firebasestorage.app",
+      messagingSenderId: "434980133810",
+      appId: "1:434980133810:web:12929b8f2843dd07c162ab"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 1. ดึงค่าปัจจุบันมาโชว์ในช่อง input (จะได้รู้ว่าค่าเดิมคืออะไร)
+    onValue(ref(db, 'site_config'), (snapshot) => {
+        const data = snapshot.val();
+        if(data) {
+            // ใส่ค่าลงในช่องสี
+            if(data.colors) {
+                document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
+                document.getElementById('conf_text').value = data.colors.text || "#000000";
+                document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
+                document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
+            }
+            
+            // ใส่ค่าลงในช่องข้อความ
+            document.getElementById('conf_headline').value = data.headline || "";
+            document.getElementById('conf_names').value = data.coupleNames || "";
+            
+            // ใส่ค่าลงในช่องเกม
+            if(data.game) {
+                document.getElementById('conf_max_hearts').value = data.game.maxHearts || 100;
+            }
+        }
+    });
+
+    // 2. ฟังก์ชันบันทึกค่าลง Firebase (ทำงานเมื่อกดปุ่ม)
+    window.saveAllSettings = function() {
+        const updates = {};
+        
+        // เก็บค่าสี
+        updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
+        updates['site_config/colors/text'] = document.getElementById('conf_text').value;
+        updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
+        updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
+        
+        // เก็บค่าข้อความ
+        updates['site_config/headline'] = document.getElementById('conf_headline').value;
+        updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
+        
+        // เก็บค่าเกม
+        updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
+
+        // ส่งขึ้น Cloud ☁️
+        update(ref(db), updates)
+            .then(() => alert("✅ บันทึกเรียบร้อย! ลองรีเฟรชหน้าเว็บแฟนดูนะครับ"))
+            .catch((err) => alert("❌ Error: " + err));
+    }
+</script>
+
+    
 </body>
+
 </html>
