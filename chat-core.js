@@ -1,10 +1,10 @@
-// chat-core.js (Safe Mode: Error ส่งเข้าหลังบ้านเท่านั้น 🛡️)
+// chat-core.js (Admin-Only Error Mode 🛡️)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
 from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-// --- Config Firebase ของคุณ ---
+// --- Config Firebase ---
 const firebaseConfig = {
   apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
   authDomain: "love-chat-1month.firebaseapp.com",
@@ -19,11 +19,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 ใส่ API Key อันใหม่จากโปรเจกต์ใหม่ (อย่าลืมเปลี่ยนนะครับ!)
+// 🔥 API Key (อันใหม่ที่ถูกต้อง)
 const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
 
 // ==========================================
-// 1. ส่วน UI (หน้าจอมือถือ) - เหมือนเดิม
+// 1. ส่วน UI (หน้าจอมือถือ)
 // ==========================================
 const phoneCSS = `
 <style>
@@ -100,11 +100,10 @@ const phoneHTML = `
 })();
 
 // ==========================================
-// 2. ฟังก์ชันแชท (Logic ใหม่)
+// 2. ฟังก์ชันแชท (Logic สำคัญอยู่ตรงนี้)
 // ==========================================
 
 function listenForMessages() {
-    // ฟังแค่ chat_logs (ที่ User เห็น)
     const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
     onValue(chatRef, (snapshot) => {
         const data = snapshot.val();
@@ -112,6 +111,9 @@ function listenForMessages() {
         chatArea.innerHTML = '<div class="date-divider">วันนี้</div>'; 
         if (data) {
             Object.values(data).forEach(msg => {
+                // 🛡️ กรอง Error: ถ้าเป็นข้อความ Error สำหรับแอดมิน ให้ข้ามไปเลย (มิ้วไม่เห็น)
+                if (msg.sender === 'admin_error') return;
+
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('msg', msg.sender === 'user' ? 'user' : 'bot');
                 if (msg.sender === 'user') {
@@ -147,7 +149,7 @@ function listenForBotStatus() {
     });
 }
 
-// 🔥 ฟังก์ชันส่งข้อความ (ตัวจัดการ Error อยู่ตรงนี้)
+// 🔥 ฟังก์ชันส่งข้อความ
 window.sendUserMessage = async function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
@@ -160,30 +162,29 @@ window.sendUserMessage = async function() {
     if (isBotActive) {
         document.getElementById('chat-bot-status').innerText = 'กำลังพิมพ์...';
         
-        // A. เช็ค Brain ก่อน (ถ้ามีก็ตอบเลย)
+        // A. เช็ค Brain ก่อน
         const localReply = getLocalSmartReply(text);
         if (localReply) {
             setTimeout(() => sendBotReply(localReply), 1000); 
             return;
         }
 
-        // B. ถาม AI (พร้อมระบบดักจับ Error)
+        // B. ถาม AI
         try {
             const aiReply = await askGeminiAI(text);
-            // ถ้าสำเร็จ -> ตอบตาม AI
             sendBotReply(aiReply);
         } catch (error) {
-            // 🚨 ถ้า AI พัง (Error)
+            // 🚨 ถ้า AI พัง:
             
-            // 1. ส่ง Error เข้าหลังบ้าน (Admin Errors) มิ้วไม่เห็น
-            push(ref(db, 'admin_errors'), {
-                error: error.message || "Unknown Error",
-                trigger_text: text,
-                timestamp: Date.now()
+            // 1. ส่ง Error เข้า Chat Log แต่แปะป้ายว่าเป็น 'admin_error' 
+            // (เพื่อให้ไปโผล่ที่หน้า Admin แต่หน้าจอมิ้วจะมองไม่เห็นเพราะเรากรองออก)
+            push(ref(db, 'chat_logs'), { 
+                text: `🚫 AI Error: ${error.message}`, 
+                sender: 'admin_error', // <--- คีย์เวิร์ดสำคัญ
+                timestamp: Date.now() 
             });
-            console.error("AI Failed (Saved to Admin):", error);
 
-            // 2. ตอบกลับมิ้วด้วยคำหวานๆ (Fallback Message)
+            // 2. ตอบกลับมิ้วด้วยคำหวานๆ
             const sweetFallbacks = [
                 "รักนะครับ (จุ๊บๆ)",
                 "คิดถึงจังเลย",
@@ -192,8 +193,6 @@ window.sendUserMessage = async function() {
                 "น่ารักที่สุดเลยแฟนใครเนี่ย"
             ];
             const randomSweet = sweetFallbacks[Math.floor(Math.random() * sweetFallbacks.length)];
-            
-            // ส่งคำหวานไปแทน Error
             sendBotReply(randomSweet); 
         }
     }
@@ -218,7 +217,7 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (โยน Error ออกไปให้ข้างนอกจัดการ)
+// 🤖 ฟังก์ชันคุยกับ AI (ใช้รุ่น Pro)
 async function askGeminiAI(userText) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     
@@ -237,7 +236,6 @@ async function askGeminiAI(userText) {
     });
 
     if (!response.ok) {
-        // ถ้า API พัง ให้โยน Error ออกไปเลย (ไม่ return string)
         const errorData = await response.json();
         throw new Error(errorData.error.message || `API Error: ${response.status}`);
     }
