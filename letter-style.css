@@ -1,4 +1,4 @@
-/* letter-style.css */
+/* letter-style.css (ฉบับสมบูรณ์: ปุ่มหรู + เปิดซองลื่นๆ) */
 
 body {
     margin: 0;
@@ -7,10 +7,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* สีพื้นหลังให้ดูอบอุ่นขึ้นนิดนึง */
     background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
     font-family: 'Sarabun', sans-serif;
-    overflow: hidden; /* ป้องกัน scrollbar โผล่ตอนขยับ */
+    overflow: hidden;
 }
 
 .centered-container {
@@ -25,7 +24,6 @@ body {
     height: 220px;
     background: transparent;
     cursor: pointer;
-    /* transition คือการบอกว่าถ้ามีการเปลี่ยนแปลง ให้ค่อยๆ เปลี่ยนใน 0.8 วินาที */
     transition: all 0.8s ease-in-out;
 }
 
@@ -33,46 +31,47 @@ body {
 .flap {
     position: absolute;
     width: 100%;
-    height: 50%; /* ครึ่งนึงของความสูงซอง */
-    background-color: #ff4d4d; /* สีซอง */
-    border: 4px solid #e60000; /* ขอบซองเข้มๆ */
+    height: 50%;
+    background-color: #ff4d4d;
+    border: 4px solid #e60000;
     box-sizing: border-box;
-    z-index: 5; /* อยู่ชั้นกลาง */
-    transition: all 0.8s ease-in-out; /* เอฟเฟกต์ตอนเลื่อน */
+    z-index: 5;
+    transition: all 0.8s ease-in-out;
 }
 
 .top-flap {
     top: 0;
-    border-radius: 15px 15px 0 0; /* มนมุมบน */
-    border-bottom: none; /* ไม่เอาเส้นล่าง */
-    box-shadow: 0 -5px 15px rgba(0,0,0,0.1); /* เงาด้านบน */
+    border-radius: 15px 15px 0 0;
+    border-bottom: none;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+    transform-origin: top;
 }
 
 .bottom-flap {
     bottom: 0;
-    border-radius: 0 0 15px 15px; /* มนมุมล่าง */
-    border-top: none; /* ไม่เอาเส้นบน */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* เงาด้านล่าง */
+    border-radius: 0 0 15px 15px;
+    border-top: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform-origin: bottom;
 }
 
 /* --- ตัวจดหมายข้างใน --- */
 .letter-content {
     position: absolute;
-    top: 50%; /* เริ่มต้นที่กึ่งกลาง */
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.8); /* จัดกึ่งกลางและย่อส่วนไว้ก่อน */
+    transform: translate(-50%, -50%) scale(0.8);
     width: 90%;
-    /* ความสูงเริ่มต้นให้เล็กกว่าซอง จะได้ซ่อนมิด */
-    height: 180px; 
-    background: #fffdf0; /* สีครีมเหมือนกระดาษ */
+    height: 180px;
+    background: #fffdf0;
     padding: 20px;
     box-sizing: border-box;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    z-index: 1; /* อยู่ชั้นล่างสุด (ซ่อนหลัง flap) */
-    opacity: 0; /* ซ่อนไว้ก่อน */
-    transition: all 1s ease-in-out 0.3s; /* เริ่มแสดงช้ากว่า flap นิดนึง (0.3s delay) */
-    overflow-y: auto; /* ถ้าข้อความยาว ให้เลื่อนดูได้ */
+    z-index: 1;
+    opacity: 0;
+    transition: all 1s ease-in-out 0.3s;
+    overflow-y: auto;
 }
 
 .text-body {
@@ -82,103 +81,89 @@ body {
     text-align: left;
 }
 
-/* --- ตราประทับหัวใจ (Luxury Wax Seal Style) --- */
+/* --- ตราประทับหัวใจ (Luxury Wax Seal) --- */
 .heart-seal {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     
-    /* ขนาดและรูปร่าง */
     width: 60px;
     height: 60px;
-    background: #d62828; /* สีแดงเข้มแบบครั่ง */
+    background: #d62828;
     border-radius: 50%;
     
-    /* จัดไอคอนหัวใจให้อยู่ตรงกลาง */
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 2rem;
-    color: #ffcccc; /* สีหัวใจข้างใน */
+    color: #ffcccc;
     
-    /* แสงและเงาเพื่อให้ดูนูน (3D Effect) */
     box-shadow: 
-        inset 2px 2px 5px rgba(255, 255, 255, 0.4), /* แสงกระทบด้านบน */
-        inset -2px -2px 5px rgba(0, 0, 0, 0.3),    /* เงาด้านล่าง */
-        0 5px 15px rgba(0, 0, 0, 0.3);              /* เงาตกกระทบพื้น */
+        inset 2px 2px 5px rgba(255, 255, 255, 0.4),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+        0 5px 15px rgba(0, 0, 0, 0.3);
         
-    border: 2px solid #b30000; /* ขอบเข้มๆ */
+    border: 2px solid #b30000;
     z-index: 10;
     cursor: pointer;
     
-    /* อนิเมชั่นให้หัวใจเต้นตุบๆ เรียกร้องความสนใจ */
     animation: heartbeat 1.5s infinite;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* เอฟเฟกต์ตอนเอาเมาส์ชี้ */
 .heart-seal:hover {
-    transform: translate(-50%, -50%) scale(1.1); /* ขยายใหญ่ขึ้น */
-    background: #e60000; /* สีสดขึ้น */
+    transform: translate(-50%, -50%) scale(1.1);
+    background: #e60000;
     box-shadow: 
         inset 2px 2px 5px rgba(255, 255, 255, 0.5),
         inset -2px -2px 5px rgba(0, 0, 0, 0.3),
-        0 8px 20px rgba(255, 77, 77, 0.6); /* เงาเรืองแสงสีแดง */
+        0 8px 20px rgba(255, 77, 77, 0.6);
 }
 
-/* เอฟเฟกต์ตอนกด */
-.heart-seal:active {
-    transform: translate(-50%, -50%) scale(0.95); /* ยุบลงนิดนึง */
-}
-
-/* สร้างวงกลมชั้นนอกให้ดูเหมือนรอยปั๊ม */
 .heart-seal::after {
     content: '';
     position: absolute;
     top: -6px; left: -6px;
     right: -6px; bottom: -6px;
     border-radius: 50%;
-    border: 2px dashed rgba(214, 40, 40, 0.5); /* เส้นประจางๆ รอบนอก */
+    border: 2px dashed rgba(214, 40, 40, 0.5);
     animation: spinSlow 10s linear infinite;
 }
 
-/* --- Keyframes อนิเมชั่น --- */
+/* --- STATE: เมื่อซองเปิด (สำคัญมาก ห้ามหาย!) --- */
 
-/* หัวใจเต้น */
-@keyframes heartbeat {
-    0% { transform: translate(-50%, -50%) scale(1); }
-    10% { transform: translate(-50%, -50%) scale(1.1); } /* เด้ง 1 */
-    20% { transform: translate(-50%, -50%) scale(1); }
-    30% { transform: translate(-50%, -50%) scale(1.1); } /* เด้ง 2 */
-    40% { transform: translate(-50%, -50%) scale(1); }
-    100% { transform: translate(-50%, -50%) scale(1); }
+.envelope-wrapper.open .top-flap {
+    transform: translateY(-120px);
+    opacity: 0.5;
 }
 
-/* เส้นประหมุนช้าๆ */
-@keyframes spinSlow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.envelope-wrapper.open .bottom-flap {
+    transform: translateY(120px);
+    opacity: 0.5;
 }
 
-/* (ของเดิมที่มีอยู่แล้ว ห้ามลบนะ) ตอนเปิดซอง */
+/* สั่งให้หัวใจหมุนแล้วหายไป */
 .envelope-wrapper.open .heart-seal {
     animation: spinHeart 1s ease-in-out forwards;
-    background: transparent; /* ทำให้พื้นหลังหายไป */
-    box-shadow: none;        /* เอาเงาออก */
+    background: transparent;
     border: none;
-}
-/* แก้ไขสีหัวใจตอนเปิดซองให้เป็นสีแดงสด */
-.envelope-wrapper.open .heart-seal {
-    color: #ff4d4d; 
-    font-size: 4rem; /* ขยายใหญ่ตอนหมุน */
+    box-shadow: none;
+    color: #ff4d4d;
+    font-size: 4rem; /* ขยายใหญ่ก่อนหาย */
 }
 
-/* Keyframes คือการสร้างท่าทาง Animation */
-@keyframes spinHeart {
-    0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-    50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.2); } /* หมุนและขยาย */
-    100% { transform: translate(-50%, -50%) rotate(360deg) scale(0); opacity: 0; } /* หมุนครบรอบแล้วหายไป */
+/* ซ่อนวงกลมรอบๆ ตอนเปิด */
+.envelope-wrapper.open .heart-seal::after {
+    display: none;
+}
+
+/* แสดงจดหมาย */
+.envelope-wrapper.open .letter-content {
+    opacity: 1;
+    height: 300px;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 15;
 }
 
 /* ปุ่มกลับหน้าหลัก */
@@ -191,10 +176,31 @@ body {
     text-decoration: none;
     border-radius: 20px;
     opacity: 1;
-    transition: opacity 0.5s ease-in-out 1s; /* โผล่มาช้าสุด */
+    transition: opacity 0.5s ease-in-out 1s;
 }
 .back-btn.hidden {
     opacity: 0;
-    pointer-events: none; /* ห้ามกดตอนยังไม่โผล่ */
+    pointer-events: none;
+}
 
+/* --- Keyframes อนิเมชั่น --- */
+
+@keyframes heartbeat {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    10% { transform: translate(-50%, -50%) scale(1.1); }
+    20% { transform: translate(-50%, -50%) scale(1); }
+    30% { transform: translate(-50%, -50%) scale(1.1); }
+    40% { transform: translate(-50%, -50%) scale(1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spinHeart {
+    0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.5); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) rotate(360deg) scale(2); opacity: 0; }
 }
