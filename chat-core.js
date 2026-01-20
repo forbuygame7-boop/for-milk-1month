@@ -1,7 +1,7 @@
-// chat-core.js (Secure Mode: Fetch Key from Firebase 🛡️)
+// chat-core.js (Version: Memory Enhanced + Milk Persona 🧠💖)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, push, onValue, query, limitToLast } 
+import { getDatabase, ref, push, onValue, query, limitToLast, get } 
 from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
 // --- Config Firebase ---
@@ -18,20 +18,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
-
-// 🔥 ไม่ใส่ Key ตรงนี้แล้ว (ปลอดภัยจาก GitHub) 🔥
 let GEMINI_API_KEY = ""; 
 
-// --- 🏦 ฟังก์ชันไปเบิกกุญแจจาก Firebase ---
-const keyRef = ref(db, 'gemini_api_key'); // ชื่อต้องตรงกับที่สร้างใน Database
+// --- ดึงกุญแจจาก Firebase ---
+const keyRef = ref(db, 'gemini_api_key'); 
 onValue(keyRef, (snapshot) => {
     const key = snapshot.val();
-    if (key) {
-        GEMINI_API_KEY = key;
-        console.log("✅ กุญแจสมองมาแล้ว พร้อมทำงาน!");
-    } else {
-        console.error("❌ หากุญแจไม่เจอ! (อย่าลืมสร้าง gemini_api_key ใน Database นะ)");
-    }
+    if (key) GEMINI_API_KEY = key;
 });
 
 // ==========================================
@@ -112,7 +105,7 @@ const phoneHTML = `
 })();
 
 // ==========================================
-// 2. ฟังก์ชันแชท
+// 2. ฟังก์ชันแชท (Logic)
 // ==========================================
 
 function listenForMessages() {
@@ -123,7 +116,7 @@ function listenForMessages() {
         chatArea.innerHTML = '<div class="date-divider">วันนี้</div>'; 
         if (data) {
             Object.values(data).forEach(msg => {
-                if (msg.sender === 'admin_error') return;
+                if (msg.sender === 'admin_error') return; // ซ่อน Error
 
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('msg', msg.sender === 'user' ? 'user' : 'bot');
@@ -160,7 +153,7 @@ function listenForBotStatus() {
     });
 }
 
-// 🔥 ฟังก์ชันส่งข้อความ
+// 🔥 ฟังก์ชันส่งข้อความ (อัปเกรดระบบความจำ)
 window.sendUserMessage = async function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
@@ -173,41 +166,44 @@ window.sendUserMessage = async function() {
     if (isBotActive) {
         document.getElementById('chat-bot-status').innerText = 'กำลังพิมพ์...';
         
-        // A. เช็ค Brain ก่อน
+        // A. เช็ค Brain ก่อน (ถ้ามีก็ตอบเลย ไม่ต้องถาม AI)
         const localReply = getLocalSmartReply(text);
         if (localReply) {
             setTimeout(() => sendBotReply(localReply), 1000); 
             return;
         }
 
-        // เช็คว่ากุญแจมาหรือยัง
         if (!GEMINI_API_KEY) {
-            console.error("❌ API Key ยังไม่โหลดจาก Firebase");
-            sendBotReply("รอแป๊บนึงนะครับ สมองพี่หมีกำลังโหลด..."); 
+            console.error("❌ Key not loaded");
             return;
         }
 
-        // B. ถาม AI
+        // 🧠 B. ระบบความจำ (ดึง 10 ข้อความล่าสุดมาประกอบร่าง)
         try {
-            const aiReply = await askGeminiAI(text);
+            // ดึงแชทเก่าจาก Firebase
+            const historySnapshot = await get(query(ref(db, 'chat_logs'), limitToLast(10)));
+            let historyContext = "";
+            
+            historySnapshot.forEach((child) => {
+                const msg = child.val();
+                if (msg.sender !== 'admin_error') {
+                    const role = msg.sender === 'user' ? 'มิ้ว(แฟน)' : 'พี่หมี(คุณ)';
+                    historyContext += `${role}: ${msg.text}\n`;
+                }
+            });
+
+            // ส่งให้ AI ประมวลผล
+            const aiReply = await askGeminiAI(text, historyContext);
             sendBotReply(aiReply);
+
         } catch (error) {
-            // 🚨 ถ้า AI พัง (Error)
             push(ref(db, 'chat_logs'), { 
                 text: `🚫 AI Error: ${error.message}`, 
                 sender: 'admin_error', 
                 timestamp: Date.now() 
             });
-
-            const sweetFallbacks = [
-                "รักนะครับ (จุ๊บๆ)",
-                "คิดถึงจังเลย",
-                "เค้าฟังอยู่นะคนดี",
-                "วันนี้เหนื่อยมั้ยครับ?",
-                "น่ารักที่สุดเลยแฟนใครเนี่ย"
-            ];
-            const randomSweet = sweetFallbacks[Math.floor(Math.random() * sweetFallbacks.length)];
-            sendBotReply(randomSweet); 
+            // Fallback
+            sendBotReply("รักนะครับ (เน็ตพี่หมีกระตุกนิดนึง)"); 
         }
     }
 };
@@ -231,18 +227,27 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ใช้ตัวแปร GEMINI_API_KEY ที่ดึงมาจาก Firebase)
-async function askGeminiAI(userText) {
-    // ใช้ 1.5 flash เพราะเสถียรสุดตอนนี้
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
+// 🤖 ฟังก์ชันคุยกับ AI (รับ History มาด้วย)
+async function askGeminiAI(userText, historyContext) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
+    // Prompt ที่ปรับแต่งให้รู้จักมิ้ว
     const prompt = `
-    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ มิ้วเกิด 27 สิงหาคม 2549 ชอบกินก๋วยเตี๋ยว
-    Character: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก
-    Task: ตอบกลับสั้นๆ เหมือนคุยไลน์ ห้ามบอกว่าเป็น AI
-    Input: "${userText}"
-    Reply:
+    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" กำลังคุยกับแฟนชื่อ "มิ้ว"
+    Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ
+    Objective: ตอบกลับสั้นๆ เหมือนแชทกันจริงๆ และ "ชวนคุยต่อ" เสมอ
+
+    ข้อมูลแฟน (มิ้ว):
+    - นิสัย: น่ารักตลอดเวลา
+    - สิ่งที่เกลียด: ผัก (ห้ามชวนกินผัก)
+    - วันเกิด: 27 สิงหาคม 2006
+    - สรรพนามที่คุณเรียกแฟน: "อ้วน" (ปกติ), "เธอ", "มิ้ว", "หนู" (ใช้นานๆทีตอนอ้อน)
+
+    Chat History (บทสนทนาก่อนหน้า):
+    ${historyContext}
+
+    มิ้วพิมพ์มาว่า: "${userText}"
+    พี่หมีตอบกลับ (ไม่ต้องใส่ชื่อนำหน้า):
     `;
 
     const response = await fetch(url, {
@@ -279,5 +284,3 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
-
-
