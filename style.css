@@ -36,23 +36,69 @@ h1 {
     border: 1px dashed #ffcccc; /* เส้นประน่ารักๆ */
 }
 
+/* --- ปุ่มกดหัวใจ (Luxury Jelly Button) --- */
 .heart-btn {
-    font-size: 2rem;
-    background: none;
+    /* ขนาดและฟอนต์ */
+    font-family: 'Sarabun', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    padding: 15px 40px;
+    
+    /* สีพื้นหลังแบบไล่เฉด (Gradient) */
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+    color: white;
+    
+    /* รูปร่าง */
     border: none;
+    border-radius: 50px; /* ทรงแคปซูลมนๆ */
     cursor: pointer;
-    transition: transform 0.2s; /* เอฟเฟกต์ตอนกด */
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    
+    /* แสงเงาให้ดูมีมิติ (3D) */
+    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3), 
+                inset 0 -3px 0 rgba(0,0,0,0.1); /* เงาด้านล่างปุ่ม */
+    
+    /* การเคลื่อนไหว */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: pulse-glow 2s infinite; /* แสงวิบวับ */
 }
 
-/* เอฟเฟกต์ตอนเอาเมาส์ชี้หรือกด */
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ (Hover) */
 .heart-btn:hover {
-    transform: scale(1.1); /* ขยายใหญ่ขึ้นนิดนึง */
+    transform: translateY(-5px) scale(1.05); /* ลอยขึ้น + ขยาย */
+    box-shadow: 0 15px 30px rgba(255, 107, 107, 0.5); /* เงาฟุ้งขึ้น */
+    background: linear-gradient(135deg, #ff5252 0%, #ff7676 100%); /* สีเข้มขึ้นนิดนึง */
 }
 
+/* เอฟเฟกต์ตอนกดจึ๊ก (Active) */
 .heart-btn:active {
-    transform: scale(0.9); /* หดลงตอนกดคลิก */
+    transform: translateY(2px) scale(0.95); /* ยุบลง */
+    box-shadow: 0 5px 10px rgba(255, 107, 107, 0.3);
 }
 
+/* สร้างแสงวิบวับไหลผ่านปุ่ม */
+.heart-btn::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: 0.5s;
+    z-index: -1;
+}
+.heart-btn:hover::after {
+    left: 100%; /* แสงวิ่งผ่าน */
+    transition: 0.5s ease-in-out;
+}
+
+/* อนิเมชั่นให้ปุ่มหายใจได้ (Pulse) */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+}
 #messageDisplay {
     margin-top: 15px;
     font-size: 1.2rem;
@@ -369,3 +415,4 @@ h1 {
 /* เอียงซ้ายขวาเพิ่มลูกเล่น */
 .rotate-left { transform: rotate(-3deg); }
 .rotate-right { transform: rotate(3deg); }
+
