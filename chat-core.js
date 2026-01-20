@@ -200,7 +200,7 @@ function getLocalSmartReply(text) {
 // 🤖 ฟังก์ชันคุยกับ AI (ฉบับแก้จบงาน: ใช้รุ่น Pro มาตรฐาน)
 async function askGeminiAI(userText) {
     // 1. เปลี่ยน URL เป็นรุ่น 'gemini-pro' (ตัวนี้มีทุกเครื่อง ชัวร์ที่สุด)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
@@ -251,4 +251,5 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
 
