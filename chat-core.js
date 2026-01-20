@@ -1,4 +1,4 @@
-// chat-core.js (Debug Edition 🩺 - โชว์ Error ให้เห็นกันจะๆ)
+// chat-core.js (Safe Mode: Error ส่งเข้าหลังบ้านเท่านั้น 🛡️)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,11 +19,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 ใส่ API Key อันใหม่จากโปรเจกต์ใหม่ (ตรวจสอบดีๆ นะครับว่าก๊อปมาครบ)
+// 🔥 ใส่ API Key อันใหม่จากโปรเจกต์ใหม่ (อย่าลืมเปลี่ยนนะครับ!)
 const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
 
 // ==========================================
-// 1. ส่วน UI (หน้าจอมือถือ)
+// 1. ส่วน UI (หน้าจอมือถือ) - เหมือนเดิม
 // ==========================================
 const phoneCSS = `
 <style>
@@ -100,10 +100,11 @@ const phoneHTML = `
 })();
 
 // ==========================================
-// 2. ฟังก์ชันแชท (AI + Brain + Debugger)
+// 2. ฟังก์ชันแชท (Logic ใหม่)
 // ==========================================
 
 function listenForMessages() {
+    // ฟังแค่ chat_logs (ที่ User เห็น)
     const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
     onValue(chatRef, (snapshot) => {
         const data = snapshot.val();
@@ -146,34 +147,54 @@ function listenForBotStatus() {
     });
 }
 
+// 🔥 ฟังก์ชันส่งข้อความ (ตัวจัดการ Error อยู่ตรงนี้)
 window.sendUserMessage = async function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
     if (text === "") return;
 
+    // 1. ส่งข้อความ User
     push(ref(db, 'chat_logs'), { text: text, sender: 'user', timestamp: Date.now() });
     input.value = '';
 
     if (isBotActive) {
         document.getElementById('chat-bot-status').innerText = 'กำลังพิมพ์...';
         
-        // A. เช็คใน brain.js ก่อน
+        // A. เช็ค Brain ก่อน (ถ้ามีก็ตอบเลย)
         const localReply = getLocalSmartReply(text);
-        
         if (localReply) {
             setTimeout(() => sendBotReply(localReply), 1000); 
-        } else {
-            // B. ถ้าไม่เจอ -> ให้ AI (Gemini) คิดให้
-            // ส่งคำตอบ "กำลังคิด..." ไปก่อน เพื่อดูว่าฟังก์ชันทำงานไหม
-            // sendBotReply("... (AI กำลังคิด)"); 
+            return;
+        }
+
+        // B. ถาม AI (พร้อมระบบดักจับ Error)
+        try {
+            const aiReply = await askGeminiAI(text);
+            // ถ้าสำเร็จ -> ตอบตาม AI
+            sendBotReply(aiReply);
+        } catch (error) {
+            // 🚨 ถ้า AI พัง (Error)
             
-            try {
-                const aiReply = await askGeminiAI(text);
-                sendBotReply(aiReply);
-            } catch (error) {
-                console.error("AI Error:", error);
-                sendBotReply(`⚠️ Error: ${error.message}`); // ฟ้อง Error ออกมาเลย
-            }
+            // 1. ส่ง Error เข้าหลังบ้าน (Admin Errors) มิ้วไม่เห็น
+            push(ref(db, 'admin_errors'), {
+                error: error.message || "Unknown Error",
+                trigger_text: text,
+                timestamp: Date.now()
+            });
+            console.error("AI Failed (Saved to Admin):", error);
+
+            // 2. ตอบกลับมิ้วด้วยคำหวานๆ (Fallback Message)
+            const sweetFallbacks = [
+                "รักนะครับ (จุ๊บๆ)",
+                "คิดถึงจังเลย",
+                "เค้าฟังอยู่นะคนดี",
+                "วันนี้เหนื่อยมั้ยครับ?",
+                "น่ารักที่สุดเลยแฟนใครเนี่ย"
+            ];
+            const randomSweet = sweetFallbacks[Math.floor(Math.random() * sweetFallbacks.length)];
+            
+            // ส่งคำหวานไปแทน Error
+            sendBotReply(randomSweet); 
         }
     }
 };
@@ -197,10 +218,9 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ฉบับแก้จบงาน: ใช้รุ่น Pro มาตรฐาน)
+// 🤖 ฟังก์ชันคุยกับ AI (โยน Error ออกไปให้ข้างนอกจัดการ)
 async function askGeminiAI(userText) {
-    // 1. เปลี่ยน URL เป็นรุ่น 'gemini-pro' (ตัวนี้มีทุกเครื่อง ชัวร์ที่สุด)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
@@ -210,33 +230,27 @@ async function askGeminiAI(userText) {
     Reply:
     `;
 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            // ถ้ายัง Error อีก ให้ฟ้องออกมาเลยว่าผิดตรงไหน
-            throw new Error(errorData.error.message || response.statusText);
-        }
+    if (!response.ok) {
+        // ถ้า API พัง ให้โยน Error ออกไปเลย (ไม่ return string)
+        const errorData = await response.json();
+        throw new Error(errorData.error.message || `API Error: ${response.status}`);
+    }
 
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            return "รักนะครับ (พี่หมีกำลังเรียบเรียงคำพูด)";
-        }
-    } catch (error) {
-        console.error("AI Connection Failed:", error);
-        // แสดง Error ให้เห็นชัดๆ จะได้รู้ว่าต้องแก้อะไรต่อ
-        return `⚠️ พี่หมีป่วย: ${error.message}`;
+    const data = await response.json();
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+        return data.candidates[0].content.parts[0].text;
+    } else {
+        throw new Error("No response from AI candidates");
     }
 }
 
+// Utility
 window.togglePhone = function() {
     const widget = document.getElementById('phone-widget');
     widget.classList.toggle('closed');
@@ -251,5 +265,3 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
-
-
