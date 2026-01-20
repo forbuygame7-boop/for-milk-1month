@@ -9,89 +9,80 @@
         .box { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* กล่องแชท */
-        .chat-log { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #fafafa; border-radius: 10px; }
-        .msg-row { margin-bottom: 8px; padding: 8px 12px; border-radius: 15px; font-size: 14px; display: inline-block; clear: both; max-width: 80%; }
-        .u { background: #00c300; color: white; float: right; text-align: right; } /* มิ้ว */
-        .b { background: #e9e9eb; color: black; float: left; text-align: left; } /* บอท */
-        
-        /* ฟอร์มตั้งค่า */
-        input[type="text"], input[type="number"], textarea, input[type="color"] { 
-            width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; outline: none; box-sizing: border-box; font-family: 'Sarabun', sans-serif; margin-bottom: 10px;
-        }
+        /* Form Elements */
+        input, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; outline: none; box-sizing: border-box; margin-bottom: 10px; font-family: 'Sarabun', sans-serif; }
         input[type="color"] { height: 40px; padding: 2px; }
-        textarea { resize: vertical; min-height: 100px; }
-        label { font-weight: bold; font-size: 14px; color: #555; }
         
         button { padding: 10px 20px; border: none; cursor: pointer; border-radius: 20px; font-weight: bold; transition: 0.2s; }
         button:hover { opacity: 0.8; transform: scale(1.05); }
 
-        .send-btn { background: #007bff; color: white; width: 25%; }
-        .switch-btn { padding: 15px; width: 100%; font-size: 1.2rem; cursor: pointer; border: none; border-radius: 10px; color: white; width: 100%; margin-bottom: 10px;}
-        .on { background: #28a745; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); }
-        .off { background: #dc3545; box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3); }
-        .delete-btn { background: #ff4757; color: white; width: 100%; padding: 10px; }
-        .save-btn { background: #28a745; color: white; padding: 15px; width: 100%; font-size: 18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3); margin-top: 20px;}
+        .save-btn { background: #28a745; color: white; width: 100%; font-size: 18px; padding: 15px; margin-top: 10px; }
+        .delete-btn { background: #ff4757; color: white; padding: 5px 10px; font-size: 12px; border-radius: 5px; margin-left: 10px;}
+        
+        /* Gallery Admin List */
+        .photo-list { margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 10px; }
+        .photo-item { display: flex; align-items: center; background: #f9f9f9; padding: 8px; margin-bottom: 5px; border-radius: 8px; }
+        .photo-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
+        .photo-info { flex: 1; }
+        .photo-url { font-size: 10px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+
+        /* Chat Styles (ย่อไว้) */
+        .chat-log { height: 300px; overflow-y: auto; border: 1px solid #ddd; background: #fafafa; margin-bottom: 10px; padding: 10px; border-radius: 10px;}
+        .msg-row { margin-bottom: 5px; padding: 5px 10px; border-radius: 10px; font-size: 14px; display: inline-block; clear: both; }
+        .u { background: #00c300; color: white; float: right; }
+        .b { background: #eee; float: left; }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <h2>🎮 ควบคุมระบบแชท</h2>
-        <button id="botSwitch" class="switch-btn on" onclick="toggleBot()">โหลดสถานะ...</button>
-        <button onclick="clearChat()" class="delete-btn">🗑️ ล้างประวัติแชททั้งหมด</button>
-    </div>
+        <h2>⚙️ ตั้งค่าหน้าเว็บ</h2>
+        
+        <h3 style="background:#fff0f5; padding:10px; border-radius:10px;">📸 จัดการแกลเลอรี่</h3>
+        <div style="background: #fff0f5; padding: 15px; border-radius: 10px;">
+            <label>ลิงก์รูปภาพ (URL):</label>
+            <input type="text" id="new_img_url" placeholder="เช่น https://... หรือ uploads/ชื่อรูป.jpg">
+            
+            <label>คำบรรยาย:</label>
+            <input type="text" id="new_img_caption" placeholder="เช่น มิ้วน่ารักจัง">
+            
+            <button onclick="addPhoto()" style="background:#ff4d4d; color:white; width:100%;">➕ เพิ่มรูปเข้าอัลบั้ม</button>
 
-    <div class="box">
-        <h2 style="color: #333;">⚙️ แผงควบคุมหน้าเว็บ</h2>
-
-        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">🎨 ธีมสี</h3>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <div style="flex:1; min-width: 80px;"><label>พื้นหลัง:</label><br><input type="color" id="conf_bg"></div>
-            <div style="flex:1; min-width: 80px;"><label>ตัวหนังสือ:</label><br><input type="color" id="conf_text"></div>
-            <div style="flex:1; min-width: 80px;"><label>สีปุ่ม:</label><br><input type="color" id="conf_btn"></div>
-            <div style="flex:1; min-width: 80px;"><label>สีแมว 🐱:</label><br><input type="color" id="conf_cat"></div>
+            <div class="photo-list" id="gallery_list">Loading...</div>
         </div>
 
         <br><hr><br>
 
-        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">📝 ข้อความหลัก</h3>
-        <label>พาดหัว (Headline):</label>
-        <input type="text" id="conf_headline">
-        
-        <label>ชื่อคู่รัก (Footer):</label>
-        <input type="text" id="conf_names">
+        <h3>🎨 ธีมสี</h3>
+        <div style="display: flex; gap: 5px;">
+            <input type="color" id="conf_bg"> <input type="color" id="conf_text"> 
+            <input type="color" id="conf_btn"> <input type="color" id="conf_cat">
+        </div>
 
-        <br><hr><br>
+        <h3>📝 ข้อความ</h3>
+        <input type="text" id="conf_headline" placeholder="Headline">
+        <input type="text" id="conf_names" placeholder="Names">
         
-        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">💌 จดหมายลับ</h3>
-        <label>ข้อความในจดหมาย (ใช้ &lt;br&gt; เพื่อขึ้นบรรทัดใหม่):</label>
-        <textarea id="conf_deep_msg" placeholder="เขียนความในใจตรงนี้..."></textarea>
+        <h3>💌 จดหมายลับ</h3>
+        <textarea id="conf_deep_msg" rows="4" placeholder="ข้อความจดหมาย..."></textarea>
         
-        <br><hr><br>
+        <h3>❤️ เกม</h3>
+        <input type="number" id="conf_max_hearts" placeholder="Max Hearts">
 
-        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">❤️ เกมหัวใจ</h3>
-        <label>จำนวนหัวใจสูงสุด (Max Hearts):</label>
-        <input type="number" id="conf_max_hearts" style="width: 100px;">
-        
-        <button onclick="saveAllSettings()" class="save-btn">
-            💾 บันทึกการตั้งค่าทั้งหมด
-        </button>
+        <button onclick="saveAllSettings()" class="save-btn">💾 บันทึกการตั้งค่าทั้งหมด</button>
     </div>
 
     <div class="box">
-        <h2>💬 ห้องแชท Real-time</h2>
-        <div class="chat-log" id="adminChatLog">Loading...</div>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="adminInput" placeholder="ตอบในนามบอท..." onkeypress="handleEnter(event)">
-            <button onclick="adminSend()" class="send-btn">ส่ง</button>
-        </div>
+        <h2>💬 แชท & บอท</h2>
+        <button id="botSwitch" onclick="toggleBot()" style="width:100%; padding:10px; margin-bottom:10px;">Bot Status</button>
+        <button onclick="clearChat()" style="background:#ff4757; color:white; width:100%;">ล้างแชท</button>
+        <div class="chat-log" id="adminChatLog"></div>
+        <input type="text" id="adminInput" placeholder="ตอบกลับ..." onkeypress="if(event.key==='Enter') adminSend()">
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue, set, query, limitToLast, remove, update } 
-        from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getDatabase, ref, push, onValue, set, query, limitToLast, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
@@ -105,119 +96,131 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        // ตัวแปรเก็บรูปชั่วคราว
+        let currentGallery = [];
 
-        // -------------------------
-        // 1. ดึงค่าจาก Firebase มาใส่ในช่อง Input
-        // -------------------------
+        // 1. ดึงข้อมูลมาโชว์
         onValue(ref(db, 'site_config'), (snapshot) => {
-            const data = snapshot.val();
-            if(data) {
-                // สี
-                if(data.colors) {
-                    document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
-                    document.getElementById('conf_text').value = data.colors.text || "#000000";
-                    document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
-                    document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
-                }
-                // ข้อความ
-                document.getElementById('conf_headline').value = data.headline || "";
-                document.getElementById('conf_names').value = data.coupleNames || "";
-                
-                // ✅ จดหมาย (สำคัญ!)
-                document.getElementById('conf_deep_msg').value = data.deepMessage || "";
-
-                // เกม
-                if(data.game) {
-                    document.getElementById('conf_max_hearts').value = data.game.maxHearts || 100;
-                }
+            const data = snapshot.val() || {};
+            
+            // สี & ข้อความ
+            if(data.colors) {
+                document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
+                document.getElementById('conf_text').value = data.colors.text || "#000000";
+                document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
+                document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
             }
+            document.getElementById('conf_headline').value = data.headline || "";
+            document.getElementById('conf_names').value = data.coupleNames || "";
+            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+            if(data.game) document.getElementById('conf_max_hearts').value = data.game.maxHearts || 9;
+
+            // ✅ แกลเลอรี่: ดึงมาเก็บไว้ในตัวแปร และวาดรายการ
+            currentGallery = data.gallery || [];
+            renderGalleryList();
         });
 
-        // -------------------------
-        // 2. ฟังก์ชันบันทึกค่า (Save)
-        // -------------------------
+        // ฟังก์ชันวาดรายการรูปในหน้า Admin
+        function renderGalleryList() {
+            const listDiv = document.getElementById('gallery_list');
+            listDiv.innerHTML = '';
+            
+            if(currentGallery.length === 0) {
+                listDiv.innerHTML = '<div style="color:#aaa; text-align:center;">ยังไม่มีรูปครับ</div>';
+                return;
+            }
+
+            currentGallery.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'photo-item';
+                div.innerHTML = `
+                    <img src="${item.url}" onerror="this.src='https://via.placeholder.com/50?text=Error'">
+                    <div class="photo-info">
+                        <div style="font-weight:bold;">${item.caption}</div>
+                        <div class="photo-url">${item.url}</div>
+                    </div>
+                    <button class="delete-btn" onclick="removePhoto(${index})">ลบ</button>
+                `;
+                listDiv.appendChild(div);
+            });
+        }
+
+        // ✅ ฟังก์ชันเพิ่มรูป (กดปุ่มบวก)
+        window.addPhoto = function() {
+            const urlInput = document.getElementById('new_img_url');
+            const capInput = document.getElementById('new_img_caption');
+            
+            if(!urlInput.value) return alert("ใส่ลิงก์รูปด้วยครับ!");
+
+            // เพิ่มเข้า array
+            currentGallery.push({
+                url: urlInput.value.trim(),
+                caption: capInput.value.trim() || "❤️"
+            });
+
+            // เคลียร์ช่อง
+            urlInput.value = '';
+            capInput.value = '';
+            
+            // อัปเดตรายการหน้าจอ (ยังไม่เซฟลง DB จนกว่าจะกดปุ่มบันทึกใหญ่)
+            renderGalleryList();
+            // *ทริค: สั่งบันทึกเลยก็ได้นะถ้ารีบ แต่รอปุ่มใหญ่ดีกว่า
+        };
+
+        // ✅ ฟังก์ชันลบรูป
+        window.removePhoto = function(index) {
+            if(confirm("ลบรูปนี้จริงเหรอ?")) {
+                currentGallery.splice(index, 1); // ลบออกจาก array
+                renderGalleryList();
+            }
+        };
+
+        // 2. บันทึกทุกอย่างลง Firebase
         window.saveAllSettings = function() {
             const updates = {};
-            
-            // สี
             updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
             updates['site_config/colors/text'] = document.getElementById('conf_text').value;
             updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
             updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
             
-            // ข้อความทั่วไป
             updates['site_config/headline'] = document.getElementById('conf_headline').value;
             updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
-            
-            // ✅ บันทึกจดหมาย
             updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
-            
-            // เกม
             updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
+            
+            // ✅ บันทึกแกลเลอรี่ลงไปทั้งก้อน
+            updates['site_config/gallery'] = currentGallery;
 
             update(ref(db), updates)
-                .then(() => alert("✅ บันทึกเรียบร้อย! หน้าเว็บแฟนเปลี่ยนทันทีครับ"))
-                .catch((err) => alert("❌ เกิดข้อผิดพลาด: " + err));
+                .then(() => alert("✅ บันทึกแล้ว! รูปขึ้นหน้าเว็บทันทีครับ"))
+                .catch((err) => alert("Error: " + err));
         };
 
-        // -------------------------
-        // 3. ระบบแชท Admin
-        // -------------------------
+        // ... (ส่วน Chat Bot เหมือนเดิม ย่อไว้เพื่อประหยัดพื้นที่) ...
         const botStatusRef = ref(db, 'bot_status');
-        onValue(botStatusRef, (snapshot) => {
-            const isActive = snapshot.val();
+        onValue(botStatusRef, (snap) => {
             const btn = document.getElementById('botSwitch');
-            if (isActive) {
-                btn.innerText = "✅ บอททำงานอยู่ (กดเพื่อปิด)";
-                btn.className = "switch-btn on";
-            } else {
-                btn.innerText = "⚠️ บอทปิดอยู่ (คุณต้องตอบเอง)";
-                btn.className = "switch-btn off";
-            }
+            if(snap.val()) { btn.innerText = "✅ Bot ON"; btn.style.background = "#28a745"; btn.style.color="white"; }
+            else { btn.innerText = "⚠️ Bot OFF"; btn.style.background = "#ddd"; btn.style.color="#333"; }
         });
-
-        const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
-        onValue(chatRef, (snapshot) => {
-            const data = snapshot.val();
-            const logDiv = document.getElementById('adminChatLog');
-            logDiv.innerHTML = ''; 
-            if (data) {
-                Object.values(data).forEach(msg => {
-                    const d = document.createElement('div');
-                    const isUser = msg.sender === 'user';
-                    d.className = `msg-row ${isUser ? 'u' : 'b'}`;
-                    d.innerHTML = `<b>${isUser ? 'มิ้ว' : 'คุณ/บอท'}</b>: ${msg.text}`;
-                    const clearFix = document.createElement('div');
-                    clearFix.style.clear = 'both';
-                    logDiv.appendChild(d);
-                    logDiv.appendChild(clearFix);
-                });
-                logDiv.scrollTop = logDiv.scrollHeight;
-            } else {
-                logDiv.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;">ยังไม่มีแชทครับ</div>';
-            }
+        window.toggleBot = () => { set(botStatusRef, document.getElementById('botSwitch').innerText.includes('OFF')); };
+        
+        const chatRef = query(ref(db, 'chat_logs'), limitToLast(20));
+        onValue(chatRef, (snap) => {
+            const div = document.getElementById('adminChatLog');
+            div.innerHTML = '';
+            if(snap.val()) Object.values(snap.val()).forEach(msg => {
+                div.innerHTML += `<div class="msg-row ${msg.sender==='user'?'u':'b'}">${msg.text}</div>`;
+            });
+            div.scrollTop = div.scrollHeight;
         });
-
-        window.toggleBot = function() {
-            const btn = document.getElementById('botSwitch');
-            const isCurrentlyOn = btn.classList.contains('on');
-            set(botStatusRef, !isCurrentlyOn);
+        window.adminSend = () => {
+            const inp = document.getElementById('adminInput');
+            if(inp.value) push(ref(db, 'chat_logs'), { text: inp.value, sender: 'bot', timestamp: Date.now() });
+            inp.value='';
         };
-
-        window.adminSend = function() {
-            const input = document.getElementById('adminInput');
-            if(input.value.trim() === "") return;
-            push(ref(db, 'chat_logs'), { text: input.value, sender: 'bot', timestamp: Date.now() });
-            input.value = '';
-        };
-
-        window.handleEnter = function(e) { if(e.key === 'Enter') adminSend(); }
-
-        window.clearChat = function() {
-            if(confirm("⚠️ ล้างแชทแน่นะครับ? (กู้ไม่ได้นะ)")) {
-                remove(ref(db, 'chat_logs')).then(() => alert("ล้างเรียบร้อย!"));
-            }
-        };
+        window.clearChat = () => { if(confirm("ลบแชท?")) remove(ref(db, 'chat_logs')); };
     </script>
 </body>
 </html>
