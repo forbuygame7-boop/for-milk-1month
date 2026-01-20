@@ -1,4 +1,4 @@
-// chat-core.js (AI Powered Edition 🧠)
+// chat-core.js (AI Powered Edition 🧠 - Final Fix)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,8 +19,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 ใส่ API Key ของ Gemini ที่คุณก๊อปมา (ผมใส่ให้แล้วตามรูปที่คุณส่งมา)
-const GEMINI_API_KEY = "AIzaSyCDHE7Fq5_7EAEbS6HPTd45ysGrUsCwJkA"; 
+// 🔥 ใส่ API Key อันใหม่ที่คุณเพิ่งสร้าง (อย่าใช้อันเดิมที่เคยหลุดนะ)
+const GEMINI_API_KEY = "AIzaSyDKSu1lq1IVFG1ax9kd48lip4V_RPhk-z0"; 
 
 // ==========================================
 // 1. ส่วน UI (หน้าจอมือถือ)
@@ -201,10 +201,10 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ฉบับแก้ไข: ใช้รุ่น gemini-pro ที่เสถียรกว่า)
+// 🤖 ฟังก์ชันคุยกับ AI (ฉบับ Final Fix: ใช้รุ่น gemini-1.5-flash)
 async function askGeminiAI(userText) {
-    // เปลี่ยนจาก gemini-1.5-flash เป็น gemini-pro (ชัวร์กว่า)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    // เปลี่ยน URL เป็นรุ่น 1.5-flash (เสถียรสุดและฟรี)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     // บทบาทของบอท (Prompt Engineering)
     const prompt = `
@@ -226,16 +226,17 @@ async function askGeminiAI(userText) {
         });
 
         if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API Error Detail:", errorData); // ดูตรงนี้ถ้ายังพัง
             throw new Error(`API Error: ${response.status}`);
         }
 
         const data = await response.json();
         
-        // ดึงคำตอบจาก AI (ซับซ้อนหน่อย เพราะโครงสร้าง JSON ของ Google)
+        // ดึงคำตอบจาก AI
         if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
             return data.candidates[0].content.parts[0].text;
         } else {
-            console.error("AI Structure Error:", data); // ดูใน Console ว่าผิดตรงไหน
             return "รักนะครับ (เน็ตพี่หมีกระตุกนิดนึง)";
         }
     } catch (error) {
@@ -259,4 +260,3 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
-
