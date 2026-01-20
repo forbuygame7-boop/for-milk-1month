@@ -20,7 +20,7 @@ const db = getDatabase(app);
 let isBotActive = true; 
 
 // 🔥 API Key (อันใหม่ที่ถูกต้อง)
-const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
+const GEMINI_API_KEY = "AIzaSyAk05Xay_9iENiERuFZ1aRrllwMotXSyjo"; 
 
 // ==========================================
 // 1. ส่วน UI (หน้าจอมือถือ)
