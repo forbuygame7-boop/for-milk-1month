@@ -82,47 +82,97 @@ body {
     text-align: left;
 }
 
-/* --- ตราประทับหัวใจ --- */
+/* --- ตราประทับหัวใจ (Luxury Wax Seal Style) --- */
 .heart-seal {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* จัดให้อยู่ตรงกลางเป๊ะ */
-    font-size: 4rem;
-    z-index: 10; /* อยู่ชั้นบนสุด */
-    text-shadow: 0 5px 10px rgba(0,0,0,0.2);
-    transition: all 0.8s ease-in-out;
+    transform: translate(-50%, -50%);
+    
+    /* ขนาดและรูปร่าง */
+    width: 60px;
+    height: 60px;
+    background: #d62828; /* สีแดงเข้มแบบครั่ง */
+    border-radius: 50%;
+    
+    /* จัดไอคอนหัวใจให้อยู่ตรงกลาง */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: #ffcccc; /* สีหัวใจข้างใน */
+    
+    /* แสงและเงาเพื่อให้ดูนูน (3D Effect) */
+    box-shadow: 
+        inset 2px 2px 5px rgba(255, 255, 255, 0.4), /* แสงกระทบด้านบน */
+        inset -2px -2px 5px rgba(0, 0, 0, 0.3),    /* เงาด้านล่าง */
+        0 5px 15px rgba(0, 0, 0, 0.3);              /* เงาตกกระทบพื้น */
+        
+    border: 2px solid #b30000; /* ขอบเข้มๆ */
+    z-index: 10;
+    cursor: pointer;
+    
+    /* อนิเมชั่นให้หัวใจเต้นตุบๆ เรียกร้องความสนใจ */
+    animation: heartbeat 1.5s infinite;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-
-/* --- STATE: เมื่อซองเปิด (Class .open ถูกเติมเข้ามา) --- */
-
-/* เลื่อนฝาบนขึ้นไป 120px และทำให้จางลง */
-.envelope-wrapper.open .top-flap {
-    transform: translateY(-120px);
-    opacity: 0.5;
-}
-/* เลื่อนฝาล่างลงไป 120px และทำให้จางลง */
-.envelope-wrapper.open .bottom-flap {
-    transform: translateY(120px);
-    opacity: 0.5;
+/* เอฟเฟกต์ตอนเอาเมาส์ชี้ */
+.heart-seal:hover {
+    transform: translate(-50%, -50%) scale(1.1); /* ขยายใหญ่ขึ้น */
+    background: #e60000; /* สีสดขึ้น */
+    box-shadow: 
+        inset 2px 2px 5px rgba(255, 255, 255, 0.5),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.3),
+        0 8px 20px rgba(255, 77, 77, 0.6); /* เงาเรืองแสงสีแดง */
 }
 
-/* สั่งให้หัวใจหมุน */
+/* เอฟเฟกต์ตอนกด */
+.heart-seal:active {
+    transform: translate(-50%, -50%) scale(0.95); /* ยุบลงนิดนึง */
+}
+
+/* สร้างวงกลมชั้นนอกให้ดูเหมือนรอยปั๊ม */
+.heart-seal::after {
+    content: '';
+    position: absolute;
+    top: -6px; left: -6px;
+    right: -6px; bottom: -6px;
+    border-radius: 50%;
+    border: 2px dashed rgba(214, 40, 40, 0.5); /* เส้นประจางๆ รอบนอก */
+    animation: spinSlow 10s linear infinite;
+}
+
+/* --- Keyframes อนิเมชั่น --- */
+
+/* หัวใจเต้น */
+@keyframes heartbeat {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    10% { transform: translate(-50%, -50%) scale(1.1); } /* เด้ง 1 */
+    20% { transform: translate(-50%, -50%) scale(1); }
+    30% { transform: translate(-50%, -50%) scale(1.1); } /* เด้ง 2 */
+    40% { transform: translate(-50%, -50%) scale(1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* เส้นประหมุนช้าๆ */
+@keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* (ของเดิมที่มีอยู่แล้ว ห้ามลบนะ) ตอนเปิดซอง */
 .envelope-wrapper.open .heart-seal {
     animation: spinHeart 1s ease-in-out forwards;
-    /* forwards คือหมุนเสร็จแล้วให้หยุดอยู่ที่ท่านั้น */
+    background: transparent; /* ทำให้พื้นหลังหายไป */
+    box-shadow: none;        /* เอาเงาออก */
+    border: none;
 }
-
-/* แสดงตัวจดหมาย และขยายขนาดขึ้นมา */
-.envelope-wrapper.open .letter-content {
-    opacity: 1;
-    /* ขยายความสูงขึ้นให้อ่านง่าย */
-    height: 300px; 
-    transform: translate(-50%, -50%) scale(1); /* กลับสู่ขนาดปกติ */
-    z-index: 15; /* ย้ายขึ้นมาอยู่ชั้นบนสุดแทน เพื่อให้อ่านได้ชัดๆ */
+/* แก้ไขสีหัวใจตอนเปิดซองให้เป็นสีแดงสด */
+.envelope-wrapper.open .heart-seal {
+    color: #ff4d4d; 
+    font-size: 4rem; /* ขยายใหญ่ตอนหมุน */
 }
-
 
 /* Keyframes คือการสร้างท่าทาง Animation */
 @keyframes spinHeart {
@@ -146,4 +196,5 @@ body {
 .back-btn.hidden {
     opacity: 0;
     pointer-events: none; /* ห้ามกดตอนยังไม่โผล่ */
+
 }
