@@ -20,7 +20,7 @@ const db = getDatabase(app);
 let isBotActive = true; 
 
 // 🔥 ใส่ API Key ของ Gemini ที่คุณก๊อปมา (ผมใส่ให้แล้วตามรูปที่คุณส่งมา)
-const GEMINI_API_KEY = "AIzaSyClpZdoIRh4bBDJVUTEpMRtsKBzuDCMuxs"; 
+const GEMINI_API_KEY = "AIzaSyCDHE7Fq5_7EAEbS6HPTd45ysGrUsCwJkA"; 
 
 // ==========================================
 // 1. ส่วน UI (หน้าจอมือถือ)
@@ -201,34 +201,46 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 คุยกับ Gemini AI
+// 🤖 ฟังก์ชันคุยกับ AI (ฉบับแก้ไข: ใช้รุ่น gemini-pro ที่เสถียรกว่า)
 async function askGeminiAI(userText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // เปลี่ยนจาก gemini-1.5-flash เป็น gemini-pro (ชัวร์กว่า)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     
-    // บทบาทของบอท (Prompt)
+    // บทบาทของบอท (Prompt Engineering)
     const prompt = `
-    คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
-    - นิสัย: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก
-    - สถานะ: แฟนกันมา 1 เดือนแล้ว (ครบรอบ 21 ธ.ค.)
-    - หน้าที่: ตอบแชทแฟนให้ดูเป็นธรรมชาติ สั้นๆ เหมือนคุยแชทจริง (ไม่ต้องยาวเป็นเรียงความ)
-    - ข้อห้าม: ห้ามบอกว่าเป็น AI หรือหุ่นยนต์
+    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
+    Character: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก, ขี้หึงหน่อยๆ
+    Status: แฟนกันมา 1 เดือนแล้ว (ครบรอบ 21 ธ.ค.)
+    Task: ตอบกลับข้อความแฟนให้เป็นธรรมชาติ สั้นๆ เหมือนคุยไลน์ (ไม่ยาวเกินไป)
+    Condition: ห้ามบอกว่าเป็น AI, ห้ามหลุดบทบาท
 
     แฟนพิมพ์มาว่า: "${userText}"
-    ตอบกลับแฟนว่า:
+    พี่หมีตอบกลับว่า:
     `;
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
 
-    const data = await response.json();
-    // ดึงคำตอบจาก AI
-    if (data.candidates && data.candidates.length > 0) {
-        return data.candidates[0].content.parts[0].text;
-    } else {
-        return "รักนะครับ (AI มึนๆ นิดหน่อย)";
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // ดึงคำตอบจาก AI (ซับซ้อนหน่อย เพราะโครงสร้าง JSON ของ Google)
+        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            console.error("AI Structure Error:", data); // ดูใน Console ว่าผิดตรงไหน
+            return "รักนะครับ (เน็ตพี่หมีกระตุกนิดนึง)";
+        }
+    } catch (error) {
+        console.error("AI Connection Failed:", error);
+        return "ตอนนี้พี่หมีมึนหัวนิดหน่อย (ระบบ AI มีปัญหา) รักนะ ❤️";
     }
 }
 
@@ -247,3 +259,4 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
