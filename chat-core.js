@@ -19,11 +19,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 ใส่ API Key ของ Gemini ตรงนี้! (เอาที่ก๊อปมาใส่แทน AIzaSy...)
+// 🔥 ใส่ API Key ของ Gemini ที่คุณก๊อปมา (ผมใส่ให้แล้วตามรูปที่คุณส่งมา)
 const GEMINI_API_KEY = "AIzaSyClpZdoIRh4bBDJVUTEpMRtsKBzuDCMuxs"; 
 
 // ==========================================
-// 1. ส่วน UI (หน้าจอมือถือ) - เหมือนเดิมเป๊ะ
+// 1. ส่วน UI (หน้าจอมือถือ)
 // ==========================================
 const phoneCSS = `
 <style>
@@ -100,7 +100,7 @@ const phoneHTML = `
 })();
 
 // ==========================================
-// 2. ฟังก์ชันแชท (อัปเกรดเป็น AI)
+// 2. ฟังก์ชันแชท (AI + Brain)
 // ==========================================
 
 function listenForMessages() {
@@ -132,25 +132,21 @@ function listenForMessages() {
 function listenForBotStatus() {
     const statusRef = ref(db, 'bot_status');
     onValue(statusRef, (snapshot) => {
-        isBotActive = snapshot.val(); // อัปเดตตัวแปรจริง
-        
-        // เปลี่ยนชื่อ Header ตามสถานะ
+        isBotActive = snapshot.val(); 
         const nameDisplay = document.getElementById('chat-header-name');
         const statusDisplay = document.getElementById('chat-bot-status');
         
         if (isBotActive) {
-            // โหมดบอท
-            nameDisplay.innerText = CONFIG.chatSystem.botName; 
+            nameDisplay.innerText = "พี่หมี (AI)"; 
             statusDisplay.innerText = 'ตอบกลับอัตโนมัติ';
         } else {
-            // โหมดคุณตอบเอง (Admin)
-            nameDisplay.innerText = CONFIG.chatSystem.adminName; 
+            nameDisplay.innerText = "เค้าเอง (Admin)"; 
             statusDisplay.innerText = 'Online';
         }
     });
 }
 
-// 🔥 ฟังก์ชันส่งข้อความ (แก้ใหม่ให้รองรับ AI)
+// 🔥 ฟังก์ชันส่งข้อความ
 window.sendUserMessage = async function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
@@ -163,22 +159,22 @@ window.sendUserMessage = async function() {
     if (isBotActive) {
         document.getElementById('chat-bot-status').innerText = 'กำลังพิมพ์...';
         
-        // 2. ให้บอทคิด (AI Thinking...)
+        // 2. ให้บอทคิด
         let reply = "";
         
-        // A. เช็คใน brain.js ก่อน (กฎเหล็กของเรา)
+        // A. เช็คใน brain.js ก่อน (กฎเหล็ก: ถ้ามีคำสำคัญ ให้ตอบตามสคริปต์)
         const localReply = getLocalSmartReply(text);
         
         if (localReply) {
-            reply = localReply; // ถ้าเจอใน brain ให้ตอบอันนี้เลย
-            setTimeout(() => sendBotReply(reply), 1000); // หน่วงเวลานิดนึง
+            reply = localReply;
+            setTimeout(() => sendBotReply(reply), 1000); 
         } else {
             // B. ถ้าไม่เจอ -> ให้ AI (Gemini) คิดให้
             try {
                 reply = await askGeminiAI(text);
             } catch (error) {
                 console.error("AI Error:", error);
-                reply = "ตอนนี้สมอง AI รวนนิดหน่อยครับ รักนะ ❤️"; // คำตอบกันตาย
+                reply = "ตอนนี้สมอง AI รวนนิดหน่อยครับ รักนะ ❤️"; 
             }
             sendBotReply(reply);
         }
@@ -189,7 +185,7 @@ function sendBotReply(text) {
     push(ref(db, 'chat_logs'), { text: text, sender: 'bot', timestamp: Date.now() });
 }
 
-// 🧠 ฟังก์ชันเช็ค brain.js (ของเดิม)
+// 🧠 เช็ค brain.js
 function getLocalSmartReply(text) {
     const cleanText = text.toLowerCase().trim();
     if (typeof window.GENERAL_BRAIN !== 'undefined') {
@@ -202,21 +198,21 @@ function getLocalSmartReply(text) {
             }
         }
     }
-    return null; // ไม่เจอ
+    return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ของใหม่!)
+// 🤖 คุยกับ Gemini AI
 async function askGeminiAI(userText) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // สั่งบทบาทให้ AI (Prompt Engineering)
+    // บทบาทของบอท (Prompt)
     const prompt = `
     คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
     - นิสัย: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก
     - สถานะ: แฟนกันมา 1 เดือนแล้ว (ครบรอบ 21 ธ.ค.)
     - หน้าที่: ตอบแชทแฟนให้ดูเป็นธรรมชาติ สั้นๆ เหมือนคุยแชทจริง (ไม่ต้องยาวเป็นเรียงความ)
     - ข้อห้าม: ห้ามบอกว่าเป็น AI หรือหุ่นยนต์
-    
+
     แฟนพิมพ์มาว่า: "${userText}"
     ตอบกลับแฟนว่า:
     `;
@@ -228,10 +224,15 @@ async function askGeminiAI(userText) {
     });
 
     const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+    // ดึงคำตอบจาก AI
+    if (data.candidates && data.candidates.length > 0) {
+        return data.candidates[0].content.parts[0].text;
+    } else {
+        return "รักนะครับ (AI มึนๆ นิดหน่อย)";
+    }
 }
 
-// ฟังก์ชันเสริมอื่นๆ (Utility)
+// Utility
 window.togglePhone = function() {
     const widget = document.getElementById('phone-widget');
     widget.classList.toggle('closed');
