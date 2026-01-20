@@ -46,14 +46,18 @@ onValue(ref(db, 'site_config'), (snapshot) => {
         Object.assign(window.CONFIG, data);
         console.log("🔄 ข้อมูลมาแล้ว:", data);
 
+        
         // 1. อัปเดตสีทันที
         if (typeof applyTheme === 'function') applyTheme();
 
-        // 2. ✅ อัปเดตจดหมายทันที (แก้ตรงนี้แหละ!)
+        // 2. อัปเดตจดหมายทันที
         const letterEl = document.getElementById('letterBody');
         if (letterEl) {
             letterEl.innerHTML = window.CONFIG.deepMessage || "เขียนข้อความใน Admin หรือยังครับ?";
         }
+
+        // 3. ✅ สั่งวาดแกลเลอรี่ใหม่ (เพิ่มบรรทัดนี้!)
+        if (typeof renderGallery === 'function') renderGallery();
     }
 });
 
@@ -76,3 +80,4 @@ window.applyTheme = function() {
     const legs = document.querySelectorAll('.cat-leg');
     legs.forEach(l => l.style.backgroundColor = window.CONFIG.colors.cat || "#333");
 };
+
