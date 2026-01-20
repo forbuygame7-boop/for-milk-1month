@@ -234,7 +234,8 @@ function getLocalSmartReply(text) {
 // 🤖 ฟังก์ชันคุยกับ AI (ใช้ตัวแปร GEMINI_API_KEY ที่ดึงมาจาก Firebase)
 async function askGeminiAI(userText) {
     // ใช้ 1.5 flash เพราะเสถียรสุดตอนนี้
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
     
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
@@ -278,3 +279,4 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
