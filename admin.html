@@ -252,32 +252,56 @@
         window.toggleBot = () => { set(botStatusRef, document.getElementById('botSwitch').innerText.includes('OFF')); };
         
         const chatRef = query(ref(db, 'chat_logs'), limitToLast(20));
-        // 1. ส่วนดึงค่า (onValue)
+        // ------------------------------------------
+        // 1. ดึงค่าจาก Firebase มาโชว์ (Full Version)
+        // ------------------------------------------
         onValue(ref(db, 'site_config'), (snapshot) => {
             const data = snapshot.val() || {};
             
-            // ... (โค้ดเดิม) ...
+            // 1.1 สี (Colors)
+            if(data.colors) {
+                document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
+                document.getElementById('conf_text').value = data.colors.text || "#000000";
+                document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
+                document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
+            }
+
+            // 1.2 ข้อความทั่วไป (Texts)
+            document.getElementById('conf_headline').value = data.headline || "";
+            document.getElementById('conf_names').value = data.coupleNames || "";
+            
+            // 1.3 จดหมายลับ (Deep Message)
             document.getElementById('conf_deep_msg').value = data.deepMessage || "";
 
-            // ✅ เพิ่มบรรทัดนี้: ดึง Key มาโชว์
-            document.getElementById('conf_api_key').value = data.apiKey || ""; 
+            // 1.4 ✅ API Key (ที่เพิ่งเพิ่มใหม่)
+            document.getElementById('conf_api_key').value = data.apiKey || "";
 
-            // ... (โค้ดเดิม) ...
+            // 1.5 เกม (Game Settings)
+            if(data.game) {
+                document.getElementById('conf_max_hearts').value = data.game.maxHearts || 9;
+            }
+
+            // 1.6 📸 แกลเลอรี่ (Gallery)
+            // ดึงข้อมูลมาเก็บในตัวแปร และสั่งวาดรายการรูป
+            currentGallery = data.gallery || [];
+            renderGalleryList();
+
+            // 1.7 ⚡ ข้อความ Flash (Flash Messages)
+            // โหลดครั้งแรกครั้งเดียว (isFirstLoad) เพื่อไม่ให้ช่องที่กำลังพิมพ์อยู่โดนรีเฟรชหาย
+            if(isFirstLoad) {
+                const messages = data.flashMessages || [];
+                const container = document.getElementById('flash_container');
+                container.innerHTML = ''; // ล้างของเก่าก่อน
+                
+                if(messages.length > 0) {
+                    messages.forEach(msg => window.addFlashInput(msg));
+                } else {
+                    // ถ้าไม่มีเลย ให้เพิ่มช่องว่างๆ ไว้ 1 อัน
+                    window.addFlashInput("ใส่ข้อความที่นี่...");
+                }
+                isFirstLoad = false; // จำไว้ว่าโหลดเสร็จแล้ว ครั้งหน้าจะไม่กวน
+            }
         });
-
-        // 2. ส่วนบันทึก (saveAllSettings)
-        window.saveAllSettings = function() {
-            const updates = {};
-            
-            // ... (โค้ดเดิม) ...
-            updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
-            
-            // ✅ เพิ่มบรรทัดนี้: บันทึก Key ลง Firebase
-            updates['site_config/apiKey'] = document.getElementById('conf_api_key').value.trim();
-
-            // ... (โค้ดเดิม) ...
-            update(ref(db), updates)...
-        };
         window.clearChat = () => { if(confirm("ลบแชท?")) remove(ref(db, 'chat_logs')); };
     </script>
 </body>
