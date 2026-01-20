@@ -197,9 +197,10 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (เพิ่มการแสดง Error แบบละเอียด)
+// 🤖 ฟังก์ชันคุยกับ AI (ฉบับแก้จบงาน: ใช้รุ่น Pro มาตรฐาน)
 async function askGeminiAI(userText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // 1. เปลี่ยน URL เป็นรุ่น 'gemini-pro' (ตัวนี้มีทุกเครื่อง ชัวร์ที่สุด)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
@@ -209,23 +210,30 @@ async function askGeminiAI(userText) {
     Reply:
     `;
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        // ส่งค่า Error กลับไปให้โชว์หน้าจอ
-        return `🚫 AI Error: ${errorData.error.message}`;
-    }
+        if (!response.ok) {
+            const errorData = await response.json();
+            // ถ้ายัง Error อีก ให้ฟ้องออกมาเลยว่าผิดตรงไหน
+            throw new Error(errorData.error.message || response.statusText);
+        }
 
-    const data = await response.json();
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
-    } else {
-        return "❓ AI Error: ไม่ได้รับคำตอบจาก Google (Format ผิดพลาด)";
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            return "รักนะครับ (พี่หมีกำลังเรียบเรียงคำพูด)";
+        }
+    } catch (error) {
+        console.error("AI Connection Failed:", error);
+        // แสดง Error ให้เห็นชัดๆ จะได้รู้ว่าต้องแก้อะไรต่อ
+        return `⚠️ พี่หมีป่วย: ${error.message}`;
     }
 }
 
@@ -243,3 +251,4 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
