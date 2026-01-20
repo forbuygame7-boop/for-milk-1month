@@ -1,4 +1,4 @@
-// chat-core.js (Admin-Only Error Mode 🛡️)
+// chat-core.js (Final Stable Version 🚀)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 API Key (อันใหม่ที่ถูกต้อง)
+// 🔥 API Key (ต้องเป็นคีย์จากโปรเจกต์ใหม่ และเพิ่ม 127.0.0.1 ใน Restriction แล้ว)
 const GEMINI_API_KEY = "AIzaSyAk05Xay_9iENiERuFZ1aRrllwMotXSyjo"; 
 
 // ==========================================
@@ -177,10 +177,9 @@ window.sendUserMessage = async function() {
             // 🚨 ถ้า AI พัง:
             
             // 1. ส่ง Error เข้า Chat Log แต่แปะป้ายว่าเป็น 'admin_error' 
-            // (เพื่อให้ไปโผล่ที่หน้า Admin แต่หน้าจอมิ้วจะมองไม่เห็นเพราะเรากรองออก)
             push(ref(db, 'chat_logs'), { 
                 text: `🚫 AI Error: ${error.message}`, 
-                sender: 'admin_error', // <--- คีย์เวิร์ดสำคัญ
+                sender: 'admin_error', 
                 timestamp: Date.now() 
             });
 
@@ -217,9 +216,10 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ใช้รุ่น Pro)
+// 🤖 ฟังก์ชันคุยกับ AI (เปลี่ยนกลับมาใช้รุ่น 1.5-flash ที่เสถียรสุด)
 async function askGeminiAI(userText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    // ใช้รุ่น 1.5-flash (ตัวใหม่ล่าสุดและฟรี)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
@@ -237,6 +237,7 @@ async function askGeminiAI(userText) {
 
     if (!response.ok) {
         const errorData = await response.json();
+        // ส่ง Error ตัวจริงกลับไปให้ระบบจัดการ
         throw new Error(errorData.error.message || `API Error: ${response.status}`);
     }
 
