@@ -20,7 +20,7 @@ const db = getDatabase(app);
 let isBotActive = true; 
 
 // 🔥 ใส่ API Key อันใหม่ที่คุณเพิ่งสร้าง (อย่าใช้อันเดิมที่เคยหลุดนะ)
-const GEMINI_API_KEY = "AIzaSyDKSu1lq1IVFG1ax9kd48lip4V_RPhk-z0"; 
+const GEMINI_API_KEY = "AIzaSyDMZRsaus7b4_50WhaqK6rfgRd_vFFuvws"; 
 
 // ==========================================
 // 1. ส่วน UI (หน้าจอมือถือ)
@@ -260,3 +260,4 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
