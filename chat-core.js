@@ -229,7 +229,7 @@ function getLocalSmartReply(text) {
 
 // 🤖 ฟังก์ชันคุยกับ AI (รับ History มาด้วย)
 async function askGeminiAI(userText, historyContext) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     // Prompt ที่ปรับแต่งให้รู้จักมิ้ว
     const prompt = `
@@ -284,4 +284,5 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
 
