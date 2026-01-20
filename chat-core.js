@@ -227,12 +227,24 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (รับ History มาด้วย)
+// 🤖 ฟังก์ชันคุยกับ AI (รองรับ OpenAI / DeepSeek)
 async function askGeminiAI(userText, historyContext) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite-001:generateContent?key=${GEMINI_API_KEY}`;
+    // -----------------------------------------------------------
+    // ⚙️ ตั้งค่าตรงนี้ (เลือกเอาว่าจะใช้อันไหน)
+    // -----------------------------------------------------------
     
-    // Prompt ที่ปรับแต่งให้รู้จักมิ้ว
-    const prompt = `
+    // แบบที่ 1: ใช้ DeepSeek (ถูกและฉลาด / แนะนำ!)
+    // ไปขอคีย์ที่: https://platform.deepseek.com/
+    const API_URL = "https://api.deepseek.com/chat/completions";
+    const MODEL_NAME = "deepseek-chat"; 
+
+    // แบบที่ 2: ใช้ OpenAI (ChatGPT / ต้องเติมเงินก่อนใช้)
+    // const API_URL = "https://api.openai.com/v1/chat/completions";
+    // const MODEL_NAME = "gpt-3.5-turbo"; 
+    
+    // -----------------------------------------------------------
+
+    const promptSystem = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" กำลังคุยกับแฟนชื่อ "มิ้ว"
     Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ
     Objective: ตอบกลับสั้นๆ เหมือนแชทกันจริงๆ และ "ชวนคุยต่อ" เสมอ
@@ -245,30 +257,44 @@ async function askGeminiAI(userText, historyContext) {
 
     Chat History (บทสนทนาก่อนหน้า):
     ${historyContext}
-
-    มิ้วพิมพ์มาว่า: "${userText}"
-    พี่หมีตอบกลับ (ไม่ต้องใส่ชื่อนำหน้า):
     `;
 
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${GEMINI_API_KEY}` // ⚠️ อย่าลืมเอา Key ใหม่ไปใส่ใน Firebase ด้วยนะ!
+            },
+            body: JSON.stringify({
+                model: MODEL_NAME,
+                messages: [
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: userText }
+                ],
+                temperature: 1.0
+            })
+        });
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error.message || `API Error: ${response.status}`);
-    }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+        }
 
-    const data = await response.json();
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
-    } else {
-        throw new Error("No response from AI candidates");
+        const data = await response.json();
+        
+        // แกะคำตอบ (OpenAI/DeepSeek ใช้ format นี้)
+        if (data.choices && data.choices.length > 0) {
+            return data.choices[0].message.content;
+        } else {
+            throw new Error("AI ไม่ตอบกลับมาครับ");
+        }
+
+    } catch (error) {
+        console.error("AI Error:", error);
+        return "ตอนนี้พี่หมีมึนหัวนิดหน่อย (ระบบ AI มีปัญหา) รอแป๊บนึงนะค้าบ 🤕";
     }
 }
-
 // Utility
 window.togglePhone = function() {
     const widget = document.getElementById('phone-widget');
@@ -284,6 +310,7 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
 
 
 
