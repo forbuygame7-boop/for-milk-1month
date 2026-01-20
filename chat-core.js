@@ -1,4 +1,4 @@
-// chat-core.js (AI Powered Edition 🧠 - Final Fix)
+// chat-core.js (Debug Edition 🩺 - โชว์ Error ให้เห็นกันจะๆ)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 ใส่ API Key อันใหม่ที่คุณเพิ่งสร้าง (อย่าใช้อันเดิมที่เคยหลุดนะ)
+// 🔥 ใส่ API Key อันใหม่จากโปรเจกต์ใหม่ (ตรวจสอบดีๆ นะครับว่าก๊อปมาครบ)
 const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
 
 // ==========================================
@@ -100,7 +100,7 @@ const phoneHTML = `
 })();
 
 // ==========================================
-// 2. ฟังก์ชันแชท (AI + Brain)
+// 2. ฟังก์ชันแชท (AI + Brain + Debugger)
 // ==========================================
 
 function listenForMessages() {
@@ -146,37 +146,34 @@ function listenForBotStatus() {
     });
 }
 
-// 🔥 ฟังก์ชันส่งข้อความ
 window.sendUserMessage = async function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
     if (text === "") return;
 
-    // 1. ส่งข้อความ User
     push(ref(db, 'chat_logs'), { text: text, sender: 'user', timestamp: Date.now() });
     input.value = '';
 
     if (isBotActive) {
         document.getElementById('chat-bot-status').innerText = 'กำลังพิมพ์...';
         
-        // 2. ให้บอทคิด
-        let reply = "";
-        
-        // A. เช็คใน brain.js ก่อน (กฎเหล็ก: ถ้ามีคำสำคัญ ให้ตอบตามสคริปต์)
+        // A. เช็คใน brain.js ก่อน
         const localReply = getLocalSmartReply(text);
         
         if (localReply) {
-            reply = localReply;
-            setTimeout(() => sendBotReply(reply), 1000); 
+            setTimeout(() => sendBotReply(localReply), 1000); 
         } else {
             // B. ถ้าไม่เจอ -> ให้ AI (Gemini) คิดให้
+            // ส่งคำตอบ "กำลังคิด..." ไปก่อน เพื่อดูว่าฟังก์ชันทำงานไหม
+            // sendBotReply("... (AI กำลังคิด)"); 
+            
             try {
-                reply = await askGeminiAI(text);
+                const aiReply = await askGeminiAI(text);
+                sendBotReply(aiReply);
             } catch (error) {
                 console.error("AI Error:", error);
-                reply = "ตอนนี้สมอง AI รวนนิดหน่อยครับ รักนะ ❤️"; 
+                sendBotReply(`⚠️ Error: ${error.message}`); // ฟ้อง Error ออกมาเลย
             }
-            sendBotReply(reply);
         }
     }
 };
@@ -185,7 +182,6 @@ function sendBotReply(text) {
     push(ref(db, 'chat_logs'), { text: text, sender: 'bot', timestamp: Date.now() });
 }
 
-// 🧠 เช็ค brain.js
 function getLocalSmartReply(text) {
     const cleanText = text.toLowerCase().trim();
     if (typeof window.GENERAL_BRAIN !== 'undefined') {
@@ -201,51 +197,38 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ฉบับ Final Fix: ใช้รุ่น gemini-1.5-flash)
+// 🤖 ฟังก์ชันคุยกับ AI (เพิ่มการแสดง Error แบบละเอียด)
 async function askGeminiAI(userText) {
-    // เปลี่ยน URL เป็นรุ่น 1.5-flash (เสถียรสุดและฟรี)
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // บทบาทของบอท (Prompt Engineering)
     const prompt = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
-    Character: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก, ขี้หึงหน่อยๆ
-    Status: แฟนกันมา 1 เดือนแล้ว (ครบรอบ 21 ธ.ค.)
-    Task: ตอบกลับข้อความแฟนให้เป็นธรรมชาติ สั้นๆ เหมือนคุยไลน์ (ไม่ยาวเกินไป)
-    Condition: ห้ามบอกว่าเป็น AI, ห้ามหลุดบทบาท
-
-    แฟนพิมพ์มาว่า: "${userText}"
-    พี่หมีตอบกลับว่า:
+    Character: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก
+    Task: ตอบกลับสั้นๆ เหมือนคุยไลน์ ห้ามบอกว่าเป็น AI
+    Input: "${userText}"
+    Reply:
     `;
 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("API Error Detail:", errorData); // ดูตรงนี้ถ้ายังพัง
-            throw new Error(`API Error: ${response.status}`);
-        }
+    if (!response.ok) {
+        const errorData = await response.json();
+        // ส่งค่า Error กลับไปให้โชว์หน้าจอ
+        return `🚫 AI Error: ${errorData.error.message}`;
+    }
 
-        const data = await response.json();
-        
-        // ดึงคำตอบจาก AI
-        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            return "รักนะครับ (เน็ตพี่หมีกระตุกนิดนึง)";
-        }
-    } catch (error) {
-        console.error("AI Connection Failed:", error);
-        return "ตอนนี้พี่หมีมึนหัวนิดหน่อย (ระบบ AI มีปัญหา) รักนะ ❤️";
+    const data = await response.json();
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+        return data.candidates[0].content.parts[0].text;
+    } else {
+        return "❓ AI Error: ไม่ได้รับคำตอบจาก Google (Format ผิดพลาด)";
     }
 }
 
-// Utility
 window.togglePhone = function() {
     const widget = document.getElementById('phone-widget');
     widget.classList.toggle('closed');
@@ -260,5 +243,3 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
-
-
