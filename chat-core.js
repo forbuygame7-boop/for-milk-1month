@@ -216,36 +216,37 @@ function getLocalSmartReply(text) {
 
 // 🤖 ฟังก์ชันคุยกับ AI (ใช้ Gemini 1.5 Flash - ตัวที่ชัวร์ที่สุด)
 async function askGeminiAI(userText) {
-    // ใช้ endpoint gemini-1.5-flash ที่ถูกต้องและเสถียรที่สุด
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=${GEMINI_API_KEY}`;
 
-    
     const prompt = `
-    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
-    Character: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก
-    Task: ตอบกลับสั้นๆ เหมือนคุยไลน์ ห้ามบอกว่าเป็น AI
-    Input: "${userText}"
-    Reply:
-    `;
+คุณคือแฟนหนุ่มชื่อ "พี่หมี"
+นิสัย: อบอุ่น ขี้เล่น คลั่งรัก
+คุยสั้นๆ แบบไลน์ ห้ามบอกว่าเป็น AI
+
+แฟนพูดว่า: "${userText}"
+ตอบกลับ:
+`;
 
     const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        body: JSON.stringify({
+            contents: [
+                {
+                    role: "user",
+                    parts: [{ text: prompt }]
+                }
+            ]
+        })
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        // ส่ง Error กลับไปให้ function sendUserMessage จัดการ
-        throw new Error(errorData.error.message || `API Error: ${response.status}`);
+        const err = await response.json();
+        throw new Error(err.error?.message || "Gemini API Error");
     }
 
     const data = await response.json();
-    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
-    } else {
-        throw new Error("No response from AI candidates");
-    }
+    return data.candidates[0].content.parts[0].text;
 }
 
 // Utility
@@ -263,4 +264,5 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
 
