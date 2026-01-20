@@ -9,113 +9,85 @@
         .box { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* Chat Log Area */
         .chat-log { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #fafafa; border-radius: 10px; }
         .msg-row { margin-bottom: 8px; padding: 8px 12px; border-radius: 15px; font-size: 14px; display: inline-block; clear: both; max-width: 80%; }
-        .u { background: #00c300; color: white; float: right; text-align: right; } /* มิ้ว (เขียว) */
-        .b { background: #e9e9eb; color: black; float: left; text-align: left; } /* บอท/คุณ (เทา) */
+        .u { background: #00c300; color: white; float: right; text-align: right; }
+        .b { background: #e9e9eb; color: black; float: left; text-align: left; }
         
-        /* Controls */
-        input[type="text"] { width: 70%; padding: 12px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
+        /* สไตล์ Input และ Textarea */
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; outline: none; box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+        textarea { resize: vertical; min-height: 100px; }
+        
         button { padding: 10px 20px; border: none; cursor: pointer; border-radius: 20px; font-weight: bold; transition: 0.2s; }
         button:hover { opacity: 0.8; transform: scale(1.05); }
 
         .send-btn { background: #007bff; color: white; width: 25%; }
-        
         .switch-btn { padding: 15px; width: 100%; font-size: 1.2rem; cursor: pointer; border: none; border-radius: 10px; color: white; }
         .on { background: #28a745; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); }
         .off { background: #dc3545; box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3); }
-
-        /* ปุ่มล้างแชท (ใหม่) */
-        .delete-btn {
-            background: #ff4757;
-            color: white;
-            margin-top: 10px;
-            width: 100%;
-            padding: 10px;
-        }
+        .delete-btn { background: #ff4757; color: white; margin-top: 10px; width: 100%; padding: 10px; }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <h2>🎮 ควบคุมระบบ</h2>
-        <button id="botSwitch" class="switch-btn on" onclick="toggleBot()">
-            โหลดสถานะ...
-        </button>
+        <h2>🎮 ควบคุมระบบแชท</h2>
+        <button id="botSwitch" class="switch-btn on" onclick="toggleBot()">โหลดสถานะ...</button>
+        <button onclick="clearChat()" class="delete-btn">🗑️ ล้างประวัติแชททั้งหมด</button>
+    </div>
+
+    <div style="margin-top: 30px; padding: 20px; background: #fff; border-radius: 15px; border: 2px solid #ddd; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <h2 style="color: #333;">⚙️ แผงควบคุมหน้าเว็บ (Real-time)</h2>
+
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">🎨 ธีมสี</h3>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <div><label>พื้นหลัง:</label><br><input type="color" id="conf_bg" style="width: 50px; height: 35px;"></div>
+            <div><label>ตัวหนังสือ:</label><br><input type="color" id="conf_text" style="width: 50px; height: 35px;"></div>
+            <div><label>สีปุ่ม:</label><br><input type="color" id="conf_btn" style="width: 50px; height: 35px;"></div>
+            <div><label>สีแมว 🐱:</label><br><input type="color" id="conf_cat" style="width: 50px; height: 35px;"></div>
+        </div>
+
+        <br><hr><br>
+
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">📝 ข้อความหลัก</h3>
+        <label>พาดหัว (Headline):</label><br>
+        <input type="text" id="conf_headline"><br><br>
         
-        <button onclick="clearChat()" class="delete-btn">
-            🗑️ ล้างประวัติแชททั้งหมด
+        <label>ชื่อคู่รัก (Footer):</label><br>
+        <input type="text" id="conf_names"><br><br>
+
+        <br><hr><br>
+        
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">💌 จดหมายลับ</h3>
+        <label>ข้อความในจดหมาย (ใช้ &lt;br&gt; เพื่อขึ้นบรรทัดใหม่):</label><br>
+        <textarea id="conf_deep_msg" rows="5" placeholder="เขียนความในใจตรงนี้..."></textarea>
+        <br><br>
+        
+        <br><hr><br>
+
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">❤️ เกมหัวใจ</h3>
+        <label>จำนวนหัวใจสูงสุด (Max Hearts):</label><br>
+        <input type="number" id="conf_max_hearts" style="width: 100px;"><br><br>
+        
+        <button onclick="saveAllSettings()" style="background: #28a745; color: white; padding: 15px; width: 100%; font-size: 18px; box-shadow: 0 4px 10px rgba(40,167,69,0.3);">
+            💾 บันทึกการตั้งค่าทั้งหมด
         </button>
     </div>
 
-    <div style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 15px; border: 2px solid #ddd;">
-    <h2 style="color: #333;">⚙️ แผงควบคุมระบบ (Real-time)</h2>
-
-    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">🎨 ธีมสี</h3>
-    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-        <div>
-            <label>สีพื้นหลัง:</label><br>
-            <input type="color" id="conf_bg" style="width: 50px; height: 30px;">
-        </div>
-        <div>
-            <label>สีตัวหนังสือ:</label><br>
-            <input type="color" id="conf_text" style="width: 50px; height: 30px;">
-        </div>
-        <div>
-            <label>สีปุ่ม:</label><br>
-            <input type="color" id="conf_btn" style="width: 50px; height: 30px;">
-        </div>
-        <div>
-            <label>สีแมว 🐱:</label><br>
-            <input type="color" id="conf_cat" style="width: 50px; height: 30px;">
-        </div>
-    </div>
-
-    <br><hr><br>
-
-    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">📝 ข้อความหลัก</h3>
-    <label>พาดหัว (Headline):</label><br>
-    <input type="text" id="conf_headline" style="width: 90%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;"><br><br>
-    
-    <label>ชื่อคู่รัก:</label><br>
-    <input type="text" id="conf_names" style="width: 90%; padding: 8px; border-radius: 5px; border: 1px solid #ccc;"><br><br>
-
-    <br><hr><br>
-
-    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">❤️ เกมหัวใจ</h3>
-    <label>จำนวนหัวใจสูงสุด (Max Hearts):</label><br>
-    <input type="number" id="conf_max_hearts" style="width: 100px; padding: 8px; border-radius: 5px; border: 1px solid #ccc;"><br><br>
-
-    <br><hr><br>
-
-    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">💌 จดหมายลับ</h3>
-    <label>ข้อความข้างใน (ใช้ &lt;br&gt; เพื่อขึ้นบรรทัดใหม่):</label><br>
-    <textarea id="conf_deep_msg" rows="5" style="width: 95%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="เขียนความในใจตรงนี้..."></textarea>
-    <br><br>
-    
-    <button onclick="saveAllSettings()" style="background: #28a745; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; transition: 0.3s;">
-        💾 บันทึกการตั้งค่าทั้งหมด
-    </button>
-</div>
-
-    <div class="box">
+    <div class="box" style="margin-top: 20px;">
         <h2>💬 ห้องแชท Real-time</h2>
         <div class="chat-log" id="adminChatLog">Loading...</div>
-        
-        <div style="display:flex; gap:10px; justify-content: space-between;">
-            <input type="text" id="adminInput" placeholder="พิมพ์ตอบเองในนามบอท..." onkeypress="handleEnter(event)">
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="adminInput" placeholder="ตอบในนามบอท..." onkeypress="handleEnter(event)">
             <button onclick="adminSend()" class="send-btn">ส่ง</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        // เพิ่ม 'remove' เข้ามาใน import
-        import { getDatabase, ref, push, onValue, set, query, limitToLast, remove } 
+        import { getDatabase, ref, push, onValue, set, query, limitToLast, remove, update } 
         from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
-        // Config ของคุณ (อันเดิม)
         const firebaseConfig = {
             apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
             authDomain: "love-chat-1month.firebaseapp.com",
@@ -129,7 +101,59 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 1. ดักฟังสถานะบอท
+        // -------------------------
+        // 1. ดึงค่าจาก Firebase มาโชว์ในช่อง
+        // -------------------------
+        onValue(ref(db, 'site_config'), (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                if(data.colors) {
+                    document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
+                    document.getElementById('conf_text').value = data.colors.text || "#000000";
+                    document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
+                    document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
+                }
+                document.getElementById('conf_headline').value = data.headline || "";
+                document.getElementById('conf_names').value = data.coupleNames || "";
+                
+                // ✅ ดึงข้อความจดหมายมาโชว์ (สำคัญ!)
+                document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+
+                if(data.game) {
+                    document.getElementById('conf_max_hearts').value = data.game.maxHearts || 100;
+                }
+            }
+        });
+
+        // -------------------------
+        // 2. ฟังก์ชันบันทึกค่ากลับไปที่ Firebase
+        // -------------------------
+        window.saveAllSettings = function() {
+            const updates = {};
+            // สี
+            updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
+            updates['site_config/colors/text'] = document.getElementById('conf_text').value;
+            updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
+            updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
+            
+            // ข้อความทั่วไป
+            updates['site_config/headline'] = document.getElementById('conf_headline').value;
+            updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
+            
+            // ✅ บันทึกข้อความจดหมาย (ต้องมีบรรทัดนี้!)
+            updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
+            
+            // เกม
+            updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
+
+            update(ref(db), updates)
+                .then(() => alert("✅ บันทึกเรียบร้อย! หน้าเว็บแฟนเปลี่ยนทันทีครับ"))
+                .catch((err) => alert("❌ เกิดข้อผิดพลาด: " + err));
+        }
+
+        // -------------------------
+        // 3. ระบบแชท (ส่วนเดิม)
+        // -------------------------
         const botStatusRef = ref(db, 'bot_status');
         onValue(botStatusRef, (snapshot) => {
             const isActive = snapshot.val();
@@ -143,39 +167,26 @@
             }
         });
 
-        // 2. ดักฟังแชท
         const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
         onValue(chatRef, (snapshot) => {
             const data = snapshot.val();
             const logDiv = document.getElementById('adminChatLog');
-            logDiv.innerHTML = ''; // เคลียร์จอก่อนวาดใหม่
-            
+            logDiv.innerHTML = ''; 
             if (data) {
                 Object.values(data).forEach(msg => {
                     const d = document.createElement('div');
-                    // จัดฝั่งซ้ายขวาตามคนส่ง
-                    // User (มิ้ว) -> ขวา (เขียว)
-                    // Bot/Admin -> ซ้าย (ขาว)
-                    // *หมายเหตุ: Admin อาจจะมองสลับกับ User นิดหน่อยเพื่อความไม่งงว่าใครพิมพ์
                     const isUser = msg.sender === 'user';
-                    
                     d.className = `msg-row ${isUser ? 'u' : 'b'}`;
                     d.innerHTML = `<b>${isUser ? 'มิ้ว' : 'คุณ/บอท'}</b>: ${msg.text}`;
-                    
-                    // ใส่ div เปล่าๆ เพื่อตัดบรรทัด (Clear float)
                     const clearFix = document.createElement('div');
                     clearFix.style.clear = 'both';
-                    
                     logDiv.appendChild(d);
                     logDiv.appendChild(clearFix);
                 });
                 logDiv.scrollTop = logDiv.scrollHeight;
-            } else {
-                logDiv.innerHTML = '<div style="text-align:center; color:#999; margin-top:20px;">ยังไม่มีข้อความ...</div>';
             }
         });
 
-        // 3. ฟังก์ชัน Admin Control
         window.toggleBot = function() {
             const btn = document.getElementById('botSwitch');
             const isCurrentlyOn = btn.classList.contains('on');
@@ -185,101 +196,17 @@
         window.adminSend = function() {
             const input = document.getElementById('adminInput');
             if(input.value.trim() === "") return;
-            
-            push(ref(db, 'chat_logs'), {
-                text: input.value,
-                sender: 'bot', 
-                timestamp: Date.now()
-            });
+            push(ref(db, 'chat_logs'), { text: input.value, sender: 'bot', timestamp: Date.now() });
             input.value = '';
         };
 
-        window.handleEnter = function(e) {
-            if(e.key === 'Enter') adminSend();
-        }
+        window.handleEnter = function(e) { if(e.key === 'Enter') adminSend(); }
 
-        // --- ฟังก์ชันล้างแชท (ใหม่) ---
         window.clearChat = function() {
-            if(confirm("⚠️ เตือน: คุณแน่ใจนะว่าจะลบประวัติแชททั้งหมด?\n(ข้อมูลจะหายไปถาวร กู้คืนไม่ได้นะครับ!)")) {
-                const logsRef = ref(db, 'chat_logs');
-                remove(logsRef)
-                    .then(() => {
-                        alert("ล้างแชทเรียบร้อย! โล่งโจ้งเลยครับลูกพี่ ✨");
-                    })
-                    .catch((error) => {
-                        alert("เกิดข้อผิดพลาด: " + error.message);
-                    });
+            if(confirm("⚠️ ล้างแชทแน่นะครับ?")) {
+                remove(ref(db, 'chat_logs')).then(() => alert("ล้างเรียบร้อย!"));
             }
         };
     </script>
-
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-    // Config Firebase ของลูกพี่
-    const firebaseConfig = {
-      apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
-      authDomain: "love-chat-1month.firebaseapp.com",
-      databaseURL: "https://love-chat-1month-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "love-chat-1month",
-      storageBucket: "love-chat-1month.firebasestorage.app",
-      messagingSenderId: "434980133810",
-      appId: "1:434980133810:web:12929b8f2843dd07c162ab"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // 1. ดึงค่าปัจจุบันมาโชว์ในช่อง input (จะได้รู้ว่าค่าเดิมคืออะไร)
-    onValue(ref(db, 'site_config'), (snapshot) => {
-        const data = snapshot.val();
-        if(data) {
-            // ใส่ค่าลงในช่องสี
-            if(data.colors) {
-                document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
-                document.getElementById('conf_text').value = data.colors.text || "#000000";
-                document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
-                document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
-            }
-            
-            // ใส่ค่าลงในช่องข้อความ
-            document.getElementById('conf_headline').value = data.headline || "";
-            document.getElementById('conf_names').value = data.coupleNames || "";
-            
-            // ใส่ค่าลงในช่องเกม
-            if(data.game) {
-                document.getElementById('conf_max_hearts').value = data.game.maxHearts || 100;
-            }
-        }
-    });
-
-    // 2. ฟังก์ชันบันทึกค่าลง Firebase (ทำงานเมื่อกดปุ่ม)
-    window.saveAllSettings = function() {
-        const updates = {};
-        
-        // เก็บค่าสี
-        updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
-        updates['site_config/colors/text'] = document.getElementById('conf_text').value;
-        updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
-        updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
-        
-        // เก็บค่าข้อความ
-        updates['site_config/headline'] = document.getElementById('conf_headline').value;
-        updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
-        
-        // เก็บค่าเกม
-        updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
-
-        // ส่งขึ้น Cloud ☁️
-        update(ref(db), updates)
-            .then(() => alert("✅ บันทึกเรียบร้อย! ลองรีเฟรชหน้าเว็บแฟนดูนะครับ"))
-            .catch((err) => alert("❌ Error: " + err));
-    }
-</script>
-
-    
 </body>
-
 </html>
-
