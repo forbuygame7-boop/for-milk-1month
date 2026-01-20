@@ -228,31 +228,58 @@ function createFallingHearts() {
 createFallingHearts();
 
 // ==========================================
-// 📸 ระบบเปิด/ปิด แกลเลอรี่
+// 📸 ระบบแกลเลอรี่ (Dynamic Gallery)
 // ==========================================
+
+// ฟังก์ชันวาดรูป (เรียกใช้โดย config.js)
+window.renderGallery = function() {
+    const grid = document.querySelector('.polaroid-grid');
+    if (!grid) return;
+
+    // 1. เคลียร์ของเก่าทิ้งให้หมด
+    grid.innerHTML = '';
+
+    // 2. ดึงข้อมูลรูปจาก Config (ถ้าไม่มี ให้ใช้ array ว่าง)
+    const photos = window.CONFIG.gallery || [];
+
+    if (photos.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; width:100%; color:#888;">ยังไม่มีรูป... ไปเพิ่มใน Admin นะครับ</p>';
+        return;
+    }
+
+    // 3. วนลูปสร้างรูปทีละใบ
+    photos.forEach((photo, index) => {
+        const item = document.createElement('div');
+        // สุ่มเอียงซ้ายขวาให้ดูเก๋ๆ
+        const rotateClass = index % 2 === 0 ? 'rotate-left' : 'rotate-right';
+        
+        item.className = `polaroid-item ${rotateClass}`;
+        item.innerHTML = `
+            <img src="${photo.url}" alt="Photo">
+            <p>${photo.caption}</p>
+        `;
+        
+        grid.appendChild(item);
+    });
+};
 
 function setupGallery() {
     const modal = document.getElementById('gallery-modal');
     const btn = document.getElementById('galleryBtn');
     const span = document.getElementById('closeGallery');
 
-    // เมื่อกดปุ่ม -> เปิด
-    btn.onclick = function() {
+    // เปิด
+    if(btn) btn.onclick = function() {
         modal.classList.add('show');
+        renderGallery(); // วาดรูปใหม่ทุกครั้งที่เปิด เพื่อความชัวร์
     }
 
-    // เมื่อกดกากบาท -> ปิด
-    span.onclick = function() {
-        modal.classList.remove('show');
-    }
-
-    // เมื่อกดพื้นที่ว่างๆ ข้างนอก -> ปิด
+    // ปิด
+    if(span) span.onclick = function() { modal.classList.remove('show'); }
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.classList.remove('show');
-        }
+        if (event.target == modal) modal.classList.remove('show');
     }
 }
 
-// เรียกใช้งานทันที
+// เรียกใช้งานครั้งแรก
 setupGallery();
