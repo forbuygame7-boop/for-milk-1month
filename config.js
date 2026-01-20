@@ -1,4 +1,4 @@
-// config.js (Safe Version 🛡️)
+// config.js (Version: Auto-Update Letter 💌)
 
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
@@ -13,15 +13,16 @@ const firebaseConfig = {
   appId: "1:434980133810:web:12929b8f2843dd07c162ab"
 };
 
-// 🔥 เช็คก่อนว่ามี App อยู่แล้วไหม? ถ้ามีก็ใช้ตัวเดิม (กัน Error)
+// เช็คก่อนว่ามี App หรือยัง (กัน Error)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const db = getDatabase(app);
 
 // ประกาศตัวแปร Global ไว้รอรับค่า
 window.CONFIG = {
     headline: "Loading...",
+    deepMessage: "กำลังโหลดจดหมาย...", // ✅ ใส่ค่าเริ่มต้นไว้ กันขึ้น undefined
     colors: { background: "#ffe6e6", cat: "#fff" },
-    game: { maxHearts: 9 }, // ค่าเริ่มต้น
+    game: { maxHearts: 9 },
     chatSystem: {
         botName: "พี่หมี (AI)",
         adminName: "เค้าเอง (ตัวจริง)",
@@ -38,21 +39,25 @@ window.CONFIG = {
     }
 };
 
-// ดักฟังการเปลี่ยนแปลงจาก Firebase
+// 🔥 ดักฟังข้อมูลจาก Firebase
 onValue(ref(db, 'site_config'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
         Object.assign(window.CONFIG, data);
-        console.log("🔄 Config Updated:", data);
+        console.log("🔄 ข้อมูลมาแล้ว:", data);
 
-        // เปลี่ยนสีทันที
+        // 1. อัปเดตสีทันที
         if (typeof applyTheme === 'function') applyTheme();
-        
-        // ถ้าเกมเริ่มไปแล้ว แล้วมีการเปลี่ยนค่าหัวใจ ให้รีเซ็ตเกมใหม่ (ถ้าจำเป็น)
-        // หรือปล่อยไว้ให้มีผลตอนรีเฟรชหน้าเว็บก็ได้ครับ
+
+        // 2. ✅ อัปเดตจดหมายทันที (แก้ตรงนี้แหละ!)
+        const letterEl = document.getElementById('letterBody');
+        if (letterEl) {
+            letterEl.innerHTML = window.CONFIG.deepMessage || "เขียนข้อความใน Admin หรือยังครับ?";
+        }
     }
 });
 
+// ฟังก์ชันเปลี่ยนสี
 window.applyTheme = function() {
     if (!window.CONFIG.colors) return;
     document.body.style.backgroundColor = window.CONFIG.colors.background;
@@ -61,10 +66,9 @@ window.applyTheme = function() {
     btns.forEach(b => b.style.backgroundColor = window.CONFIG.colors.button);
     
     // เปลี่ยนสีแมว
-    const cat = document.getElementById('naughty-cat-body'); // แก้ ID ให้ตรง
+    const cat = document.getElementById('naughty-cat-body');
     if(cat) cat.style.backgroundColor = window.CONFIG.colors.cat || "#333";
     
-    // เปลี่ยนสีหู/หางแมวด้วย
     const ears = document.querySelectorAll('.cat-ear');
     ears.forEach(e => e.style.borderBottomColor = window.CONFIG.colors.cat || "#333");
     const tail = document.querySelector('.cat-tail');
