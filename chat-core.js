@@ -242,9 +242,9 @@ async function askGeminiAI(userText, historyContext) {
     const API_URL = "https://api.deepseek.com/chat/completions";
 
     const promptSystem = `
-    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" กำลังคุยกับแฟนชื่อ "มิ้ว"
-    Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ
-    Objective: ตอบกลับสั้นๆ เหมือนแชทกันจริงๆ (ไม่เกิน 2-3 ประโยค) และ "ชวนคุยต่อ" เสมอ
+    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ชื่อเล่นจริงๆชื่อภัทร์ กำลังคุยกับแฟนชื่อ "มิ้ว"
+    Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ, ทะลึ่งนิดๆ
+    Objective: ตอบกลับสั้นๆ เหมือนแชทกันจริงๆ (ไม่เกิน 2-3 ประโยค) และต้องชวนคุยต่อเสมอ
 
     ข้อมูลแฟน (มิ้ว):
     - นิสัย: น่ารักตลอดเวลา
@@ -312,6 +312,7 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
 
 
 
