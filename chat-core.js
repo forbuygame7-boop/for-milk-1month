@@ -1,4 +1,4 @@
-// chat-core.js (Final Stable Version 🚀)
+// chat-core.js (Version: Gemini 1.5 Flash - The Best Choice 🏆)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,8 +19,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 API Key (ต้องเป็นคีย์จากโปรเจกต์ใหม่ และเพิ่ม 127.0.0.1 ใน Restriction แล้ว)
-const GEMINI_API_KEY = "AIzaSyAk05Xay_9iENiERuFZ1aRrllwMotXSyjo"; 
+// 🔥 API Key (ต้องไปเพิ่ม http://127.0.0.1:* ใน Google Cloud Console ก่อนนะ!)
+const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
 
 // ==========================================
 // 1. ส่วน UI (หน้าจอมือถือ)
@@ -100,7 +100,7 @@ const phoneHTML = `
 })();
 
 // ==========================================
-// 2. ฟังก์ชันแชท (Logic สำคัญอยู่ตรงนี้)
+// 2. ฟังก์ชันแชท
 // ==========================================
 
 function listenForMessages() {
@@ -111,7 +111,7 @@ function listenForMessages() {
         chatArea.innerHTML = '<div class="date-divider">วันนี้</div>'; 
         if (data) {
             Object.values(data).forEach(msg => {
-                // 🛡️ กรอง Error: ถ้าเป็นข้อความ Error สำหรับแอดมิน ให้ข้ามไปเลย (มิ้วไม่เห็น)
+                // 🛡️ กรอง Error: ถ้าเป็นข้อความ Error สำหรับแอดมิน ให้ข้ามไปเลย
                 if (msg.sender === 'admin_error') return;
 
                 const msgDiv = document.createElement('div');
@@ -174,16 +174,14 @@ window.sendUserMessage = async function() {
             const aiReply = await askGeminiAI(text);
             sendBotReply(aiReply);
         } catch (error) {
-            // 🚨 ถ้า AI พัง:
-            
-            // 1. ส่ง Error เข้า Chat Log แต่แปะป้ายว่าเป็น 'admin_error' 
+            // 🚨 ถ้า AI พัง (Error)
             push(ref(db, 'chat_logs'), { 
                 text: `🚫 AI Error: ${error.message}`, 
                 sender: 'admin_error', 
                 timestamp: Date.now() 
             });
 
-            // 2. ตอบกลับมิ้วด้วยคำหวานๆ
+            // Fallback หวานๆ
             const sweetFallbacks = [
                 "รักนะครับ (จุ๊บๆ)",
                 "คิดถึงจังเลย",
@@ -216,9 +214,9 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (เปลี่ยนกลับมาใช้รุ่น 1.5-flash ที่เสถียรสุด)
+// 🤖 ฟังก์ชันคุยกับ AI (ใช้ Gemini 1.5 Flash - ตัวที่ชัวร์ที่สุด)
 async function askGeminiAI(userText) {
-    // ใช้รุ่น 1.5-flash (ตัวใหม่ล่าสุดและฟรี)
+    // ใช้ endpoint gemini-1.5-flash ที่ถูกต้องและเสถียรที่สุด
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const prompt = `
@@ -237,7 +235,7 @@ async function askGeminiAI(userText) {
 
     if (!response.ok) {
         const errorData = await response.json();
-        // ส่ง Error ตัวจริงกลับไปให้ระบบจัดการ
+        // ส่ง Error กลับไปให้ function sendUserMessage จัดการ
         throw new Error(errorData.error.message || `API Error: ${response.status}`);
     }
 
