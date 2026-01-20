@@ -1,24 +1,30 @@
-// script.js (Clean Version)
+// script.js (Dynamic Heart Game ❤️)
 
-// ตัวแปร global
 let heartsCollected = 0;
-const totalHeartsToFind = 9; // จำนวนหัวใจที่จะให้หา
+// ลบค่าคงที่ทิ้ง แล้วไปดึงจาก CONFIG แทนในฟังก์ชัน setupHeartHunt
 
 window.onload = function() {
-    setupContent();      // ตั้งค่าข้อความ
-    startTimer();        // เริ่มนับเวลา
-    setupInteraction();  // ปุ่มกดหัวใจกลางจอ
-    setupHeartHunt();    // เริ่มเกมตามล่าหัวใจเล็กๆ
+    // รอแป๊บนึงให้ Config โหลดเสร็จก่อนเริ่มเกม
+    setTimeout(() => {
+        setupContent();      
+        startTimer();        
+        setupInteraction();  
+        setupHeartHunt(); // เริ่มเกมล่าหัวใจ
+    }, 1000); // รอ 1 วินาที (เพื่อให้ Firebase ส่งค่ามาทัน)
 };
 
 function setupContent() {
-    document.body.style.backgroundColor = CONFIG.colors.background;
-    document.getElementById('headline').innerText = CONFIG.headline;
-    document.getElementById('footerText').innerText = CONFIG.coupleNames;
+    if(window.applyTheme) window.applyTheme(); // เรียกใช้ฟังก์ชันเปลี่ยนสีจาก config.js
+    
+    if(document.getElementById('headline')) 
+        document.getElementById('headline').innerText = window.CONFIG.headline || "Happy Anniversary";
+    
+    if(document.getElementById('footerText'))
+        document.getElementById('footerText').innerText = window.CONFIG.coupleNames || "Pat & Milk";
 }
 
 function startTimer() {
-    const startDate = new Date(CONFIG.anniversaryDate).getTime();
+    const startDate = new Date(window.CONFIG.anniversaryDate || "2025-12-21").getTime();
     setInterval(function() {
         const now = new Date().getTime();
         const distance = now - startDate;
@@ -26,56 +32,66 @@ function startTimer() {
         const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById('timer').innerText = 
-            `${days} วัน ${hours} ชม. ${minutes} นาที ${seconds} วิ`;
+        
+        const timerEl = document.getElementById('timer');
+        if(timerEl) timerEl.innerText = `${days} วัน ${hours} ชม. ${minutes} นาที ${seconds} วิ`;
     }, 1000);
 }
 
 function setupInteraction() {
     const button = document.getElementById('heartButton');
     const display = document.getElementById('messageDisplay');
-    button.addEventListener('click', function() {
-        const messages = CONFIG.loveMessages;
-        const randomIndex = Math.floor(Math.random() * messages.length);
-        display.innerText = messages[randomIndex];
-        display.style.color = CONFIG.colors.text;
-    });
+    if(button) {
+        button.addEventListener('click', function() {
+            const messages = window.CONFIG.loveMessages || ["รักนะ"];
+            const randomIndex = Math.floor(Math.random() * messages.length);
+            display.innerText = messages[randomIndex];
+        });
+    }
 }
 
-// ฟังก์ชันสร้างหัวใจเล็กๆ
+// 🔥 ฟังก์ชันสร้างหัวใจ (แบบ Dynamic ตามค่า Admin)
 function setupHeartHunt() {
     const container = document.getElementById('heart-hunt-container');
-    for (let i = 0; i < totalHeartsToFind; i++) {
+    if(!container) return;
+    
+    container.innerHTML = ''; // ล้างของเก่าก่อน
+    heartsCollected = 0; // รีเซ็ตแต้ม
+
+    // ดึงจำนวนหัวใจจาก Config (ถ้าไม่มีใช้ 9)
+    const totalHearts = (window.CONFIG.game && window.CONFIG.game.maxHearts) ? window.CONFIG.game.maxHearts : 9;
+    
+    console.log("🎮 เริ่มเกมล่าหัวใจ: มีทั้งหมด " + totalHearts + " ดวง");
+
+    for (let i = 0; i < totalHearts; i++) {
         const heart = document.createElement('span');
         heart.classList.add('hidden-heart');
         heart.innerText = '💖';
         
-        // สุ่มตำแหน่ง
-        const randomTop = Math.random() * 85 + 5; 
-        const randomLeft = Math.random() * 85 + 5;
+        const randomTop = Math.random() * 80 + 10; 
+        const randomLeft = Math.random() * 90 + 5;
         heart.style.top = randomTop + '%';
         heart.style.left = randomLeft + '%';
 
         heart.addEventListener('click', function() {
-            collectHeart(this);
+            collectHeart(this, totalHearts); // ส่งจำนวนเต็มไปด้วย
         });
         container.appendChild(heart);
     }
 }
 
-function collectHeart(heartElement) {
+function collectHeart(heartElement, totalNeeded) {
     heartElement.remove();
     heartsCollected++;
-    // console.log(`เก็บได้ ${heartsCollected} / ${totalHeartsToFind}`); // เช็คใน console ได้
     
-    if (heartsCollected === totalHeartsToFind) {
+    if (heartsCollected >= totalNeeded) {
         startFlashMessagesSequence();
     }
 }
 
 async function startFlashMessagesSequence() {
     const container = document.getElementById('flash-message-container');
-    const messages = CONFIG.flashMessages;
+    const messages = window.CONFIG.flashMessages || ["ยินดีด้วย!"];
 
     for (const msgText of messages) {
         const box = document.createElement('div');
@@ -87,7 +103,7 @@ async function startFlashMessagesSequence() {
         
         container.appendChild(box);
 
-        await new Promise(resolve => setTimeout(resolve, 3000)); // รอ 3 วิให้อ่านทัน
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         box.classList.remove('pop-in');
         box.classList.add('pop-out');
@@ -95,9 +111,7 @@ async function startFlashMessagesSequence() {
         await new Promise(resolve => setTimeout(resolve, 500));
         box.remove();
     }
-
 }
-
 // ==========================================
 // 🐱 ระบบแมวเฝ้าหัวใจ (เวอร์ชั่นแมวโค้ด CSS)
 // ==========================================
