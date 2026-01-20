@@ -1,4 +1,4 @@
-// chat-core.js (Version: Memory Enhanced + Milk Persona 🧠💖)
+// chat-core.js (Version: Fixed API Key Connection 🔧)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast, get } 
@@ -18,17 +18,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
-let GEMINI_API_KEY = ""; 
-
-// --- ดึงกุญแจจาก Firebase ---
-const keyRef = ref(db, 'gemini_api_key'); 
-onValue(keyRef, (snapshot) => {
-    const key = snapshot.val();
-    if (key) GEMINI_API_KEY = key;
-});
 
 // ==========================================
-// 1. ส่วน UI (หน้าจอมือถือ) - เหมือนเดิม
+// 1. ส่วน UI (หน้าจอมือถือ)
 // ==========================================
 const phoneCSS = `
 <style>
@@ -116,7 +108,8 @@ function listenForMessages() {
         chatArea.innerHTML = '<div class="date-divider">วันนี้</div>'; 
         if (data) {
             Object.values(data).forEach(msg => {
-                if (msg.sender === 'admin_error') return; // ซ่อน Error
+                // ซ่อน Error ไม่ให้รกตา (ดูใน Console เอา)
+                if (msg.sender === 'admin_error') return;
 
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('msg', msg.sender === 'user' ? 'user' : 'bot');
@@ -144,16 +137,16 @@ function listenForBotStatus() {
         const statusDisplay = document.getElementById('chat-bot-status');
         
         if (isBotActive) {
-            nameDisplay.innerText = "พี่หมี (AI)"; 
+            nameDisplay.innerText = window.CONFIG?.chatSystem?.botName || "พี่หมี (AI)"; 
             statusDisplay.innerText = 'ตอบกลับอัตโนมัติ';
         } else {
-            nameDisplay.innerText = "เค้าเอง (Admin)"; 
+            nameDisplay.innerText = window.CONFIG?.chatSystem?.adminName || "เค้าเอง (Admin)"; 
             statusDisplay.innerText = 'Online';
         }
     });
 }
 
-// 🔥 ฟังก์ชันส่งข้อความ (อัปเกรดระบบความจำ)
+// 🔥 ฟังก์ชันส่งข้อความ
 window.sendUserMessage = async function() {
     const input = document.getElementById('msg-input');
     const text = input.value.trim();
@@ -166,43 +159,32 @@ window.sendUserMessage = async function() {
     if (isBotActive) {
         document.getElementById('chat-bot-status').innerText = 'กำลังพิมพ์...';
         
-        // A. เช็ค Brain ก่อน (ถ้ามีก็ตอบเลย ไม่ต้องถาม AI)
+        // A. เช็ค Brain (คำตอบตายตัว) ก่อน
         const localReply = getLocalSmartReply(text);
         if (localReply) {
             setTimeout(() => sendBotReply(localReply), 1000); 
             return;
         }
 
-        if (!GEMINI_API_KEY) {
-            console.error("❌ Key not loaded");
-            return;
-        }
-
-        // 🧠 B. ระบบความจำ (ดึง 10 ข้อความล่าสุดมาประกอบร่าง)
+        // B. ถาม AI (DeepSeek)
         try {
-            // ดึงแชทเก่าจาก Firebase
+            // ดึงแชทเก่า 10 ข้อความล่าสุด
             const historySnapshot = await get(query(ref(db, 'chat_logs'), limitToLast(10)));
             let historyContext = "";
-            
             historySnapshot.forEach((child) => {
                 const msg = child.val();
                 if (msg.sender !== 'admin_error') {
-                    const role = msg.sender === 'user' ? 'มิ้ว(แฟน)' : 'พี่หมี(คุณ)';
+                    const role = msg.sender === 'user' ? 'มิ้ว' : 'พี่หมี';
                     historyContext += `${role}: ${msg.text}\n`;
                 }
             });
 
-            // ส่งให้ AI ประมวลผล
+            // ส่งให้ AI
             const aiReply = await askGeminiAI(text, historyContext);
             sendBotReply(aiReply);
 
         } catch (error) {
-            push(ref(db, 'chat_logs'), { 
-                text: `🚫 AI Error: ${error.message}`, 
-                sender: 'admin_error', 
-                timestamp: Date.now() 
-            });
-            // Fallback
+            console.error("AI Fatal Error:", error);
             sendBotReply("รักนะครับ (เน็ตพี่หมีกระตุกนิดนึง)"); 
         }
     }
@@ -227,23 +209,21 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ดึง Key จาก Firebase)
+// 🤖 ฟังก์ชันคุยกับ AI (ดึง Key จาก window.CONFIG)
 async function askGeminiAI(userText, historyContext) {
     
-    // 👇 1. ดึง Key จาก Firebase (ผ่านตัวแปร window.CONFIG)
-    // ถ้ายังไม่ได้ใส่ใน Admin ให้ใช้ค่าว่าง ""
+    // ✅ ดึง Key จาก Config โดยตรง (ไม่ต้องผ่าน Database ref แล้ว)
     const API_KEY = window.CONFIG?.apiKey || ""; 
 
     if (!API_KEY) {
         return "⚠️ พี่หมีลืมกุญแจบ้าน (ยังไม่ได้ใส่ API Key ในหน้า Admin ครับ)";
     }
 
-    // URL ของ DeepSeek
     const API_URL = "https://api.deepseek.com/chat/completions";
-
+    
     const promptSystem = `
-    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ชื่อเล่นจริงๆชื่อภัทร์ กำลังคุยกับแฟนชื่อ "มิ้ว"
-    Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ, ทะลึ่งนิดๆ
+    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" กำลังคุยกับแฟนชื่อ "มิ้ว"
+    Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ
     Objective: ตอบกลับสั้นๆ เหมือนแชทกันจริงๆ (ไม่เกิน 2-3 ประโยค) และต้องชวนคุยต่อเสมอ
 
     ข้อมูลแฟน (มิ้ว):
@@ -261,7 +241,7 @@ async function askGeminiAI(userText, historyContext) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}` // ใช้ Key ที่ดึงมาจาก Firebase
+                "Authorization": `Bearer ${API_KEY}`
             },
             body: JSON.stringify({
                 model: "deepseek-chat",
@@ -275,10 +255,10 @@ async function askGeminiAI(userText, historyContext) {
         });
 
         if (!response.ok) {
-            const errData = await response.json();
-            // เช็คว่า Error เพราะเงินหมด หรือ Key ผิด
-            if (response.status === 401) throw new Error("API Key ไม่ถูกต้อง");
+            // เช็ค Error ยอดฮิต
+            if (response.status === 401) throw new Error("API Key ผิดครับ");
             if (response.status === 402) throw new Error("เงินใน API หมดครับ");
+            const errData = await response.json();
             throw new Error(errData.error?.message || "API Error");
         }
 
@@ -287,7 +267,7 @@ async function askGeminiAI(userText, historyContext) {
         if (data.choices && data.choices.length > 0) {
             return data.choices[0].message.content;
         } else {
-            return "พี่หมีคิดไม่ออก (ระบบเงียบ)";
+            return "พี่หมีคิดไม่ออก (AI เงียบ)";
         }
 
     } catch (error) {
@@ -312,12 +292,3 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
-
-
-
-
-
-
-
-
-
