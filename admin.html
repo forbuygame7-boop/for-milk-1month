@@ -152,7 +152,7 @@
                 const container = document.getElementById('flash_container');
                 container.innerHTML = '';
                 if(messages.length > 0) messages.forEach(msg => window.addFlashInput(msg));
-                else window.addFlashInput(""); // Default empty input
+                else window.addFlashInput(""); 
                 isFirstLoad = false;
             }
         });
