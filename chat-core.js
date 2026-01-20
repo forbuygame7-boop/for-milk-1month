@@ -1,4 +1,4 @@
-// chat-core.js (Version: Gemini 1.5 Flash - The Best Choice 🏆)
+// chat-core.js (Version: Gemini 2.5 Flash - Future Ready 🚀)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, limitToLast } 
@@ -19,11 +19,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 let isBotActive = true; 
 
-// 🔥 API Key (ต้องไปเพิ่ม http://127.0.0.1:* ใน Google Cloud Console ก่อนนะ!)
+// 🔥 API Key (ใช้ตัวที่ปลดล็อกเป็น None แล้ว)
 const GEMINI_API_KEY = "AIzaSyCLnKsPQT8y_8HU7dKsWjbrqEj1MBSMVlE"; 
 
 // ==========================================
-// 1. ส่วน UI (หน้าจอมือถือ)
+// 1. ส่วน UI (หน้าจอมือถือ) - เหมือนเดิม
 // ==========================================
 const phoneCSS = `
 <style>
@@ -214,39 +214,37 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (ใช้ Gemini 1.5 Flash - ตัวที่ชัวร์ที่สุด)
+// 🤖 ฟังก์ชันคุยกับ AI (ใช้ Gemini 2.5 Flash ตัวล่าสุดปี 2026!)
 async function askGeminiAI(userText) {
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
+    // ใช้ endpoint gemini-2.5-flash ตามที่ลูกพี่เช็คมา
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    
     const prompt = `
-คุณคือแฟนหนุ่มชื่อ "พี่หมี"
-นิสัย: อบอุ่น ขี้เล่น คลั่งรัก
-คุยสั้นๆ แบบไลน์ ห้ามบอกว่าเป็น AI
-
-แฟนพูดว่า: "${userText}"
-ตอบกลับ:
-`;
+    Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" ที่รักแฟนชื่อ "มิ้ว" มากๆ
+    Character: อบอุ่น, ขี้เล่น, กวนตีนนิดๆ, คลั่งรัก
+    Task: ตอบกลับสั้นๆ เหมือนคุยไลน์ ห้ามบอกว่าเป็น AI
+    Input: "${userText}"
+    Reply:
+    `;
 
     const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            contents: [
-                {
-                    role: "user",
-                    parts: [{ text: prompt }]
-                }
-            ]
-        })
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
 
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || "Gemini API Error");
+        const errorData = await response.json();
+        // ส่ง Error กลับไปให้ function sendUserMessage จัดการ
+        throw new Error(errorData.error.message || `API Error: ${response.status}`);
     }
 
     const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+        return data.candidates[0].content.parts[0].text;
+    } else {
+        throw new Error("No response from AI candidates");
+    }
 }
 
 // Utility
@@ -264,6 +262,3 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
-
-
-
