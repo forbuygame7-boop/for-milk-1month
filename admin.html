@@ -9,7 +9,7 @@
         .box { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* Form Elements */
+        /* Elements */
         input, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; outline: none; box-sizing: border-box; margin-bottom: 10px; font-family: 'Sarabun', sans-serif; }
         input[type="color"] { height: 40px; padding: 2px; }
         
@@ -19,23 +19,21 @@
         .save-btn { background: #28a745; color: white; width: 100%; font-size: 18px; padding: 15px; margin-top: 10px; box-shadow: 0 4px 10px rgba(40,167,69,0.3); }
         .delete-btn { background: #ff4757; color: white; padding: 5px 10px; font-size: 12px; border-radius: 5px; margin-left: 10px;}
         
-        /* Gallery List */
-        .photo-list { margin-top: 15px; max-height: 200px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 10px; }
-        .photo-item { display: flex; align-items: center; background: #f9f9f9; padding: 8px; margin-bottom: 5px; border-radius: 8px; }
+        /* Lists */
+        .photo-list, .chat-log { margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 10px; background: #fafafa; }
+        .photo-item { display: flex; align-items: center; background: #fff; padding: 8px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #eee;}
         .photo-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
-        .photo-info { flex: 1; font-size: 12px; }
+        .photo-info { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Flash Message List */
+        /* Chat */
+        .msg-row { margin-bottom: 8px; padding: 8px 12px; border-radius: 15px; font-size: 14px; display: inline-block; clear: both; max-width: 80%; }
+        .u { background: #00c300; color: white; float: right; text-align: right; }
+        .b { background: #e9e9eb; color: black; float: left; text-align: left; }
+
+        /* Flash Messages */
         .flash-list { margin-top: 10px; }
         .flash-item { display: flex; gap: 5px; margin-bottom: 5px; }
-        .flash-item input { margin-bottom: 0; }
         .remove-flash-btn { background: #ff4757; color: white; width: auto; padding: 0 15px; }
-
-        /* Chat Styles */
-        .chat-log { height: 300px; overflow-y: auto; border: 1px solid #ddd; background: #fafafa; margin-bottom: 10px; padding: 10px; border-radius: 10px;}
-        .msg-row { margin-bottom: 5px; padding: 5px 10px; border-radius: 10px; font-size: 14px; display: inline-block; clear: both; }
-        .u { background: #00c300; color: white; float: right; }
-        .b { background: #eee; float: left; }
     </style>
 </head>
 <body>
@@ -43,65 +41,64 @@
     <div class="box">
         <h2>⚙️ ตั้งค่าหน้าเว็บ</h2>
         
-        <h3 style="background:#e0f7fa; padding:10px; border-radius:10px;">⚡ ข้อความ Flash (เด้งๆ)</h3>
-        <div style="background: #e0f7fa; padding: 15px; border-radius: 10px;">
-            <p style="font-size:12px; color:#666;">กดปุ่มเพิ่ม เพื่อสร้างข้อความใหม่ | กดลบ เพื่อเอาออก | แก้ไขข้อความในช่องได้เลย</p>
-            <div id="flash_container" class="flash-list"></div>
-            <button onclick="addFlashInput()" style="background:#00bcd4; color:white; width:100%; margin-top:10px;">➕ เพิ่มข้อความ</button>
-        </div>
-        
-        <br>
-
-        <h3 style="background:#fff0f5; padding:10px; border-radius:10px;">📸 จัดการแกลเลอรี่</h3>
-        <div style="background: #fff0f5; padding: 15px; border-radius: 10px;">
-            <label>ลิงก์รูปภาพ:</label>
-            <input type="text" id="new_img_url" placeholder="เช่น uploads/photo.jpg">
-            <label>คำบรรยาย:</label>
-            <input type="text" id="new_img_caption" placeholder="เช่น มิ้วน่ารัก">
-            <button onclick="addPhoto()" style="background:#ff4d4d; color:white; width:100%;">➕ เพิ่มรูป</button>
-            <div class="photo-list" id="gallery_list">Loading...</div>
-        </div>
-
-        <br><hr><br>
-
-        <h3>🎨 ธีมสี</h3>
-        <div style="display: flex; gap: 5px;">
-            <input type="color" id="conf_bg"> <input type="color" id="conf_text"> 
-            <input type="color" id="conf_btn"> <input type="color" id="conf_cat">
-        </div>
-
-        <h3>📝 ข้อความ</h3>
-        <input type="text" id="conf_headline" placeholder="Headline">
-        <input type="text" id="conf_names" placeholder="Names">
-        
-        <h3>💌 จดหมายลับ</h3>
-        <textarea id="conf_deep_msg" rows="4" placeholder="ข้อความจดหมาย..."></textarea>
-
-        <textarea id="conf_deep_msg" rows="4" placeholder="ข้อความจดหมาย..."></textarea>
-        
-        <br><hr><br>
-
         <h3 style="background:#fff3cd; padding:10px; border-radius:10px;">🔑 AI API Key (DeepSeek / Gemini)</h3>
         <div style="background: #fff3cd; padding: 15px; border-radius: 10px;">
             <label>API Key:</label>
             <input type="password" id="conf_api_key" placeholder="sk-xxxxxxxx หรือ AIzaSy..." style="background:white;">
-            <p style="font-size:12px; color:#856404;">* ใส่ Key ที่นี่แล้วกดบันทึกด้านล่าง (ปลอดภัยกว่าฝังในโค้ด)</p>
+            <p style="font-size:12px; color:#856404; margin-bottom:0;">* ใส่ Key ที่นี่แล้วกดบันทึกด้านล่าง (ปลอดภัยกว่าฝังในโค้ด)</p>
         </div>
+        <br>
 
+        <h3 style="background:#e0f7fa; padding:10px; border-radius:10px;">⚡ ข้อความ Flash (เด้งๆ)</h3>
+        <div style="background: #e0f7fa; padding: 15px; border-radius: 10px;">
+            <div id="flash_container" class="flash-list"></div>
+            <button onclick="addFlashInput()" style="background:#00bcd4; color:white; width:100%; margin-top:10px;">➕ เพิ่มข้อความ</button>
+        </div>
+        <br>
+
+        <h3 style="background:#fff0f5; padding:10px; border-radius:10px;">📸 แกลเลอรี่</h3>
+        <div style="background: #fff0f5; padding: 15px; border-radius: 10px;">
+            <input type="text" id="new_img_url" placeholder="URL รูปภาพ (Direct Link)...">
+            <input type="text" id="new_img_caption" placeholder="คำบรรยาย...">
+            <button onclick="addPhoto()" style="background:#ff4d4d; color:white; width:100%;">➕ เพิ่มรูป</button>
+            <div class="photo-list" id="gallery_list">Loading...</div>
+        </div>
         <br><hr><br>
+
+        <h3>🎨 ธีม & ข้อความ</h3>
+        <div style="display: flex; gap: 5px;">
+            <input type="color" id="conf_bg"> <input type="color" id="conf_text"> 
+            <input type="color" id="conf_btn"> <input type="color" id="conf_cat">
+        </div>
+        <br>
+        <label>พาดหัว (Headline):</label>
+        <input type="text" id="conf_headline" placeholder="Headline">
+        <label>ชื่อคู่รัก (Footer):</label>
+        <input type="text" id="conf_names" placeholder="Names">
+        
+        <h3>💌 จดหมายลับ</h3>
+        <textarea id="conf_deep_msg" rows="5" placeholder="เขียนความในใจตรงนี้... (ใช้ <br> ขึ้นบรรทัดใหม่)"></textarea>
         
         <h3>❤️ เกม</h3>
-        <input type="number" id="conf_max_hearts" placeholder="Max Hearts">
+        <label>หัวใจสูงสุด (Max Hearts):</label>
+        <input type="number" id="conf_max_hearts" placeholder="Max Hearts" style="width:100px;">
 
         <button onclick="saveAllSettings()" class="save-btn">💾 บันทึกการตั้งค่าทั้งหมด</button>
     </div>
 
     <div class="box">
-        <h2>💬 แชท & บอท</h2>
-        <button id="botSwitch" onclick="toggleBot()" style="width:100%; padding:10px; margin-bottom:10px;">Bot Status</button>
-        <button onclick="clearChat()" style="background:#ff4757; color:white; width:100%;">ล้างแชท</button>
-        <div class="chat-log" id="adminChatLog"></div>
-        <input type="text" id="adminInput" placeholder="ตอบกลับ..." onkeypress="if(event.key==='Enter') adminSend()">
+        <h2>💬 แชท & บอท Real-time</h2>
+        <div style="display:flex; justify-content: space-between; margin-bottom:10px;">
+            <button id="botSwitch" onclick="toggleBot()" style="width:48%;">Bot Status</button>
+            <button onclick="clearChat()" style="background:#ff4757; color:white; width:48%;">ล้างแชท</button>
+        </div>
+        
+        <div class="chat-log" id="adminChatLog">Loading Chat...</div>
+        
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <input type="text" id="adminInput" placeholder="ตอบกลับในนามบอท..." onkeypress="if(event.key==='Enter') adminSend()" style="margin-bottom:0;">
+            <button onclick="adminSend()" style="background:#007bff; color:white;">ส่ง</button>
+        </div>
     </div>
 
     <script type="module">
@@ -122,189 +119,161 @@
         const db = getDatabase(app);
         
         let currentGallery = [];
-        let isFirstLoad = true; // กันไม่ให้โหลดซ้ำจน Input เด้ง
+        let isFirstLoad = true;
 
-        // ------------------------------------------
-        // 1. ดึงข้อมูลมาโชว์
-        // ------------------------------------------
+        // ----------------------------------------------------
+        // 1. ดึงข้อมูล Config ทั้งหมด
+        // ----------------------------------------------------
         onValue(ref(db, 'site_config'), (snapshot) => {
             const data = snapshot.val() || {};
             
-            // สี & ข้อความ
+            // Key & Text
+            document.getElementById('conf_api_key').value = data.apiKey || "";
+            document.getElementById('conf_headline').value = data.headline || "";
+            document.getElementById('conf_names').value = data.coupleNames || "";
+            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+            
+            // Colors
             if(data.colors) {
                 document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
                 document.getElementById('conf_text').value = data.colors.text || "#000000";
                 document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
                 document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
             }
-            document.getElementById('conf_headline').value = data.headline || "";
-            document.getElementById('conf_names').value = data.coupleNames || "";
-            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
             if(data.game) document.getElementById('conf_max_hearts').value = data.game.maxHearts || 9;
 
-            // 📸 แกลเลอรี่
+            // Gallery
             currentGallery = data.gallery || [];
             renderGalleryList();
 
-            // ⚡ Flash Messages (โหลดครั้งแรกครั้งเดียว เพื่อไม่ให้ช่อง Input ที่พิมพ์อยู่หาย)
+            // Flash Messages
             if(isFirstLoad) {
                 const messages = data.flashMessages || [];
                 const container = document.getElementById('flash_container');
-                container.innerHTML = ''; // ล้างก่อน
-                if(messages.length > 0) {
-                    messages.forEach(msg => window.addFlashInput(msg));
-                } else {
-                    window.addFlashInput("ใส่ข้อความที่นี่..."); // ค่า Default ถ้าไม่มี
-                }
+                container.innerHTML = '';
+                if(messages.length > 0) messages.forEach(msg => window.addFlashInput(msg));
+                else window.addFlashInput(""); // Default empty input
                 isFirstLoad = false;
             }
         });
 
-        // ------------------------------------------
-        // ⚡ ฟังก์ชันจัดการ Flash Messages
-        // ------------------------------------------
-        window.addFlashInput = function(text = "") {
-            const container = document.getElementById('flash_container');
-            const div = document.createElement('div');
-            div.className = 'flash-item';
-            div.innerHTML = `
-                <input type="text" class="flash-input" value="${text}" placeholder="พิมพ์ข้อความ Flash...">
-                <button class="remove-flash-btn" onclick="this.parentElement.remove()">ลบ</button>
-            `;
-            container.appendChild(div);
-        }
-
-        // ------------------------------------------
-        // 📸 ฟังก์ชันจัดการ Gallery
-        // ------------------------------------------
-        function renderGalleryList() {
-            const listDiv = document.getElementById('gallery_list');
-            listDiv.innerHTML = '';
-            if(currentGallery.length === 0) {
-                listDiv.innerHTML = '<div style="color:#aaa; text-align:center;">ยังไม่มีรูปครับ</div>';
-                return;
+        // ----------------------------------------------------
+        // 2. ระบบแชท (Chat Log)
+        // ----------------------------------------------------
+        const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
+        onValue(chatRef, (snapshot) => {
+            const data = snapshot.val();
+            const logDiv = document.getElementById('adminChatLog');
+            logDiv.innerHTML = ''; 
+            if (data) {
+                Object.values(data).forEach(msg => {
+                    const d = document.createElement('div');
+                    const isUser = msg.sender === 'user';
+                    d.className = `msg-row ${isUser ? 'u' : 'b'}`;
+                    d.innerHTML = `<b>${isUser ? 'มิ้ว' : 'บอท/คุณ'}</b>: ${msg.text}`;
+                    const clearFix = document.createElement('div');
+                    clearFix.style.clear = 'both';
+                    logDiv.appendChild(d);
+                    logDiv.appendChild(clearFix);
+                });
+                logDiv.scrollTop = logDiv.scrollHeight;
+            } else {
+                logDiv.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">ยังไม่มีแชทครับ</div>';
             }
-            currentGallery.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'photo-item';
-                div.innerHTML = `
-                    <img src="${item.url}" onerror="this.src='https://via.placeholder.com/50'">
-                    <div class="photo-info"><b>${item.caption}</b><br>${item.url}</div>
-                    <button class="delete-btn" onclick="removePhoto(${index})">ลบ</button>
-                `;
-                listDiv.appendChild(div);
-            });
-        }
+        });
 
-        window.addPhoto = function() {
-            const url = document.getElementById('new_img_url').value.trim();
-            const cap = document.getElementById('new_img_caption').value.trim();
-            if(!url) return alert("ใส่ลิงก์รูปด้วยครับ!");
-            currentGallery.push({ url: url, caption: cap || "❤️" });
-            document.getElementById('new_img_url').value = '';
-            document.getElementById('new_img_caption').value = '';
-            renderGalleryList();
-        };
-
-        window.removePhoto = function(index) {
-            if(confirm("ลบรูปนี้?")) {
-                currentGallery.splice(index, 1);
-                renderGalleryList();
-            }
-        };
-
-        // ------------------------------------------
-        // 💾 ฟังก์ชันบันทึก (Save All)
-        // ------------------------------------------
+        // ----------------------------------------------------
+        // 3. ฟังก์ชันการทำงาน (Save, Chat, Gallery)
+        // ----------------------------------------------------
+        
+        // SAVE ALL
         window.saveAllSettings = function() {
             const updates = {};
-            
-            // สี & Text
-            updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
-            updates['site_config/colors/text'] = document.getElementById('conf_text').value;
-            updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
-            updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
+            updates['site_config/apiKey'] = document.getElementById('conf_api_key').value.trim();
             updates['site_config/headline'] = document.getElementById('conf_headline').value;
             updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
             updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
             updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
             
-            // 📸 บันทึก Gallery
-            updates['site_config/gallery'] = currentGallery;
+            // Colors
+            updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
+            updates['site_config/colors/text'] = document.getElementById('conf_text').value;
+            updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
+            updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
 
-            // ⚡ บันทึก Flash Messages (ดึงค่าจาก input ทุกช่องมารวมเป็น Array)
+            // Arrays
+            updates['site_config/gallery'] = currentGallery;
             const flashInputs = document.querySelectorAll('.flash-input');
-            const flashArray = Array.from(flashInputs).map(input => input.value).filter(v => v.trim() !== "");
-            updates['site_config/flashMessages'] = flashArray;
+            updates['site_config/flashMessages'] = Array.from(flashInputs).map(i => i.value).filter(v => v.trim() !== "");
 
             update(ref(db), updates)
-                .then(() => alert("✅ บันทึกแล้ว! ข้อความเด้งๆ และรูปจะเปลี่ยนทันทีครับ"))
+                .then(() => alert("✅ บันทึกแล้ว!"))
                 .catch((err) => alert("Error: " + err));
         };
 
-        // ... (ส่วน Chat Bot เหมือนเดิม) ...
+        // Gallery Functions
+        window.renderGalleryList = function() {
+            const listDiv = document.getElementById('gallery_list');
+            listDiv.innerHTML = '';
+            currentGallery.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'photo-item';
+                div.innerHTML = `
+                    <img src="${item.url}" onerror="this.src='https://via.placeholder.com/40'">
+                    <div class="photo-info">${item.caption}</div>
+                    <button class="delete-btn" onclick="removePhoto(${index})">ลบ</button>
+                `;
+                listDiv.appendChild(div);
+            });
+        };
+        window.addPhoto = function() {
+            const url = document.getElementById('new_img_url').value.trim();
+            const cap = document.getElementById('new_img_caption').value.trim();
+            if(url) { 
+                currentGallery.push({url, caption: cap || "❤️"}); 
+                renderGalleryList(); 
+                document.getElementById('new_img_url').value=''; 
+                document.getElementById('new_img_caption').value='';
+            } else {
+                alert("ใส่ URL รูปด้วยครับ");
+            }
+        };
+        window.removePhoto = (i) => { 
+            if(confirm("ลบรูปนี้?")) { currentGallery.splice(i, 1); renderGalleryList(); }
+        };
+
+        // Flash Message Functions
+        window.addFlashInput = function(text = "") {
+            const c = document.getElementById('flash_container');
+            const d = document.createElement('div');
+            d.className = 'flash-item';
+            d.innerHTML = `<input type="text" class="flash-input" value="${text}"><button class="remove-flash-btn" onclick="this.parentElement.remove()">ลบ</button>`;
+            c.appendChild(d);
+        };
+
+        // Chat & Bot Functions
         const botStatusRef = ref(db, 'bot_status');
         onValue(botStatusRef, (snap) => {
             const btn = document.getElementById('botSwitch');
-            if(snap.val()) { btn.innerText = "✅ Bot ON"; btn.style.background = "#28a745"; btn.style.color="white"; }
-            else { btn.innerText = "⚠️ Bot OFF"; btn.style.background = "#ddd"; btn.style.color="#333"; }
+            if(snap.val()) { 
+                btn.innerText = "✅ Bot ON (AI ตอบ)"; 
+                btn.style.background="#28a745"; 
+                btn.style.color="white"; 
+            } else { 
+                btn.innerText = "⚠️ Bot OFF (เงียบ)"; 
+                btn.style.background="#ddd"; 
+                btn.style.color="#333"; 
+            }
         });
         window.toggleBot = () => { set(botStatusRef, document.getElementById('botSwitch').innerText.includes('OFF')); };
-        
-        const chatRef = query(ref(db, 'chat_logs'), limitToLast(20));
-        // ------------------------------------------
-        // 1. ดึงค่าจาก Firebase มาโชว์ (Full Version)
-        // ------------------------------------------
-        onValue(ref(db, 'site_config'), (snapshot) => {
-            const data = snapshot.val() || {};
-            
-            // 1.1 สี (Colors)
-            if(data.colors) {
-                document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
-                document.getElementById('conf_text').value = data.colors.text || "#000000";
-                document.getElementById('conf_btn').value = data.colors.button || "#ff0000";
-                document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
+        window.adminSend = () => {
+            const inp = document.getElementById('adminInput');
+            if(inp.value) { 
+                push(ref(db, 'chat_logs'), { text: inp.value, sender: 'bot', timestamp: Date.now() }); 
+                inp.value=''; 
             }
-
-            // 1.2 ข้อความทั่วไป (Texts)
-            document.getElementById('conf_headline').value = data.headline || "";
-            document.getElementById('conf_names').value = data.coupleNames || "";
-            
-            // 1.3 จดหมายลับ (Deep Message)
-            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
-
-            // 1.4 ✅ API Key (ที่เพิ่งเพิ่มใหม่)
-            document.getElementById('conf_api_key').value = data.apiKey || "";
-
-            // 1.5 เกม (Game Settings)
-            if(data.game) {
-                document.getElementById('conf_max_hearts').value = data.game.maxHearts || 9;
-            }
-
-            // 1.6 📸 แกลเลอรี่ (Gallery)
-            // ดึงข้อมูลมาเก็บในตัวแปร และสั่งวาดรายการรูป
-            currentGallery = data.gallery || [];
-            renderGalleryList();
-
-            // 1.7 ⚡ ข้อความ Flash (Flash Messages)
-            // โหลดครั้งแรกครั้งเดียว (isFirstLoad) เพื่อไม่ให้ช่องที่กำลังพิมพ์อยู่โดนรีเฟรชหาย
-            if(isFirstLoad) {
-                const messages = data.flashMessages || [];
-                const container = document.getElementById('flash_container');
-                container.innerHTML = ''; // ล้างของเก่าก่อน
-                
-                if(messages.length > 0) {
-                    messages.forEach(msg => window.addFlashInput(msg));
-                } else {
-                    // ถ้าไม่มีเลย ให้เพิ่มช่องว่างๆ ไว้ 1 อัน
-                    window.addFlashInput("ใส่ข้อความที่นี่...");
-                }
-                isFirstLoad = false; // จำไว้ว่าโหลดเสร็จแล้ว ครั้งหน้าจะไม่กวน
-            }
-        });
-        window.clearChat = () => { if(confirm("ลบแชท?")) remove(ref(db, 'chat_logs')); };
+        };
+        window.clearChat = () => { if(confirm("⚠️ ล้างแชททั้งหมด? (กู้ไม่ได้นะ)")) remove(ref(db, 'chat_logs')); };
     </script>
 </body>
 </html>
-
-
