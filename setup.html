@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Database</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #f0f0f0; }
+        button { padding: 20px 40px; font-size: 24px; background-color: #00C300; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        button:hover { background-color: #009900; }
+        #status { margin-top: 20px; font-size: 18px; color: #333; }
+    </style>
+</head>
+<body>
+
+    <h1>🚀 กดปุ่มนี้เพื่อติดตั้งฐานข้อมูล</h1>
+    <p>กดแค่ครั้งเดียวพอนะครับ</p>
+    <button id="setupBtn">เริ่มอัปโหลดข้อมูล</button>
+    <div id="status"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        // Config Firebase ของลูกพี่
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
+            authDomain: "love-chat-1month.firebaseapp.com",
+            databaseURL: "https://love-chat-1month-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "love-chat-1month",
+            storageBucket: "love-chat-1month.firebasestorage.app",
+            messagingSenderId: "434980133810",
+            appId: "1:434980133810:web:12929b8f2843dd07c162ab"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 🔥 ข้อมูลที่จะส่งขึ้นไป (รวมทุกอย่างที่ลูกพี่ขอ)
+        const setupData = {
+            headline: "Happy 1 Month Anniversary!",
+            coupleNames: "Pat & Milk",
+            anniversaryDate: "2025-12-21",
+            passcode: "21122025",
+
+            // ตั้งค่าสี (รวมสีแมว)
+            colors: {
+                background: "#cc6ffac5",
+                text: "#ff4d4d",
+                button: "#ff0000",
+                cat: "#FFFFFF" 
+            },
+
+            // เกมหัวใจ
+            game: {
+                maxHearts: 100,
+                clickPower: 1,
+                regenRate: 5
+            },
+
+            // ข้อความ Flash (วิ่งๆ)
+            flashMessages: [
+                "เห้ย ว้าว! ครบแล้ว! เก่งจังอะ",
+                "รางวัลคือ... รักนะคะอ้วน",
+                "อยู่กับเค้าไปนานๆ นะ",
+                "จุ๊บๆ",
+                "ขอบคุณนะที่เป็นรอยยิ้มให้กันทุกวัน"
+            ],
+
+            // ข้อความบอกรักสุ่มๆ
+            loveMessages: [
+                "ขอบคุณที่อยู่ข้างกันนะ", "รักมิ้วที่สุดเลย", "1 เดือนแล้วนะ เร็วจัง!",
+                "กินข้าวให้อร่อยนะ", "คิดถึงตลอดเวลาเลย", "ยิ้มเยอะๆ นะคนเก่ง"
+            ],
+
+            // จดหมายลับ
+            deepMessage: "ถึง มิ้ว...<br><br>1 เดือนที่ผ่านมา มันไม่ง่ายเลยใช่ไหม?..."
+        };
+
+        document.getElementById('setupBtn').addEventListener('click', () => {
+            document.getElementById('status').innerText = "⏳ กำลังอัปโหลด...";
+            
+            set(ref(db, 'site_config'), setupData)
+                .then(() => {
+                    document.getElementById('status').innerText = "✅ เรียบร้อย! ฐานข้อมูลพร้อมใช้งานแล้วครับลูกพี่";
+                    document.getElementById('status').style.color = "green";
+                    alert("เรียบร้อย! ไปขั้นตอนที่ 2 ต่อได้เลย");
+                })
+                .catch((error) => {
+                    document.getElementById('status').innerText = "❌ เกิดข้อผิดพลาด: " + error.message;
+                    document.getElementById('status').style.color = "red";
+                });
+        });
+    </script>
+
+</body>
+</html>
