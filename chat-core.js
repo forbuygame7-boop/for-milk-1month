@@ -227,16 +227,20 @@ function getLocalSmartReply(text) {
     return null; 
 }
 
-// 🤖 ฟังก์ชันคุยกับ AI (เวอร์ชั่น DeepSeek 🚀)
+// 🤖 ฟังก์ชันคุยกับ AI (ดึง Key จาก Firebase)
 async function askGeminiAI(userText, historyContext) {
     
-    // 👇 1. เอา API Key ของ DeepSeek มาใส่ตรงนี้ (ที่ขึ้นต้นด้วย sk-...)
-    const API_KEY = "sk-8793c99d6f6b4e6e932f242ff8d06d9a"; 
+    // 👇 1. ดึง Key จาก Firebase (ผ่านตัวแปร window.CONFIG)
+    // ถ้ายังไม่ได้ใส่ใน Admin ให้ใช้ค่าว่าง ""
+    const API_KEY = window.CONFIG?.apiKey || ""; 
+
+    if (!API_KEY) {
+        return "⚠️ พี่หมีลืมกุญแจบ้าน (ยังไม่ได้ใส่ API Key ในหน้า Admin ครับ)";
+    }
 
     // URL ของ DeepSeek
     const API_URL = "https://api.deepseek.com/chat/completions";
 
-    // คำสั่งที่บอกนิสัยบอท (Prompt)
     const promptSystem = `
     Roleplay: คุณคือแฟนหนุ่มชื่อ "พี่หมี" กำลังคุยกับแฟนชื่อ "มิ้ว"
     Character: อบอุ่น, กวนตีนนิดๆ, ขี้เล่น, คลั่งรัก, ขี้หึงหน่อยๆ
@@ -246,7 +250,7 @@ async function askGeminiAI(userText, historyContext) {
     - นิสัย: น่ารักตลอดเวลา
     - สิ่งที่เกลียด: ผัก (ห้ามชวนกินผักเด็ดขาด)
     - วันเกิด: 27 สิงหาคม 2006
-    - สรรพนามที่คุณเรียกแฟน: "อ้วน" (ปกติ), "เธอ", "มิ้ว", "หนู" (ใช้นานๆทีตอนอ้อน)
+    - สรรพนามเรียกแฟน: "อ้วน", "เธอ", "มิ้ว"
 
     บริบทการคุยก่อนหน้า:
     ${historyContext}
@@ -257,38 +261,42 @@ async function askGeminiAI(userText, historyContext) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}` // ส่งกุญแจผ่านตรงนี้
+                "Authorization": `Bearer ${API_KEY}` // ใช้ Key ที่ดึงมาจาก Firebase
             },
             body: JSON.stringify({
-                model: "deepseek-chat", // ใช้โมเดลตัวนี้
+                model: "deepseek-chat",
                 messages: [
-                    { role: "system", content: promptSystem }, // บอกนิสัย
-                    { role: "user", content: userText }      // ข้อความที่มิ้วพิมพ์มา
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: userText }
                 ],
-                temperature: 1.3, // ความสร้างสรรค์ (ยิ่งเยอะยิ่งคุยสนุก)
-                max_tokens: 300   // จำกัดความยาวคำตอบ
+                temperature: 1.3,
+                max_tokens: 300
             })
         });
 
         if (!response.ok) {
             const errData = await response.json();
-            throw new Error(errData.error?.message || "DeepSeek API Error");
+            // เช็คว่า Error เพราะเงินหมด หรือ Key ผิด
+            if (response.status === 401) throw new Error("API Key ไม่ถูกต้อง");
+            if (response.status === 402) throw new Error("เงินใน API หมดครับ");
+            throw new Error(errData.error?.message || "API Error");
         }
 
         const data = await response.json();
         
-        // แกะคำตอบออกมา (DeepSeek ใช้ format นี้)
         if (data.choices && data.choices.length > 0) {
             return data.choices[0].message.content;
         } else {
-            return "พี่หมีคิดไม่ออก (ระบบไม่ส่งคำตอบมา)";
+            return "พี่หมีคิดไม่ออก (ระบบเงียบ)";
         }
 
     } catch (error) {
-        console.error("DeepSeek Error:", error);
-        return "ตอนนี้พี่หมีมึนหัวนิดหน่อย (API Error) รอแป๊บนึงนะค้าบ 🤕";
+        console.error("AI Error:", error);
+        if (error.message.includes("Key")) return "❌ กุญแจผิดครับ ไปแก้ใน Admin หน่อยน้า";
+        return "ตอนนี้พี่หมีมึนหัว (ระบบขัดข้อง) รอแป๊บนึงนะค้าบ 🤕";
     }
 }
+
 // Utility
 window.togglePhone = function() {
     const widget = document.getElementById('phone-widget');
@@ -304,6 +312,7 @@ function updateStatusBar() {
     const now = new Date();
     document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 }
+
 
 
 
