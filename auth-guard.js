@@ -1,9 +1,8 @@
-// auth-guard.js (รุ่นเพิ่มระบบสแกนคนเข้า Admin 👮‍♂️)
+// auth-guard.js (รุ่นเพิ่มปุ่มลับ Admin 🕵️‍♂️)
 
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Config เดิมของลูกพี่ (ผมใส่ databaseURL ให้ครบแล้ว กันเหนียว)
 const firebaseConfig = {
     apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
     authDomain: "love-chat-1month.firebaseapp.com",
@@ -14,12 +13,10 @@ const firebaseConfig = {
     appId: "1:434980133810:web:12929b8f2843dd07c162ab"
 };
 
-// 🚨 [สำคัญ] ใส่ UID ของคนที่มีสิทธิ์เข้า Admin ที่นี่
-// วิธีหา UID: กด F12 ดูใน Console จะมีบอกว่า "Your UID: xxxxx"
+// 🚨 ใส่ UID ของลูกพี่ที่นี่ (ดูจาก Console: 🆔 Your UID)
 const ADMIN_UIDS = [
-    "Vh161dkrxLUP5wXjqfGR1a6S5tB3",
-    "ใส่_UID_ของแฟนตรงนี้_2_(ถ้าอยากให้เข้า)",
-    "7XyZ..." // ตัวอย่าง (ลบบรรทัดนี้ทิ้งได้)
+    "Vh161dkrxLUP5wXjqfGR1a6S5tB3", 
+    "เช่น_abc123456789xyz"
 ];
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
@@ -30,20 +27,27 @@ function checkAuth() {
         const overlay = document.getElementById('auth-overlay');
         
         if (user) {
-            console.log("✅ Logged in as:", user.email);
-            console.log("🆔 Your UID:", user.uid); // <--- ดู UID ตัวเองตรงนี้!!!
+            console.log("✅ Logged in:", user.email);
+            console.log("🆔 Your UID:", user.uid); 
 
-            // 🛑 เช็คสิทธิ์เฉพาะหน้า Admin
-            if (window.location.href.includes('admin.html')) {
-                // ถ้า UID ของคนที่ล็อกอิน ไม่อยู่ในรายชื่อ ADMIN_UIDS
-                if (!ADMIN_UIDS.includes(user.uid)) {
-                    alert("⛔ ขออภัย! คุณไม่มีสิทธิ์เข้าถึงหน้า Admin ครับ");
-                    window.location.href = 'index.html'; // ดีดกลับหน้าหลักทันที
-                    return; // จบการทำงาน ไม่ให้ไปต่อ
+            // 1. เช็คว่าใช่ Admin ตัวจริงไหม?
+            if (ADMIN_UIDS.includes(user.uid)) {
+                
+                // ✅ ถ้าใช่: สั่งโชว์ปุ่ม Admin (ที่หน้า Index)
+                const adminBtn = document.getElementById('adminBtn');
+                if (adminBtn) {
+                    adminBtn.style.display = 'inline-block'; // โผล่ออกมาซะ!
+                }
+                
+            } else {
+                // ❌ ถ้าไม่ใช่ Admin: ห้ามเข้าหน้า admin.html เด็ดขาด
+                if (window.location.href.includes('admin.html')) {
+                    alert("⛔ เฉพาะแอดมินเท่านั้นครับ!");
+                    window.location.href = 'index.html';
                 }
             }
 
-            // ถ้าผ่านทุกด่าน -> เอาม่านบังตาออก
+            // เอาม่านบังตาออก
             if(overlay) overlay.style.display = 'none';
 
         } else {
