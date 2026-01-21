@@ -140,7 +140,8 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        // ✅ แก้ไขส่วน Import เพื่อป้องกันการ Crash (ใช้ getApps เช็คก่อน)
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, query, limitToLast, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
         const firebaseConfig = {
@@ -153,7 +154,8 @@
             appId: "1:434980133810:web:12929b8f2843dd07c162ab"
         };
 
-        const app = initializeApp(firebaseConfig);
+        // 🔧 FIX: เช็คว่ามี App อยู่แล้วหรือยัง ถ้ามีให้ใช้ตัวเดิม ถ้าไม่มีค่อยสร้างใหม่
+        const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
         const db = getDatabase(app);
         
         let currentGallery = [];
