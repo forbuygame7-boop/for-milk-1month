@@ -31,6 +31,11 @@
             <button id="galleryBtn" style="background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 1rem; border: 1px solid #ff4d4d;">
                 📸 ดูรูปคู่ของเรา
             </button>
+
+            <button id="missionBtn" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-family: 'Sarabun', sans-serif; font-size: 1rem; border: 1px solid #28a745; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                🚀 ภารกิจถัดไป
+            </button>
+            
         </div>
     </div>
 
@@ -51,6 +56,18 @@
         <div id="cat-speech" class="hidden">ห้ามจับ! 😼</div>
     </div>
 
+    <div id="mission-modal" class="modal hidden">
+        <div class="modal-content" style="background: linear-gradient(to bottom, #e8f5e9, #ffffff);">
+            <span id="closeMission" class="close-btn">&times;</span>
+            <h2 style="color: #2e7d32;">🚀 ภารกิจของเรา</h2>
+            <p style="font-size: 14px; color: #666;">เป้าหมายมีไว้พุ่งชน... แต่หัวใจมีไว้ชนเธอ ฮิ้วว~</p>
+            
+            <div id="mission-grid" class="mission-container">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+    
     <div id="gallery-modal" class="modal hidden">
         <div class="modal-content">
             <span id="closeGallery" class="close-btn">&times;</span>
@@ -199,4 +216,5 @@
 
 </body>
 </html>
+
 
