@@ -70,6 +70,26 @@
             <div id="mission_list" style="margin-top:10px; max-height:150px; overflow-y:auto; background:white; padding:5px; border-radius:5px;">Loading...</div>
         </div>
         <br>
+
+        <h3 style="background:#f3e5f5; padding:10px; border-radius:10px;">⏳ จัดการ Timeline</h3>
+        <div style="background: #f3e5f5; padding: 15px; border-radius: 10px;">
+            
+            <div style="background:white; padding:10px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <span>แสดงปุ่ม Timeline หน้าเว็บ?</span>
+                <input type="checkbox" id="conf_show_timeline" style="width:20px; height:20px;">
+            </div>
+            <hr>
+
+            <label>วันที่:</label> <input type="date" id="tl_date">
+            <input type="text" id="tl_title" placeholder="หัวข้อ (เช่น เจอกันครั้งแรก)">
+            <textarea id="tl_desc" rows="2" placeholder="รายละเอียด..."></textarea>
+            <input type="text" id="tl_img" placeholder="URL รูปภาพ (ถ้ามี)">
+            
+            <button onclick="addTimelineItem()" style="background:#a55eea; color:white; width:100%;">➕ เพิ่มลง Timeline</button>
+            
+            <div id="timeline_list" style="margin-top:10px; max-height:200px; overflow-y:auto; background:white; padding:5px;">Loading...</div>
+        </div>
+        <br>
         
         <h3 style="background:#fff0f5; padding:10px; border-radius:10px;">📸 แกลเลอรี่</h3>
         <div style="background: #fff0f5; padding: 15px; border-radius: 10px;">
@@ -141,10 +161,17 @@
         // ----------------------------------------------------
         onValue(ref(db, 'site_config'), (snapshot) => {
             const data = snapshot.val() || {};
-
+            
             // --- 🚀 ส่วนดึงข้อมูลภารกิจ (Missions) ---
             currentMissions = data.missions || []; // ดึงข้อมูลภารกิจจาก Firebase ถ้าไม่มีให้เป็นอาเรย์ว่าง
             renderMissionList(); // สั่งให้วาดรายการภารกิจออกมาโชว์
+
+            // โหลด Timeline
+            currentTimeline = data.timeline || [];
+            renderTimelineList();
+            
+            // โหลดสถานะปุ่ม (Checkbox)
+            document.getElementById('conf_show_timeline').checked = data.showTimelineBtn || false;
             
             // Key & Text
             document.getElementById('conf_api_key').value = data.apiKey || "";
@@ -255,6 +282,58 @@
                 renderMissionList(); // อัปเดตหน้าจอ
             }
         };
+
+        // --- ⏳ ตัวแปรและฟังก์ชัน Timeline ---
+        let currentTimeline = [];
+
+        // 1. ฟังก์ชันวาดรายการใน Admin
+        window.renderTimelineList = function() {
+            const listDiv = document.getElementById('timeline_list');
+            listDiv.innerHTML = '';
+            
+            // เรียงวันที่
+            currentTimeline.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            currentTimeline.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = "border-bottom:1px solid #eee; padding:5px; display:flex; justify-content:space-between; align-items:center;";
+                div.innerHTML = `
+                    <div style="font-size:12px;">
+                        <b>${item.date}</b>: ${item.title}
+                    </div>
+                    <button onclick="removeTimelineItem(${index})" style="background:#ff4757; color:white; border:none; border-radius:3px; cursor:pointer;">ลบ</button>
+                `;
+                listDiv.appendChild(div);
+            });
+        };
+
+        // 2. ฟังก์ชันเพิ่ม
+        window.addTimelineItem = function() {
+            const date = document.getElementById('tl_date').value;
+            const title = document.getElementById('tl_title').value.trim();
+            const desc = document.getElementById('tl_desc').value.trim();
+            const img = document.getElementById('tl_img').value.trim();
+
+            if(date && title) {
+                currentTimeline.push({ date, title, desc, image: img });
+                renderTimelineList();
+                
+                // เคลียร์ช่อง
+                document.getElementById('tl_title').value = '';
+                document.getElementById('tl_desc').value = '';
+                document.getElementById('tl_img').value = '';
+            } else {
+                alert("ใส่วันที่และหัวข้อด้วยครับ!");
+            }
+        };
+
+        // 3. ฟังก์ชันลบ
+        window.removeTimelineItem = function(index) {
+            if(confirm("ลบเหตุการณ์นี้?")) {
+                currentTimeline.splice(index, 1);
+                renderTimelineList();
+            }
+        };
         
         // SAVE ALL
         window.saveAllSettings = function() {
@@ -266,6 +345,10 @@
             updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
             // 🚀 บันทึกภารกิจลง Firebase
             updates['site_config/missions'] = currentMissions;
+            // บันทึก Timeline
+            updates['site_config/timeline'] = currentTimeline;
+            // บันทึกสถานะปุ่ม
+            updates['site_config/showTimelineBtn'] = document.getElementById('conf_show_timeline').checked;
             
             // Colors
             updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
@@ -349,4 +432,5 @@
     </script>
 </body>
 </html>
+
 
