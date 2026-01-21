@@ -1,19 +1,22 @@
-// auth-guard.js (ยามเฝ้าประตูแบบนุ่มนวล 🛡️)
+// auth-guard.js (ยามเฝ้าประตู - ฉบับแก้แผนที่ให้ถูก 🗺️)
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Config Firebase
+// ✅ ใส่ Config ให้ครบทุกบรรทัด (โดยเฉพาะ databaseURL)
 const firebaseConfig = {
     apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
     authDomain: "love-chat-1month.firebaseapp.com",
+    // 👇 บรรทัดนี้สำคัญมาก! ต้องชี้ไปที่ asia-southeast1
+    databaseURL: "https://love-chat-1month-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "love-chat-1month",
     storageBucket: "love-chat-1month.firebasestorage.app",
     messagingSenderId: "434980133810",
     appId: "1:434980133810:web:12929b8f2843dd07c162ab"
 };
 
-const app = initializeApp(firebaseConfig);
+// เช็คก่อนว่าเชื่อมรึยัง ถ้ายังค่อยเชื่อม (ป้องกัน Error ซ้ำซ้อน)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 
 // ฟังก์ชันตรวจสอบสิทธิ์
@@ -31,7 +34,6 @@ function checkAuth() {
             if (!window.location.href.includes('login.html')) {
                 window.location.href = 'login.html';
             } else {
-                // ถ้าอยู่หน้า Login อยู่แล้ว ก็เอาม่านออกให้กรอกรหัส
                 if(overlay) overlay.style.display = 'none';
             }
         }
