@@ -208,6 +208,98 @@
         }, 1000);
     </script>
 
+    <script>
+    // --- 🚀 ระบบคำนวณและแสดงภารกิจ ---
+
+    // 1. ฟังก์ชันหลัก: วาดรายการภารกิจ
+    window.renderMissions = function() {
+        const grid = document.getElementById('mission-grid');
+        const missions = window.CONFIG.missions || []; // ดึงข้อมูลจาก Config
+
+        if (!grid) return;
+        grid.innerHTML = ''; // เคลียร์ของเก่า
+
+        if (missions.length === 0) {
+            grid.innerHTML = '<p style="text-align:center; width:100%; color:#999;">ยังไม่มีภารกิจเร็วๆ นี้จ้า...</p>';
+            return;
+        }
+
+        // เรียงลำดับตามวันที่ (อันไหนใกล้ถึง ขึ้นก่อน)
+        missions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        missions.forEach(mission => {
+            const timeLeft = calculateTimeLeft(mission.date); // คำนวณเวลา
+            
+            // สร้าง HTML การ์ด
+            const card = document.createElement('div');
+            card.className = 'mission-card';
+            card.innerHTML = `
+                <div class="m-icon">${mission.icon}</div>
+                <div class="m-info">
+                    <h3>${mission.title}</h3>
+                    <p>เป้าหมาย: ${formatDate(mission.date)}</p>
+                </div>
+                <div class="m-countdown">
+                    ${timeLeft.days} วัน
+                    <span>${timeLeft.hours} ชม.</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    };
+
+    // 2. ฟังก์ชันช่วย: คำนวณเวลาถอยหลัง (เหลือกี่วัน กี่ชม.)
+    function calculateTimeLeft(targetDate) {
+        const now = new Date();
+        const target = new Date(targetDate);
+        // ตั้งเวลาเป้าหมายเป็นเที่ยงคืนของวันนั้น
+        target.setHours(0,0,0,0); 
+        
+        const diff = target - now; // เวลาที่ต่างกัน (มิลลิวินาที)
+
+        if (diff <= 0) return { days: 0, hours: 0 }; // ถ้าเลยมาแล้ว
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        
+        return { days, hours };
+    }
+
+    // 3. ฟังก์ชันช่วย: จัดรูปแบบวันที่สวยๆ (เช่น 14/02/2026)
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+    }
+
+    // --- ส่วนควบคุม Modal (เปิด/ปิด) ---
+    const missionModal = document.getElementById('mission-modal');
+    const missionBtn = document.getElementById('missionBtn');
+    const closeMission = document.getElementById('closeMission');
+
+    if(missionBtn) {
+        missionBtn.onclick = function() {
+            missionModal.classList.remove('hidden'); // แสดง Modal
+            missionModal.classList.add('show');      // (ถ้ามี CSS show)
+            renderMissions(); // สั่งคำนวณใหม่ทุกครั้งที่กดเปิด
+        }
+    }
+    
+    if(closeMission) {
+        closeMission.onclick = function() {
+            missionModal.classList.add('hidden');
+            missionModal.classList.remove('show');
+        }
+    }
+
+    // กดพื้นที่ว่างเพื่อปิด
+    window.addEventListener('click', function(event) {
+        if (event.target == missionModal) {
+            missionModal.classList.add('hidden');
+        }
+    });
+
+</script>
+    
     <script type="module" src="config.js"></script> 
     <script src="brain.js"></script> 
     <script type="module" src="script.js"></script> 
@@ -216,5 +308,6 @@
 
 </body>
 </html>
+
 
 
