@@ -288,7 +288,27 @@ window.togglePhone = function() {
 };
 window.handleChatEnter = function(e) { if (e.key === 'Enter') sendUserMessage(); };
 function scrollToBottom() { const c = document.getElementById('chat-area'); c.scrollTop = c.scrollHeight; }
+// ฟังก์ชันอัปเดตสถานะบาร์ (นาฬิกา + แบตเตอรี่)
 function updateStatusBar() {
     const now = new Date();
-    document.getElementById('status-time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    
+    // 1. อัปเดตเวลา
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('status-time').innerText = timeString;
+
+    // 2. ✅ อัปเดตแบตเตอรี่ (แก้ตรงนี้!)
+    if (window.CONFIG && window.CONFIG.chatSystem && typeof window.CONFIG.chatSystem.getLoveBattery === 'function') {
+        const battery = window.CONFIG.chatSystem.getLoveBattery(); // คำนวณค่าแบต
+        
+        // อัปเดตตัวเลขและความกว้างสีเขียว
+        document.getElementById('battery-text').innerText = battery + "%";
+        document.getElementById('battery-level').style.width = battery + "%";
+
+        // (ลูกเล่น) เปลี่ยนสีตามระดับแบต
+        const levelDiv = document.getElementById('battery-level');
+        if (battery < 20) levelDiv.style.background = "#ff4757"; // สีแดง (เพิ่งเริ่มเดือน)
+        else if (battery < 50) levelDiv.style.background = "#ffa502"; // สีส้ม (ครึ่งทาง)
+        else levelDiv.style.background = "#00c300"; // สีเขียว (ใกล้ครบรอบ)
+    }
 }
+
