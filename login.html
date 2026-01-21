@@ -3,47 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ความลับของมิ้ว 🔒</title>
-    <link rel="stylesheet" href="style.css">
-    
+    <title>Login - Love Space</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        .login-input {
-            padding: 10px;
-            border-radius: 20px;
-            border: 2px solid #ffcccc;
-            width: 80%;
-            text-align: center;
-            font-size: 1rem;
-            margin-bottom: 15px;
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .login-box { 
+            background: white; 
+            padding: 40px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center; 
+            width: 300px; 
+            border: 2px solid #fff;
+        }
+        h1 { color: #ff4d4d; margin-top: 0; }
+        p { color: #666; font-size: 14px; margin-bottom: 20px; }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 8px 0; 
+            border: 1px solid #eee; 
+            background: #fafafa;
+            border-radius: 10px; 
+            box-sizing: border-box; 
+            font-family: 'Sarabun', sans-serif;
             outline: none;
-            color: #ff4d4d;
+            transition: 0.3s;
         }
-        .login-input:focus {
-            border-color: #ff4d4d; /* เปลี่ยนสีขอบเมื่อกดพิมพ์ */
+        input:focus { border-color: #ff4d4d; background: #fff; }
+        
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: #ff4d4d; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 10px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 16px;
         }
-        .error-msg {
-            color: red;
-            font-size: 0.9rem;
-            height: 20px; /* จองพื้นที่ไว้กันกระตุก */
-        }
+        button:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3); }
+        
+        #error-msg { color: #e74c3c; font-size: 13px; margin-top: 15px; min-height: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🔒 Locked</h1>
-        <p>กรุณาใส่รหัสผ่านเพื่อเปิดกล่องหัวใจ</p>
-        <p style="font-size: 0.8rem; color: #888;">(ใบ้: วันครบรอบของเรา ววดดปปปป)</p>
+    <div class="login-box">
+        <h1>🔒 พื้นที่ส่วนตัว</h1>
+        <p>กรุณาล็อกอินก่อนเข้านะครับ</p>
         
-        <input type="password" id="passInput" class="login-input" placeholder="เช่น 17122025">
+        <input type="email" id="email" placeholder="อีเมล (Email)">
+        <input type="password" id="password" placeholder="รหัสผ่าน (Password)">
         
-        <p id="errorText" class="error-msg"></p>
-
-        <button id="loginBtn" class="heart-btn" style="font-size: 1.2rem;">🔓 เปิดดูข้างใน</button>
+        <button onclick="login()">เข้าสู่ระบบ</button>
+        
+        <div id="error-msg"></div>
     </div>
 
-    <script type="module" src="config.js"></script> 
-    <script src="login.js"></script>
-</body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
+            authDomain: "love-chat-1month.firebaseapp.com",
+            projectId: "love-chat-1month",
+            storageBucket: "love-chat-1month.firebasestorage.app",
+            messagingSenderId: "434980133810",
+            appId: "1:434980133810:web:12929b8f2843dd07c162ab"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // ฟังก์ชัน Login
+        window.login = function() {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const btn = document.querySelector('button');
+
+            if(!email || !pass) {
+                errorMsg.innerText = "กรอกข้อมูลให้ครบด้วยครับ!";
+                return;
+            }
+
+            // เปลี่ยนปุ่มเป็นกำลังโหลด
+            btn.innerText = "กำลังตรวจสอบ...";
+            btn.disabled = true;
+            btn.style.background = "#ccc";
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    // ✅ ล็อกอินผ่าน -> ไปหน้าหลัก
+                    console.log("Login Success!");
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    // ❌ ล็อกอินไม่ผ่าน -> คืนค่าปุ่ม และแจ้งเตือน
+                    console.error(error);
+                    btn.innerText = "เข้าสู่ระบบ";
+                    btn.disabled = false;
+                    btn.style.background = "#ff4d4d";
+
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        errorMsg.innerText = "อีเมลหรือรหัสผ่านไม่ถูกต้องครับ";
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMsg.innerText = "รูปแบบอีเมลไม่ถูกต้อง";
+                    } else {
+                        errorMsg.innerText = "เกิดข้อผิดพลาด: " + error.code;
+                    }
+                });
+        }
+
+        // กด Enter เพื่อล็อกอินได้เลย ไม่ต้องกดปุ่ม
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') window.login();
+        });
+    </script>
+</body>
 </html>
