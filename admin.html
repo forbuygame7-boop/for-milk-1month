@@ -2,6 +2,7 @@
 <html lang="th">
 <head>
     <script type="module" src="auth-guard.js"></script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Love Control</title>
@@ -10,41 +11,44 @@
         .box { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         
-        /* Elements */
+        /* ฟอร์ม */
         input, textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ccc; outline: none; box-sizing: border-box; margin-bottom: 10px; font-family: 'Sarabun', sans-serif; }
         input[type="color"] { height: 40px; padding: 2px; }
         
+        /* ปุ่ม */
         button { padding: 10px 20px; border: none; cursor: pointer; border-radius: 20px; font-weight: bold; transition: 0.2s; }
         button:hover { opacity: 0.8; transform: scale(1.05); }
-
         .save-btn { background: #28a745; color: white; width: 100%; font-size: 18px; padding: 15px; margin-top: 10px; box-shadow: 0 4px 10px rgba(40,167,69,0.3); }
         .delete-btn { background: #ff4757; color: white; padding: 5px 10px; font-size: 12px; border-radius: 5px; margin-left: 10px;}
         
-        /* Lists */
+        /* รายการ */
         .photo-list, .chat-log { margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 10px; background: #fafafa; }
         .photo-item { display: flex; align-items: center; background: #fff; padding: 8px; margin-bottom: 5px; border-radius: 8px; border: 1px solid #eee;}
         .photo-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 5px; margin-right: 10px; }
         .photo-info { flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
-
-        /* Chat */
+        
+        /* แชท */
         .msg-row { margin-bottom: 8px; padding: 8px 12px; border-radius: 15px; font-size: 14px; display: inline-block; clear: both; max-width: 80%; }
         .u { background: #00c300; color: white; float: right; text-align: right; }
         .b { background: #e9e9eb; color: black; float: left; text-align: left; }
-
-        /* Flash Messages */
+        
+        /* Flash Message */
         .flash-list { margin-top: 10px; }
         .flash-item { display: flex; gap: 5px; margin-bottom: 5px; }
         .remove-flash-btn { background: #ff4757; color: white; width: auto; padding: 0 15px; }
     </style>
 </head>
 <body>
-    <body>
+
     <div id="auth-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
         <h2 style="color:#ff4d4d;">🔒 กำลังตรวจสอบกุญแจ...</h2>
-        <p>รอแป๊บนึงนะครับ</p>
+        <p>กำลังเชื่อมต่อ Firebase...</p>
+        <button onclick="document.getElementById('auth-overlay').style.display='none'" style="margin-top:20px; background:#eee; color:#555; font-size:12px;">(กดเพื่อบังคับเข้า)</button>
     </div>
 
-    
+    <button onclick="doLogout()" style="background:#333; color:white; margin-bottom:20px; float:right;">🚪 ออกจากระบบ</button>
+    <div style="clear:both;"></div>
+
     <div class="box">
         <h2>⚙️ ตั้งค่าหน้าเว็บ</h2>
         
@@ -52,7 +56,7 @@
         <div style="background: #fff3cd; padding: 15px; border-radius: 10px;">
             <label>API Key:</label>
             <input type="password" id="conf_api_key" placeholder="sk-xxxxxxxx หรือ AIzaSy..." style="background:white;">
-            <p style="font-size:12px; color:#856404; margin-bottom:0;">* ใส่ Key ที่นี่แล้วกดบันทึกด้านล่าง (ปลอดภัยกว่าฝังในโค้ด)</p>
+            <p style="font-size:12px; color:#856404; margin-bottom:0;">* ใส่ Key ที่นี่แล้วกดบันทึกด้านล่าง</p>
         </div>
         <br>
 
@@ -71,29 +75,23 @@
             </div>
             <label>วันที่เป้าหมาย:</label>
             <input type="date" id="mission_date">
-            
             <button onclick="addMission()" style="background:#28a745; color:white; width:100%;">➕ เพิ่มภารกิจ</button>
-            
             <div id="mission_list" style="margin-top:10px; max-height:150px; overflow-y:auto; background:white; padding:5px; border-radius:5px;">Loading...</div>
         </div>
         <br>
 
         <h3 style="background:#f3e5f5; padding:10px; border-radius:10px;">⏳ จัดการ Timeline</h3>
         <div style="background: #f3e5f5; padding: 15px; border-radius: 10px;">
-            
             <div style="background:white; padding:10px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span>แสดงปุ่ม Timeline หน้าเว็บ?</span>
                 <input type="checkbox" id="conf_show_timeline" style="width:20px; height:20px;">
             </div>
             <hr>
-
             <label>วันที่:</label> <input type="date" id="tl_date">
             <input type="text" id="tl_title" placeholder="หัวข้อ (เช่น เจอกันครั้งแรก)">
             <textarea id="tl_desc" rows="2" placeholder="รายละเอียด..."></textarea>
             <input type="text" id="tl_img" placeholder="URL รูปภาพ (ถ้ามี)">
-            
             <button onclick="addTimelineItem()" style="background:#a55eea; color:white; width:100%;">➕ เพิ่มลง Timeline</button>
-            
             <div id="timeline_list" style="margin-top:10px; max-height:200px; overflow-y:auto; background:white; padding:5px;">Loading...</div>
         </div>
         <br>
@@ -134,9 +132,7 @@
             <button id="botSwitch" onclick="toggleBot()" style="width:48%;">Bot Status</button>
             <button onclick="clearChat()" style="background:#ff4757; color:white; width:48%;">ล้างแชท</button>
         </div>
-        
         <div class="chat-log" id="adminChatLog">Loading Chat...</div>
-        
         <div style="display:flex; gap:10px; margin-top:10px;">
             <input type="text" id="adminInput" placeholder="ตอบกลับในนามบอท..." onkeypress="if(event.key==='Enter') adminSend()" style="margin-bottom:0;">
             <button onclick="adminSend()" style="background:#007bff; color:white;">ส่ง</button>
@@ -161,31 +157,33 @@
         const db = getDatabase(app);
         
         let currentGallery = [];
+        let currentMissions = [];
+        let currentTimeline = [];
         let isFirstLoad = true;
 
-        // ----------------------------------------------------
-        // 1. ดึงข้อมูล Config ทั้งหมด
-        // ----------------------------------------------------
+        // ------------------------------------------
+        // 1. โหลดข้อมูลทั้งหมด (Load Data)
+        // ------------------------------------------
         onValue(ref(db, 'site_config'), (snapshot) => {
             const data = snapshot.val() || {};
             
-            // --- 🚀 ส่วนดึงข้อมูลภารกิจ (Missions) ---
-            currentMissions = data.missions || []; // ดึงข้อมูลภารกิจจาก Firebase ถ้าไม่มีให้เป็นอาเรย์ว่าง
-            renderMissionList(); // สั่งให้วาดรายการภารกิจออกมาโชว์
-
-            // โหลด Timeline
-            currentTimeline = data.timeline || [];
-            renderTimelineList();
-            
-            // โหลดสถานะปุ่ม (Checkbox)
-            document.getElementById('conf_show_timeline').checked = data.showTimelineBtn || false;
-            
-            // Key & Text
+            // Text & Key
             document.getElementById('conf_api_key').value = data.apiKey || "";
             document.getElementById('conf_headline').value = data.headline || "";
             document.getElementById('conf_names').value = data.coupleNames || "";
             document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+
+            // Arrays (ต้องเช็คว่าเป็น array ไหม กัน error)
+            currentMissions = data.missions || [];
+            renderMissionList();
             
+            currentTimeline = data.timeline || [];
+            renderTimelineList();
+            document.getElementById('conf_show_timeline').checked = data.showTimelineBtn || false;
+
+            currentGallery = data.gallery || [];
+            renderGalleryList();
+
             // Colors
             if(data.colors) {
                 document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
@@ -194,10 +192,6 @@
                 document.getElementById('conf_cat').value = data.colors.cat || "#ffffff";
             }
             if(data.game) document.getElementById('conf_max_hearts').value = data.game.maxHearts || 9;
-
-            // Gallery
-            currentGallery = data.gallery || [];
-            renderGalleryList();
 
             // Flash Messages
             if(isFirstLoad) {
@@ -210,9 +204,9 @@
             }
         });
 
-        // ----------------------------------------------------
-        // 2. ระบบแชท (Chat Log)
-        // ----------------------------------------------------
+        // ------------------------------------------
+        // 2. แชท (Chat Realtime)
+        // ------------------------------------------
         const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
         onValue(chatRef, (snapshot) => {
             const data = snapshot.val();
@@ -224,10 +218,8 @@
                     const isUser = msg.sender === 'user';
                     d.className = `msg-row ${isUser ? 'u' : 'b'}`;
                     d.innerHTML = `<b>${isUser ? 'มิ้ว' : 'บอท/คุณ'}</b>: ${msg.text}`;
-                    const clearFix = document.createElement('div');
-                    clearFix.style.clear = 'both';
                     logDiv.appendChild(d);
-                    logDiv.appendChild(clearFix);
+                    logDiv.appendChild(document.createElement('div')).style.clear='both';
                 });
                 logDiv.scrollTop = logDiv.scrollHeight;
             } else {
@@ -235,136 +227,101 @@
             }
         });
 
-        // ----------------------------------------------------
-        // 3. ฟังก์ชันการทำงาน (Save, Chat, Gallery,Mission)
-        // ----------------------------------------------------
+        // ------------------------------------------
+        // 3. ฟังก์ชันต่างๆ (Logic)
+        // ------------------------------------------
 
-        // --- ตัวแปรและฟังก์ชันระบบภารกิจ ---
-        let currentMissions = []; // ตัวแปรเก็บรายการภารกิจชั่วคราว
-
-        // ฟังก์ชันวาดรายการภารกิจในหน้า Admin
+        // Mission Logic
         window.renderMissionList = function() {
             const listDiv = document.getElementById('mission_list');
-            listDiv.innerHTML = ''; // ล้างรายการเก่าก่อนวาดใหม่
-            
-            // วนลูปสร้างรายการทีละอัน
+            listDiv.innerHTML = '';
             currentMissions.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px; border-bottom:1px solid #eee;";
-                div.innerHTML = `
-                    <span>${item.icon} <b>${item.title}</b> <small>(${item.date})</small></span>
-                    <button onclick="removeMission(${index})" style="background:#ff4757; color:white; padding:2px 8px; font-size:12px; border-radius:4px;">ลบ</button>
-                `;
+                div.innerHTML = `<span>${item.icon} <b>${item.title}</b> <small>(${item.date})</small></span><button onclick="removeMission(${index})" class="delete-btn">ลบ</button>`;
                 listDiv.appendChild(div);
             });
         };
-
-        // ฟังก์ชันเพิ่มภารกิจ
         window.addMission = function() {
             const icon = document.getElementById('mission_icon').value.trim();
             const title = document.getElementById('mission_title').value.trim();
             const date = document.getElementById('mission_date').value;
-
-            if(title && date) { // ถ้ากรอกครบ
-                // เพิ่มเข้าตัวแปร list
-                currentMissions.push({
-                    icon: icon || "📅", // ถ้าไม่ใส่ไอคอน ให้ใช้รูปปฏิทินแทน
-                    title: title,
-                    date: date
-                });
-                renderMissionList(); // อัปเดตหน้าจอ
-                
-                // เคลียร์ช่องกรอก
-                document.getElementById('mission_title').value = '';
-                document.getElementById('mission_icon').value = '';
-            } else {
-                alert("ใส่ชื่อและวันที่ด้วยค้าบ!");
-            }
+            if(title && date) { currentMissions.push({icon: icon||"📅", title, date}); renderMissionList(); document.getElementById('mission_title').value=''; }
         };
+        window.removeMission = (i) => { if(confirm("ลบ?")) { currentMissions.splice(i, 1); renderMissionList(); }};
 
-        // ฟังก์ชันลบภารกิจ
-        window.removeMission = function(index) {
-            if(confirm("ลบภารกิจนี้?")) {
-                currentMissions.splice(index, 1); // ลบออกจากตัวแปร array
-                renderMissionList(); // อัปเดตหน้าจอ
-            }
-        };
-
-        // --- ⏳ ตัวแปรและฟังก์ชัน Timeline ---
-        let currentTimeline = [];
-
-        // 1. ฟังก์ชันวาดรายการใน Admin
+        // Timeline Logic
         window.renderTimelineList = function() {
             const listDiv = document.getElementById('timeline_list');
             listDiv.innerHTML = '';
-            
-            // เรียงวันที่
             currentTimeline.sort((a, b) => new Date(a.date) - new Date(b.date));
-
             currentTimeline.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.style.cssText = "border-bottom:1px solid #eee; padding:5px; display:flex; justify-content:space-between; align-items:center;";
-                div.innerHTML = `
-                    <div style="font-size:12px;">
-                        <b>${item.date}</b>: ${item.title}
-                    </div>
-                    <button onclick="removeTimelineItem(${index})" style="background:#ff4757; color:white; border:none; border-radius:3px; cursor:pointer;">ลบ</button>
-                `;
+                div.innerHTML = `<div style="font-size:12px;"><b>${item.date}</b>: ${item.title}</div><button onclick="removeTimelineItem(${index})" class="delete-btn">ลบ</button>`;
                 listDiv.appendChild(div);
             });
         };
-
-        // 2. ฟังก์ชันเพิ่ม
         window.addTimelineItem = function() {
             const date = document.getElementById('tl_date').value;
             const title = document.getElementById('tl_title').value.trim();
             const desc = document.getElementById('tl_desc').value.trim();
             const img = document.getElementById('tl_img').value.trim();
+            if(date && title) { currentTimeline.push({ date, title, desc, image: img }); renderTimelineList(); document.getElementById('tl_title').value=''; }
+        };
+        window.removeTimelineItem = (i) => { if(confirm("ลบ?")) { currentTimeline.splice(i, 1); renderTimelineList(); }};
 
-            if(date && title) {
-                currentTimeline.push({ date, title, desc, image: img });
-                renderTimelineList();
-                
-                // เคลียร์ช่อง
-                document.getElementById('tl_title').value = '';
-                document.getElementById('tl_desc').value = '';
-                document.getElementById('tl_img').value = '';
-            } else {
-                alert("ใส่วันที่และหัวข้อด้วยครับ!");
-            }
+        // Gallery Logic
+        window.renderGalleryList = function() {
+            const listDiv = document.getElementById('gallery_list');
+            listDiv.innerHTML = '';
+            currentGallery.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'photo-item';
+                div.innerHTML = `<img src="${item.url}" onerror="this.src='https://via.placeholder.com/40'"><div class="photo-info">${item.caption}</div><button class="delete-btn" onclick="removePhoto(${index})">ลบ</button>`;
+                listDiv.appendChild(div);
+            });
+        };
+        window.addPhoto = function() {
+            const url = document.getElementById('new_img_url').value.trim();
+            const cap = document.getElementById('new_img_caption').value.trim();
+            if(url) { currentGallery.push({url, caption: cap || "❤️"}); renderGalleryList(); document.getElementById('new_img_url').value=''; }
+        };
+        window.removePhoto = (i) => { if(confirm("ลบ?")) { currentGallery.splice(i, 1); renderGalleryList(); }};
+
+        // Flash Logic
+        window.addFlashInput = function(text = "") {
+            const c = document.getElementById('flash_container');
+            const d = document.createElement('div');
+            d.className = 'flash-item';
+            d.innerHTML = `<input type=\"text\" class=\"flash-input\" value=\"${text}\"><button class=\"remove-flash-btn\" onclick=\"this.parentElement.remove()\">ลบ</button>`;
+            c.appendChild(d);
         };
 
-        // 3. ฟังก์ชันลบ
-        window.removeTimelineItem = function(index) {
-            if(confirm("ลบเหตุการณ์นี้?")) {
-                currentTimeline.splice(index, 1);
-                renderTimelineList();
-            }
-        };
-        
-        // SAVE ALL
+        // ------------------------------------------
+        // 4. บันทึกข้อมูล (SAVE ALL)
+        // ------------------------------------------
         window.saveAllSettings = function() {
             const updates = {};
+            // Key & Texts
             updates['site_config/apiKey'] = document.getElementById('conf_api_key').value.trim();
             updates['site_config/headline'] = document.getElementById('conf_headline').value;
             updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
             updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
             updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
-            // 🚀 บันทึกภารกิจลง Firebase
-            updates['site_config/missions'] = currentMissions;
-            // บันทึก Timeline
-            updates['site_config/timeline'] = currentTimeline;
-            // บันทึกสถานะปุ่ม
-            updates['site_config/showTimelineBtn'] = document.getElementById('conf_show_timeline').checked;
             
-            // Colors
+            // Arrays
+            updates['site_config/missions'] = currentMissions;
+            updates['site_config/timeline'] = currentTimeline;
+            updates['site_config/gallery'] = currentGallery;
+            
+            // Configs
+            updates['site_config/showTimelineBtn'] = document.getElementById('conf_show_timeline').checked;
             updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
             updates['site_config/colors/text'] = document.getElementById('conf_text').value;
             updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
             updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
-
-            // Arrays
-            updates['site_config/gallery'] = currentGallery;
+            
             const flashInputs = document.querySelectorAll('.flash-input');
             updates['site_config/flashMessages'] = Array.from(flashInputs).map(i => i.value).filter(v => v.trim() !== "");
 
@@ -373,73 +330,19 @@
                 .catch((err) => alert("Error: " + err));
         };
 
-        // Gallery Functions
-        window.renderGalleryList = function() {
-            const listDiv = document.getElementById('gallery_list');
-            listDiv.innerHTML = '';
-            currentGallery.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'photo-item';
-                div.innerHTML = `
-                    <img src="${item.url}" onerror="this.src='https://via.placeholder.com/40'">
-                    <div class="photo-info">${item.caption}</div>
-                    <button class="delete-btn" onclick="removePhoto(${index})">ลบ</button>
-                `;
-                listDiv.appendChild(div);
-            });
-        };
-        window.addPhoto = function() {
-            const url = document.getElementById('new_img_url').value.trim();
-            const cap = document.getElementById('new_img_caption').value.trim();
-            if(url) { 
-                currentGallery.push({url, caption: cap || "❤️"}); 
-                renderGalleryList(); 
-                document.getElementById('new_img_url').value=''; 
-                document.getElementById('new_img_caption').value='';
-            } else {
-                alert("ใส่ URL รูปด้วยครับ");
-            }
-        };
-        window.removePhoto = (i) => { 
-            if(confirm("ลบรูปนี้?")) { currentGallery.splice(i, 1); renderGalleryList(); }
-        };
-
-        // Flash Message Functions
-        window.addFlashInput = function(text = "") {
-            const c = document.getElementById('flash_container');
-            const d = document.createElement('div');
-            d.className = 'flash-item';
-            d.innerHTML = `<input type="text" class="flash-input" value="${text}"><button class="remove-flash-btn" onclick="this.parentElement.remove()">ลบ</button>`;
-            c.appendChild(d);
-        };
-
-        // Chat & Bot Functions
+        // Bot & Chat Actions
         const botStatusRef = ref(db, 'bot_status');
         onValue(botStatusRef, (snap) => {
             const btn = document.getElementById('botSwitch');
-            if(snap.val()) { 
-                btn.innerText = "✅ Bot ON (AI ตอบ)"; 
-                btn.style.background="#28a745"; 
-                btn.style.color="white"; 
-            } else { 
-                btn.innerText = "⚠️ Bot OFF (เงียบ)"; 
-                btn.style.background="#ddd"; 
-                btn.style.color="#333"; 
-            }
+            if(snap.val()) { btn.innerText = "✅ Bot ON"; btn.style.background="#28a745"; btn.style.color="white"; }
+            else { btn.innerText = "⚠️ Bot OFF"; btn.style.background="#ddd"; btn.style.color="#333"; }
         });
         window.toggleBot = () => { set(botStatusRef, document.getElementById('botSwitch').innerText.includes('OFF')); };
         window.adminSend = () => {
             const inp = document.getElementById('adminInput');
-            if(inp.value) { 
-                push(ref(db, 'chat_logs'), { text: inp.value, sender: 'bot', timestamp: Date.now() }); 
-                inp.value=''; 
-            }
+            if(inp.value) { push(ref(db, 'chat_logs'), { text: inp.value, sender: 'bot', timestamp: Date.now() }); inp.value=''; }
         };
-        window.clearChat = () => { if(confirm("⚠️ ล้างแชททั้งหมด? (กู้ไม่ได้นะ)")) remove(ref(db, 'chat_logs')); };
+        window.clearChat = () => { if(confirm("⚠️ ล้างแชททั้งหมด?")) remove(ref(db, 'chat_logs')); };
     </script>
 </body>
 </html>
-
-
-
-
