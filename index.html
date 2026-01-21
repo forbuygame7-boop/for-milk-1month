@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Milk</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="auth-guard.js"></script>
 </head>
 <body>
-    <body>
+
     <div id="auth-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
         <h2 style="color:#ff4d4d;">🔒 กำลังตรวจสอบกุญแจ...</h2>
         <p>รอแป๊บนึงนะครับ</p>
     </div>
 
-<script type="module" src="auth-guard.js"></script>
     <div class="container">
         <h1 id="headline">Loading...</h1>
         
@@ -46,7 +45,6 @@
             <a id="timelineBtn" href="timeline.html" style="text-decoration: none; display: none; background: #a55eea; color: white; padding: 10px 20px; border-radius: 20px; margin-top: 10px; width: fit-content; margin-left: auto; margin-right: auto;">
                 ⏳ เส้นทางรักของเรา
             </a>
-            
         </div>
     </div>
 
@@ -72,7 +70,6 @@
             <span id="closeMission" class="close-btn">&times;</span>
             <h2 style="color: #2e7d32;">🚀 ภารกิจของเรา</h2>
             <p style="font-size: 14px; color: #666;">เป้าหมายมีไว้พุ่งชน... แต่หัวใจมีไว้ชนเธอ ฮิ้วว~</p>
-            
             <div id="mission-grid" class="mission-container">
                 <p>Loading...</p>
             </div>
@@ -85,38 +82,7 @@
             <h2>📸 ความทรงจำของเรา</h2>
             
             <div class="polaroid-grid">
-                <div class="polaroid-item rotate-left">
-                    <img src="uploads/3ea3e7dc-8b14-4e33-af38-9d4aab88efc2.jpg" alt="Photo 1">
-                    <p>กินเตี๋ยวว</p>
-                </div>
-                <div class="polaroid-item rotate-right">
-                    <img src="uploads/04a2f1a0-99d2-4864-91f8-c91d3b6280c1.jpg" alt="Photo 2">
-                    <p>มิ้วสวยที่สุดในโลกก</p>
-                </div>
-                <div class="polaroid-item rotate-left">
-                    <img src="uploads/1768581316_3a5b7ab0-fad4-49af-8619-2a88901f536d.jpg" alt="Photo 3">
-                    <p>ครั้งแรกที่ได้อยู่ใกล้กัน</p>
-                </div>
-                <div class="polaroid-item rotate-right">
-                    <img src="uploads/2a413912-9f48-470d-94eb-425f32586571.jpg" alt="Photo 4">
-                    <p>ร้องเพลง With Milk</p>
-                </div>
-                <div class="polaroid-item rotate-left">
-                    <img src="uploads/d2ba1074-52de-4938-97f4-ef2950019849.jpg" alt="Photo 5">
-                    <p>@ Milk House</p>
-                </div>
-                <div class="polaroid-item rotate-right">
-                    <img src="uploads\0a55d3d9-5bac-490b-bb58-424a048c53a6.jpg" alt="Photo 4">
-                    <p>น่ารักที่สุดในโลกกก</p>
-                </div>
-                <div class="polaroid-item rotate-left">
-                    <img src="uploads\83a9f1a2-e784-4555-bb11-301ea64d53b8.jpg" alt="Photo 4">
-                    <p>เที่ยววัด With Milk Fam</p>
-                </div>
-                <div class="polaroid-item rotate-right">
-                    <img src="uploads\802c82fa-399c-4402-9e2f-acd51480fb33.jpg" alt="Photo 4">
-                    <p>น่ารักได้ตลอดเวลา</p>
-                </div>
+                <p style="text-align:center; color:#999;">กำลังโหลดรูปจากความทรงจำ...</p>
             </div>
         </div>
     </div>
@@ -130,7 +96,6 @@
                 <span id="song-name">🎵 กำลังโหลดเพลง...</span>
             </div>
         </div>
-        
         <div id="youtube-player-container">
             <div id="youtube-player"></div>
         </div>
@@ -164,18 +129,13 @@
             color: #ff4d4d; font-weight: bold; font-size: 14px;
         }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        
-        /* ซ่อน YouTube 100% */
         #youtube-player-container {
-            position: fixed; top: 0; left: 0;
-            width: 1px; height: 1px; opacity: 0;
-            pointer-events: none; z-index: -100;
-            visibility: hidden;
+            position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -100; visibility: hidden;
         }
     </style>
 
     <script>
-        const YOUTUBE_VIDEO_ID = "qngCJf9V6g8"; // เปลี่ยนเป็นเพลง Canon in D (Piano) เพราะเพลงเก่าอาจโดนบล็อก
+        const YOUTUBE_VIDEO_ID = "qngCJf9V6g8"; 
         const SONG_NAME = "🎵 เพลง: รวมเพลงรัก"; 
 
         let player;
@@ -220,32 +180,18 @@
     </script>
 
     <script>
-    // --- 🚀 ระบบคำนวณและแสดงภารกิจ ---
-
-    // 1. ฟังก์ชันหลัก: วาดรายการภารกิจ (ฉบับกรอง 30 วัน)
+    // ภารกิจ
     window.renderMissions = function() {
         const grid = document.getElementById('mission-grid');
         const missions = window.CONFIG.missions || [];
-
         if (!grid) return;
-        grid.innerHTML = ''; // เคลียร์ของเก่า
-
-        // เรียงลำดับตามวันที่
+        grid.innerHTML = ''; 
         missions.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        let showCount = 0; // ตัวนับว่ามีภารกิจที่โชว์กี่อัน
-
+        let showCount = 0; 
         missions.forEach(mission => {
             const timeLeft = calculateTimeLeft(mission.date);
-            
-            // 🛑 เช็คตรงนี้: ถ้าเกิน 30 วัน หรือ ผ่านไปแล้ว ให้ข้ามไปเลย (ไม่โชว์)
-            if (timeLeft.days > 30 || (timeLeft.days === 0 && timeLeft.hours === 0)) {
-                return; 
-            }
-
-            showCount++; // นับว่ามีอันที่โชว์นะ
-
-            // สร้าง HTML การ์ด
+            if (timeLeft.days > 30 || (timeLeft.days === 0 && timeLeft.hours === 0)) return; 
+            showCount++; 
             const card = document.createElement('div');
             card.className = 'mission-card';
             card.innerHTML = `
@@ -257,82 +203,54 @@
                 <div class="m-countdown">
                     ${timeLeft.days} วัน
                     <span>${timeLeft.hours} ชม.</span>
-                </div>
-            `;
+                </div>`;
             grid.appendChild(card);
         });
-
-        // ถ้าไม่มีภารกิจไหนเข้าเกณฑ์เลย (showCount เป็น 0)
-        if (showCount === 0) {
-            grid.innerHTML = '<p style="text-align:center; width:100%; color:#999; margin-top:20px;">🎉 ยังไม่มีภารกิจเร็วๆ นี้จ้า (พักผ่อนยาวไป!)</p>';
-        }
+        if (showCount === 0) grid.innerHTML = '<p style="text-align:center; width:100%; color:#999; margin-top:20px;">🎉 ยังไม่มีภารกิจเร็วๆ นี้จ้า (พักผ่อนยาวไป!)</p>';
     };
 
-    // 2. ฟังก์ชันช่วย: คำนวณเวลาถอยหลัง (เหลือกี่วัน กี่ชม.)
     function calculateTimeLeft(targetDate) {
         const now = new Date();
         const target = new Date(targetDate);
-        // ตั้งเวลาเป้าหมายเป็นเที่ยงคืนของวันนั้น
         target.setHours(0,0,0,0); 
-        
-        const diff = target - now; // เวลาที่ต่างกัน (มิลลิวินาที)
-
-        if (diff <= 0) return { days: 0, hours: 0 }; // ถ้าเลยมาแล้ว
-
+        const diff = target - now; 
+        if (diff <= 0) return { days: 0, hours: 0 }; 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        
         return { days, hours };
     }
 
-    // 3. ฟังก์ชันช่วย: จัดรูปแบบวันที่สวยๆ (เช่น 14/02/2026)
     function formatDate(dateStr) {
         const d = new Date(dateStr);
         return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
     }
 
-    // --- ส่วนควบคุม Modal (เปิด/ปิด) ---
     const missionModal = document.getElementById('mission-modal');
     const missionBtn = document.getElementById('missionBtn');
     const closeMission = document.getElementById('closeMission');
 
     if(missionBtn) {
         missionBtn.onclick = function() {
-            missionModal.classList.remove('hidden'); // แสดง Modal
-            missionModal.classList.add('show');      // (ถ้ามี CSS show)
-            renderMissions(); // สั่งคำนวณใหม่ทุกครั้งที่กดเปิด
+            missionModal.classList.remove('hidden'); 
+            missionModal.classList.add('show');      
+            renderMissions(); 
         }
     }
-    
     if(closeMission) {
         closeMission.onclick = function() {
             missionModal.classList.add('hidden');
             missionModal.classList.remove('show');
         }
     }
-
-    // กดพื้นที่ว่างเพื่อปิด
     window.addEventListener('click', function(event) {
-        if (event.target == missionModal) {
-            missionModal.classList.add('hidden');
-        }
+        if (event.target == missionModal) missionModal.classList.add('hidden');
     });
-
-</script>
+    </script>
     
     <script type="module" src="config.js"></script> 
     <script src="brain.js"></script> 
     <script type="module" src="script.js"></script> 
     <script type="module" src="chat-core.js"></script>
 
-
 </body>
 </html>
-
-
-
-
-
-
-
-
