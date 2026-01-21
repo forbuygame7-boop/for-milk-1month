@@ -283,3 +283,4 @@ function setupGallery() {
 
 // เรียกใช้งานครั้งแรก
 setupGallery();
+
