@@ -21,6 +21,7 @@ window.CONFIG = {
     headline: "Loading...",
     deepMessage: "กำลังโหลดจดหมาย...",
     apiKey: "", // ✅ เพิ่มตัวแปรมารอรับ Key
+    missions: [], // ✅ เพิ่มบรรทัดนี้: เพื่อรอรับข้อมูลภารกิจ
     gallery: [],
     flashMessages: [],
     colors: { background: "#ffe6e6", cat: "#fff" },
@@ -60,6 +61,9 @@ onValue(ref(db, 'site_config'), (snapshot) => {
 
         // 3. วาดแกลเลอรี่
         if (typeof renderGallery === 'function') renderGallery();
+
+        // 4. วาดภารกิจ (ถ้ามีฟังก์ชันนี้อยู่)
+        if (typeof renderMissions === 'function') renderMissions();
     }
 });
 // ฟังก์ชันเปลี่ยนสี
@@ -81,5 +85,6 @@ window.applyTheme = function() {
     const legs = document.querySelectorAll('.cat-leg');
     legs.forEach(l => l.style.backgroundColor = window.CONFIG.colors.cat || "#333");
 };
+
 
 
