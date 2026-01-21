@@ -31,14 +31,49 @@ window.CONFIG = {
         botName: "พี่หมี (AI)",
         adminName: "เค้าเอง (ตัวจริง)",
         profileImage: "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
+        // ฟังก์ชันคำนวณแบตเตอรี่ (รีเซ็ตทุกเดือน)
         getLoveBattery: function() {
-            const startStr = window.CONFIG.anniversaryDate || "2025-12-21";
-            const start = new Date(startStr);
+            // 1. หาวันที่เริ่มคบ (เช่น วันที่ 21)
+            const startStr = window.CONFIG.anniversaryDate || "2025-12-21"; // วันครบรอบ
+            const startObj = new Date(startStr);
+            const anniDay = startObj.getDate(); // ได้เลข 21
+
+            // 2. วันนี้
             const now = new Date();
-            const diffTime = Math.abs(now - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            let battery = 50 + diffDays;
-            return battery > 100 ? 100 : battery;
+            const currentDay = now.getDate();
+
+            // 3. ถ้าวันนี้ตรงกับวันครบรอบเป๊ะๆ (เช่น วันที่ 21) -> เต็ม 100%
+            if (currentDay === anniDay) return 100;
+
+            // 4. คำนวณวันเริ่มต้นรอบ และวันจบรอบ
+            let lastAnni = new Date(now);
+            let nextAnni = new Date(now);
+
+            if (currentDay > anniDay) {
+                // ถ้าวันนี้ (25) เลยวันครบรอบ (21) มาแล้ว
+                // รอบเริ่ม: วันที่ 21 เดือนนี้
+                // รอบจบ: วันที่ 21 เดือนหน้า
+                lastAnni.setDate(anniDay);
+                nextAnni.setMonth(now.getMonth() + 1);
+                nextAnni.setDate(anniDay);
+            } else {
+                // ถ้าวันนี้ (5) ยังไม่ถึงวันครบรอบ (21)
+                // รอบเริ่ม: วันที่ 21 เดือนที่แล้ว
+                // รอบจบ: วันที่ 21 เดือนนี้
+                lastAnni.setMonth(now.getMonth() - 1);
+                lastAnni.setDate(anniDay);
+                nextAnni.setDate(anniDay);
+            }
+
+            // 5. คำนวณเปอร์เซ็นต์ความคืบหน้า
+            const totalTime = nextAnni - lastAnni; // เวลาทั้งหมดในรอบนี้ (ประมาณ 30 วัน)
+            const timePassed = now - lastAnni;     // เวลาที่ผ่านมาแล้ว
+
+            let percent = (timePassed / totalTime) * 100;
+            
+            // ปัดเลขให้สวยๆ (ขั้นต่ำ 1% สูงสุด 100%)
+            percent = Math.floor(percent);
+            return percent < 1 ? 1 : (percent > 100 ? 100 : percent);
         }
     }
 };
@@ -85,6 +120,7 @@ window.applyTheme = function() {
     const legs = document.querySelectorAll('.cat-leg');
     legs.forEach(l => l.style.backgroundColor = window.CONFIG.colors.cat || "#333");
 };
+
 
 
 
