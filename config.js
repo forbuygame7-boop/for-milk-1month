@@ -99,6 +99,13 @@ onValue(ref(db, 'site_config'), (snapshot) => {
 
         // 4. วาดภารกิจ (ถ้ามีฟังก์ชันนี้อยู่)
         if (typeof renderMissions === 'function') renderMissions();
+
+        // 5. ควบคุมปุ่ม Timeline
+        const tlBtn = document.getElementById('timelineBtn');
+        if (tlBtn) {
+            // ถ้าค่า showTimelineBtn เป็น true ให้โชว์ (block) ถ้า false ให้ซ่อน (none)
+            tlBtn.style.display = window.CONFIG.showTimelineBtn ? 'inline-block' : 'none';
+        }
     }
 });
 // ฟังก์ชันเปลี่ยนสี
@@ -120,6 +127,7 @@ window.applyTheme = function() {
     const legs = document.querySelectorAll('.cat-leg');
     legs.forEach(l => l.style.backgroundColor = window.CONFIG.colors.cat || "#333");
 };
+
 
 
 
