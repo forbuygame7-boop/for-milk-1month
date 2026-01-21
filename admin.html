@@ -56,6 +56,21 @@
         </div>
         <br>
 
+        <h3 style="background:#e8f5e9; padding:10px; border-radius:10px;">🚀 ภารกิจรัก (Next Missions)</h3>
+        <div style="background: #e8f5e9; padding: 15px; border-radius: 10px;">
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" id="mission_icon" placeholder="ไอคอน (เช่น 🌹)" style="width:30%;">
+                <input type="text" id="mission_title" placeholder="ชื่อภารกิจ (เช่น วันวาเลนไทน์)" style="width:70%;">
+            </div>
+            <label>วันที่เป้าหมาย:</label>
+            <input type="date" id="mission_date">
+            
+            <button onclick="addMission()" style="background:#28a745; color:white; width:100%;">➕ เพิ่มภารกิจ</button>
+            
+            <div id="mission_list" style="margin-top:10px; max-height:150px; overflow-y:auto; background:white; padding:5px; border-radius:5px;">Loading...</div>
+        </div>
+        <br>
+        
         <h3 style="background:#fff0f5; padding:10px; border-radius:10px;">📸 แกลเลอรี่</h3>
         <div style="background: #fff0f5; padding: 15px; border-radius: 10px;">
             <input type="text" id="new_img_url" placeholder="URL รูปภาพ (Direct Link)...">
@@ -126,6 +141,10 @@
         // ----------------------------------------------------
         onValue(ref(db, 'site_config'), (snapshot) => {
             const data = snapshot.val() || {};
+
+            // --- 🚀 ส่วนดึงข้อมูลภารกิจ (Missions) ---
+            currentMissions = data.missions || []; // ดึงข้อมูลภารกิจจาก Firebase ถ้าไม่มีให้เป็นอาเรย์ว่าง
+            renderMissionList(); // สั่งให้วาดรายการภารกิจออกมาโชว์
             
             // Key & Text
             document.getElementById('conf_api_key').value = data.apiKey || "";
@@ -183,8 +202,59 @@
         });
 
         // ----------------------------------------------------
-        // 3. ฟังก์ชันการทำงาน (Save, Chat, Gallery)
+        // 3. ฟังก์ชันการทำงาน (Save, Chat, Gallery,Mission)
         // ----------------------------------------------------
+
+        // --- ตัวแปรและฟังก์ชันระบบภารกิจ ---
+        let currentMissions = []; // ตัวแปรเก็บรายการภารกิจชั่วคราว
+
+        // ฟังก์ชันวาดรายการภารกิจในหน้า Admin
+        window.renderMissionList = function() {
+            const listDiv = document.getElementById('mission_list');
+            listDiv.innerHTML = ''; // ล้างรายการเก่าก่อนวาดใหม่
+            
+            // วนลูปสร้างรายการทีละอัน
+            currentMissions.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px; border-bottom:1px solid #eee;";
+                div.innerHTML = `
+                    <span>${item.icon} <b>${item.title}</b> <small>(${item.date})</small></span>
+                    <button onclick="removeMission(${index})" style="background:#ff4757; color:white; padding:2px 8px; font-size:12px; border-radius:4px;">ลบ</button>
+                `;
+                listDiv.appendChild(div);
+            });
+        };
+
+        // ฟังก์ชันเพิ่มภารกิจ
+        window.addMission = function() {
+            const icon = document.getElementById('mission_icon').value.trim();
+            const title = document.getElementById('mission_title').value.trim();
+            const date = document.getElementById('mission_date').value;
+
+            if(title && date) { // ถ้ากรอกครบ
+                // เพิ่มเข้าตัวแปร list
+                currentMissions.push({
+                    icon: icon || "📅", // ถ้าไม่ใส่ไอคอน ให้ใช้รูปปฏิทินแทน
+                    title: title,
+                    date: date
+                });
+                renderMissionList(); // อัปเดตหน้าจอ
+                
+                // เคลียร์ช่องกรอก
+                document.getElementById('mission_title').value = '';
+                document.getElementById('mission_icon').value = '';
+            } else {
+                alert("ใส่ชื่อและวันที่ด้วยค้าบ!");
+            }
+        };
+
+        // ฟังก์ชันลบภารกิจ
+        window.removeMission = function(index) {
+            if(confirm("ลบภารกิจนี้?")) {
+                currentMissions.splice(index, 1); // ลบออกจากตัวแปร array
+                renderMissionList(); // อัปเดตหน้าจอ
+            }
+        };
         
         // SAVE ALL
         window.saveAllSettings = function() {
@@ -194,6 +264,8 @@
             updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
             updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
             updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
+            // 🚀 บันทึกภารกิจลง Firebase
+            updates['site_config/missions'] = currentMissions;
             
             // Colors
             updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
@@ -277,3 +349,4 @@
     </script>
 </body>
 </html>
+
