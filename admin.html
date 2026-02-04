@@ -116,12 +116,8 @@
         <label>ชื่อคู่รัก (Footer):</label>
         <input type="text" id="conf_names" placeholder="Names">
         
-        <h3>💌 จดหมายลับ</h3>
-        <textarea id="conf_deep_msg" rows="5" placeholder="เขียนความในใจตรงนี้... (ใช้ <br> ขึ้นบรรทัดใหม่)"></textarea>
-
         <h3 style="background:#ffe0e0; padding:10px; border-radius:10px; color:#d63031;">🌹 ตั้งค่าหน้าของขวัญ (Valentine)</h3>
         <div style="background: #fff0f0; padding: 15px; border-radius: 10px; border: 1px solid #ffcccc;">
-            
             <div style="display:flex; gap:20px; margin-bottom:15px;">
                 <label style="cursor:pointer; display:flex; align-items:center; gap:5px;">
                     <input type="checkbox" id="val_show_btn"> แสดงปุ่มในหน้าแรก?
@@ -130,9 +126,30 @@
                     <input type="checkbox" id="val_is_locked"> 🔒 ล็อครหัสผ่าน (บังคับ Login)
                 </label>
             </div>
-
             <label>ข้อความซึ้งๆ (รองรับ HTML เช่น &lt;br&gt; เพื่อขึ้นบรรทัดใหม่):</label>
             <textarea id="val_message" rows="6" placeholder="ใส่ข้อความที่นี่..." style="width:100%; border-color:#ffcccc;"></textarea>
+        </div>
+        <br>
+
+        <h3>💌 จดหมายลับ</h3>
+        <textarea id="conf_deep_msg" rows="5" placeholder="เขียนความในใจตรงนี้... (ใช้ <br> ขึ้นบรรทัดใหม่)"></textarea>
+
+        <div style="margin-top: 15px;">
+            <label style="font-weight: bold; color: #ff4d4d;">👁️ ตัวอย่างการแสดงผล (Real-time Preview):</label>
+            <div id="msg_preview_box" style="
+                background: #fff0f5; 
+                border: 2px dashed #ffb6c1; 
+                border-radius: 15px; 
+                padding: 20px; 
+                min-height: 80px; 
+                margin-top: 10px;
+                font-family: 'Sarabun', sans-serif;
+                color: #555;
+                line-height: 1.6;
+                white-space: pre-wrap; /* รักษาย่อหน้า */
+            ">
+                <span style="color:#aaa; font-style:italic;">(เริ่มพิมพ์ข้อความด้านบน ตัวอย่างจะปรากฏที่นี่...)</span>
+            </div>
         </div>
         <br>
         
@@ -157,7 +174,6 @@
     </div>
 
     <script type="module">
-        // ✅ แก้ไขส่วน Import เพื่อป้องกันการ Crash (ใช้ getApps เช็คก่อน)
         import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, push, onValue, set, query, limitToLast, remove, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
@@ -171,7 +187,6 @@
             appId: "1:434980133810:web:12929b8f2843dd07c162ab"
         };
 
-        // 🔧 FIX: เช็คว่ามี App อยู่แล้วหรือยัง ถ้ามีให้ใช้ตัวเดิม ถ้าไม่มีค่อยสร้างใหม่
         const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
         const db = getDatabase(app);
         
@@ -180,9 +195,7 @@
         let currentTimeline = [];
         let isFirstLoad = true;
 
-        // ------------------------------------------
-        // 1. โหลดข้อมูลทั้งหมด (Load Data)
-        // ------------------------------------------
+        // 1. โหลดข้อมูล
         onValue(ref(db, 'site_config'), (snapshot) => {
             const data = snapshot.val() || {};
             
@@ -191,8 +204,11 @@
             document.getElementById('conf_headline').value = data.headline || "";
             document.getElementById('conf_names').value = data.coupleNames || "";
             document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+            
+            // 🔥 เรียก Preview ทันทีที่โหลดเสร็จ
+            updatePreview();
 
-            // Arrays (ต้องเช็คว่าเป็น array ไหม กัน error)
+            // Arrays
             currentMissions = data.missions || [];
             renderMissionList();
             
@@ -203,10 +219,7 @@
             currentGallery = data.gallery || [];
             renderGalleryList();
 
-            // ส่วนหน้าข้อความลับวาเลนไทน
-            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
-
-            // ✅ เพิ่มส่วนนี้: โหลดค่า Valentine
+            // Valentine
             const val = data.valentine || {};
             document.getElementById('val_show_btn').checked = val.showBtn || false;
             document.getElementById('val_is_locked').checked = val.isLocked || false;
@@ -232,9 +245,7 @@
             }
         });
 
-        // ------------------------------------------
-        // 2. แชท (Chat Realtime)
-        // ------------------------------------------
+        // 2. Chat Realtime
         const chatRef = query(ref(db, 'chat_logs'), limitToLast(50));
         onValue(chatRef, (snapshot) => {
             const data = snapshot.val();
@@ -255,11 +266,7 @@
             }
         });
 
-        // ------------------------------------------
-        // 3. ฟังก์ชันต่างๆ (Logic)
-        // ------------------------------------------
-
-        // Mission Logic
+        // 3. Functions
         window.renderMissionList = function() {
             const listDiv = document.getElementById('mission_list');
             listDiv.innerHTML = '';
@@ -278,7 +285,6 @@
         };
         window.removeMission = (i) => { if(confirm("ลบ?")) { currentMissions.splice(i, 1); renderMissionList(); }};
 
-        // Timeline Logic
         window.renderTimelineList = function() {
             const listDiv = document.getElementById('timeline_list');
             listDiv.innerHTML = '';
@@ -299,7 +305,6 @@
         };
         window.removeTimelineItem = (i) => { if(confirm("ลบ?")) { currentTimeline.splice(i, 1); renderTimelineList(); }};
 
-        // Gallery Logic
         window.renderGalleryList = function() {
             const listDiv = document.getElementById('gallery_list');
             listDiv.innerHTML = '';
@@ -317,7 +322,6 @@
         };
         window.removePhoto = (i) => { if(confirm("ลบ?")) { currentGallery.splice(i, 1); renderGalleryList(); }};
 
-        // Flash Logic
         window.addFlashInput = function(text = "") {
             const c = document.getElementById('flash_container');
             const d = document.createElement('div');
@@ -326,38 +330,28 @@
             c.appendChild(d);
         };
 
-        // ------------------------------------------
-        // 4. บันทึกข้อมูล (SAVE ALL)
-        // ------------------------------------------
+        // 4. Save
         window.saveAllSettings = function() {
             const updates = {};
-            // Key & Texts
             updates['site_config/apiKey'] = document.getElementById('conf_api_key').value.trim();
             updates['site_config/headline'] = document.getElementById('conf_headline').value;
             updates['site_config/coupleNames'] = document.getElementById('conf_names').value;
             updates['site_config/deepMessage'] = document.getElementById('conf_deep_msg').value;
             updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
             
-            // Arrays
             updates['site_config/missions'] = currentMissions;
             updates['site_config/timeline'] = currentTimeline;
             updates['site_config/gallery'] = currentGallery;
             
-            // Configs
             updates['site_config/showTimelineBtn'] = document.getElementById('conf_show_timeline').checked;
             updates['site_config/colors/background'] = document.getElementById('conf_bg').value;
             updates['site_config/colors/text'] = document.getElementById('conf_text').value;
             updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
             updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
 
-            
             const flashInputs = document.querySelectorAll('.flash-input');
             updates['site_config/flashMessages'] = Array.from(flashInputs).map(i => i.value).filter(v => v.trim() !== "");
 
-            
-            updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
-            
-            // ✅ เพิ่มส่วนนี้: บันทึกค่า Valentine
             updates['site_config/valentine/showBtn'] = document.getElementById('val_show_btn').checked;
             updates['site_config/valentine/isLocked'] = document.getElementById('val_is_locked').checked;
             updates['site_config/valentine/message'] = document.getElementById('val_message').value;
@@ -367,7 +361,6 @@
                 .catch((err) => alert("Error: " + err));
         };
 
-        // Bot & Chat Actions
         const botStatusRef = ref(db, 'bot_status');
         onValue(botStatusRef, (snap) => {
             const btn = document.getElementById('botSwitch');
@@ -380,9 +373,19 @@
             if(inp.value) { push(ref(db, 'chat_logs'), { text: inp.value, sender: 'bot', timestamp: Date.now() }); inp.value=''; }
         };
         window.clearChat = () => { if(confirm("⚠️ ล้างแชททั้งหมด?")) remove(ref(db, 'chat_logs')); };
+
+        // 🔥 Real-time Preview Script (เพิ่มใหม่ตรงนี้)
+        const msgInput = document.getElementById('conf_deep_msg');
+        const msgPreview = document.getElementById('msg_preview_box');
+
+        function updatePreview() {
+            msgPreview.innerHTML = msgInput.value ? msgInput.value : '<span style="color:#aaa; font-style:italic;">(เริ่มพิมพ์ข้อความด้านบน ตัวอย่างจะปรากฏที่นี่...)</span>';
+        }
+
+        if(msgInput && msgPreview) {
+             msgInput.addEventListener('input', updatePreview);
+        }
+
     </script>
 </body>
 </html>
-
-
-
