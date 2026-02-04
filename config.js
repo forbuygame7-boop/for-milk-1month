@@ -106,6 +106,17 @@ onValue(ref(db, 'site_config'), (snapshot) => {
             // ถ้าค่า showTimelineBtn เป็น true ให้โชว์ (block) ถ้า false ให้ซ่อน (none)
             tlBtn.style.display = window.CONFIG.showTimelineBtn ? 'inline-block' : 'none';
         }
+      // 6. Valentine
+        const tlBtn = document.getElementById('timelineBtn');
+        if (tlBtn) {
+            tlBtn.style.display = window.CONFIG.showTimelineBtn ? 'inline-block' : 'none';
+        }
+
+        // ✅ เพิ่มส่วนนี้: ควบคุมปุ่ม Valentine
+        const valBtn = document.getElementById('valentineBtn');
+        if (valBtn && window.CONFIG.valentine) {
+            valBtn.style.display = window.CONFIG.valentine.showBtn ? 'inline-block' : 'none';
+        }
     }
 });
 // ฟังก์ชันเปลี่ยนสี
@@ -127,6 +138,7 @@ window.applyTheme = function() {
     const legs = document.querySelectorAll('.cat-leg');
     legs.forEach(l => l.style.backgroundColor = window.CONFIG.colors.cat || "#333");
 };
+
 
 
 
