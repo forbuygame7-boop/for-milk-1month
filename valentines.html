@@ -75,8 +75,34 @@
         .message-card p { line-height: 1.8; font-size: 1.1rem; color: #555; }
         .close-btn { margin-top: 20px; background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
 
-        /* ปุ่มกลับ */
-        .back-btn { position: fixed; top: 20px; left: 20px; color: white; text-decoration: none; opacity: 0.5; }
+        /* ปุ่มกลับหน้าหลัก (สำหรับหน้าวาเลนไทน์ - อยู่บนซ้าย) */
+        .back-btn {
+            position: fixed;
+            top: 30px; /* อยู่ด้านบน */
+            left: 30px; /* อยู่ด้านซ้าย */
+            background: rgba(255, 255, 255, 0.15); /* พื้นหลังใสๆ ให้เข้ากับธีมมืด */
+            backdrop-filter: blur(10px); /* เบลอฉากหลัง */
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
 
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         @keyframes float { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -55%); } }
