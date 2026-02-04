@@ -21,13 +21,39 @@
         .content h2 { margin: 0 0 10px 0; font-size: 1.2rem; color: #ff4d4d; }
         .content small { color: #999; display: block; margin-bottom: 10px; }
         .content img { width: 100%; border-radius: 10px; margin-top: 10px; }
-        .back-btn { position: fixed; bottom: 20px; right: 20px; background: #ff4d4d; color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 99; }
-        @media screen and (max-width: 600px) {
-            .timeline::after { left: 31px; }
-            .container { width: 100%; padding-left: 70px; padding-right: 25px; }
-            .container.right { left: 0; }
-            .container.left::after, .container.right::after { left: 15px; }
+        /* ปุ่มกลับหน้าหลัก */
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53); /* ไล่สีส้มแดง */
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 50px; /* กลมมน */
+            font-family: 'Sarabun', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4); /* เงาฟุ้งๆ */
+            transition: all 0.3s ease; /* เอฟเฟกต์สมูท */
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* ระยะห่างไอคอนกับตัวหนังสือ */
+            border: 2px solid rgba(255, 255, 255, 0.2); /* ขอบขาวจางๆ เพิ่มมิติ */
         }
+        
+        /* เอฟเฟกต์ตอนชี้เมาส์ */
+        .back-btn:hover {
+            transform: translateY(-5px) scale(1.05); /* ลอยขึ้นนิดนึง */
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6);
+            background: linear-gradient(135deg, #ff8e53, #ff6b6b); /* สลับสี */
+        }
+                    .timeline::after { left: 31px; }
+                    .container { width: 100%; padding-left: 70px; padding-right: 25px; }
+                    .container.right { left: 0; }
+                    .container.left::after, .container.right::after { left: 15px; }
+                }
     </style>
 </head>
 <body> <div id="auth-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
