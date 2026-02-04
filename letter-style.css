@@ -166,17 +166,35 @@ body {
     z-index: 15;
 }
 
-/* ปุ่มกลับหน้าหลัก */
+/* ปุ่มกลับหน้าหลัก (สวยหรู) */
 .back-btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #ff4d4d;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    left: 50%; /* จัดกึ่งกลาง */
+    transform: translateX(-50%); /* จัดกึ่งกลาง */
+    background: linear-gradient(135deg, #ff6b6b, #ff8e53); /* ไล่สีส้มแดง */
     color: white;
     text-decoration: none;
-    border-radius: 20px;
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out 1s;
+    padding: 15px 30px;
+    border-radius: 50px; /* กลมมน */
+    font-family: 'Sarabun', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4); /* เงาฟุ้งๆ */
+    transition: all 0.3s ease; /* เอฟเฟกต์สมูท */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* ระยะห่างไอคอนกับตัวหนังสือ */
+    border: 2px solid rgba(255, 255, 255, 0.2); /* ขอบขาวจางๆ เพิ่มมิติ */
+}
+
+/* เอฟเฟกต์ตอนชี้เมาส์ */
+.back-btn:hover {
+    transform: translateY(-5px) scale(1.05); /* ลอยขึ้นนิดนึง */
+    box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6);
+    background: linear-gradient(135deg, #ff8e53, #ff6b6b); /* สลับสี */
 }
 .back-btn.hidden {
     opacity: 0;
@@ -204,3 +222,4 @@ body {
     50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.5); opacity: 0.8; }
     100% { transform: translate(-50%, -50%) rotate(360deg) scale(2); opacity: 0; }
 }
+
