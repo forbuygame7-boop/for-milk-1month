@@ -349,10 +349,19 @@
             updates['site_config/colors/text'] = document.getElementById('conf_text').value;
             updates['site_config/colors/button'] = document.getElementById('conf_btn').value;
             updates['site_config/colors/cat'] = document.getElementById('conf_cat').value;
+
             
             const flashInputs = document.querySelectorAll('.flash-input');
             updates['site_config/flashMessages'] = Array.from(flashInputs).map(i => i.value).filter(v => v.trim() !== "");
 
+            
+            updates['site_config/game/maxHearts'] = parseInt(document.getElementById('conf_max_hearts').value);
+            
+            // ✅ เพิ่มส่วนนี้: บันทึกค่า Valentine
+            updates['site_config/valentine/showBtn'] = document.getElementById('val_show_btn').checked;
+            updates['site_config/valentine/isLocked'] = document.getElementById('val_is_locked').checked;
+            updates['site_config/valentine/message'] = document.getElementById('val_message').value;
+            
             update(ref(db), updates)
                 .then(() => alert("✅ บันทึกแล้ว!"))
                 .catch((err) => alert("Error: " + err));
@@ -374,5 +383,6 @@
     </script>
 </body>
 </html>
+
 
 
