@@ -36,6 +36,20 @@
         .flash-list { margin-top: 10px; }
         .flash-item { display: flex; gap: 5px; margin-bottom: 5px; }
         .remove-flash-btn { background: #ff4757; color: white; width: auto; padding: 0 15px; }
+        
+        /* Preview Box Styling */
+        .preview-box {
+            background: #fff0f5; 
+            border: 2px dashed #ffb6c1; 
+            border-radius: 15px; 
+            padding: 20px; 
+            min-height: 80px; 
+            margin-top: 10px;
+            font-family: 'Sarabun', sans-serif;
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -126,29 +140,26 @@
                     <input type="checkbox" id="val_is_locked"> 🔒 ล็อครหัสผ่าน (บังคับ Login)
                 </label>
             </div>
-            <label>ข้อความซึ้งๆ (รองรับ HTML เช่น &lt;br&gt; เพื่อขึ้นบรรทัดใหม่):</label>
+            
+            <label>ข้อความซึ้งๆ (รองรับ HTML):</label>
             <textarea id="val_message" rows="6" placeholder="ใส่ข้อความที่นี่..." style="width:100%; border-color:#ffcccc;"></textarea>
+            
+            <div style="margin-top: 10px;">
+                <label style="font-weight: bold; color: #d63031;">👁️ ตัวอย่างข้อความ (Real-time):</label>
+                <div id="val_preview_box" class="preview-box" style="background:#fff5f5; border-color:#ffcccc;">
+                    <span style="color:#aaa; font-style:italic;">(พิมพ์ข้อความด้านบนเพื่อดูตัวอย่าง...)</span>
+                </div>
+            </div>
         </div>
         <br>
 
         <h3>💌 จดหมายลับ</h3>
         <textarea id="conf_deep_msg" rows="5" placeholder="เขียนความในใจตรงนี้... (ใช้ <br> ขึ้นบรรทัดใหม่)"></textarea>
-
-        <div style="margin-top: 15px;">
-            <label style="font-weight: bold; color: #ff4d4d;">👁️ ตัวอย่างการแสดงผล (Real-time Preview):</label>
-            <div id="msg_preview_box" style="
-                background: #fff0f5; 
-                border: 2px dashed #ffb6c1; 
-                border-radius: 15px; 
-                padding: 20px; 
-                min-height: 80px; 
-                margin-top: 10px;
-                font-family: 'Sarabun', sans-serif;
-                color: #555;
-                line-height: 1.6;
-                white-space: pre-wrap; /* รักษาย่อหน้า */
-            ">
-                <span style="color:#aaa; font-style:italic;">(เริ่มพิมพ์ข้อความด้านบน ตัวอย่างจะปรากฏที่นี่...)</span>
+        
+        <div style="margin-top: 10px;">
+            <label style="font-weight: bold; color: #ff4d4d;">👁️ ตัวอย่างข้อความ (Real-time):</label>
+            <div id="msg_preview_box" class="preview-box">
+                <span style="color:#aaa; font-style:italic;">(พิมพ์ข้อความด้านบนเพื่อดูตัวอย่าง...)</span>
             </div>
         </div>
         <br>
@@ -205,9 +216,6 @@
             document.getElementById('conf_names').value = data.coupleNames || "";
             document.getElementById('conf_deep_msg').value = data.deepMessage || "";
             
-            // 🔥 เรียก Preview ทันทีที่โหลดเสร็จ
-            updatePreview();
-
             // Arrays
             currentMissions = data.missions || [];
             renderMissionList();
@@ -225,6 +233,10 @@
             document.getElementById('val_is_locked').checked = val.isLocked || false;
             document.getElementById('val_message').value = val.message || "รักอ้วนเสมอนะ...";
             
+            // 🔥 เรียกอัปเดต Preview ทั้ง 2 จุดทันทีที่โหลดเสร็จ
+            updateLetterPreview();
+            updateValPreview();
+
             // Colors
             if(data.colors) {
                 document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
@@ -330,7 +342,7 @@
             c.appendChild(d);
         };
 
-        // 4. Save
+        // 4. Save All
         window.saveAllSettings = function() {
             const updates = {};
             updates['site_config/apiKey'] = document.getElementById('conf_api_key').value.trim();
@@ -352,6 +364,7 @@
             const flashInputs = document.querySelectorAll('.flash-input');
             updates['site_config/flashMessages'] = Array.from(flashInputs).map(i => i.value).filter(v => v.trim() !== "");
 
+            // Valentine Save
             updates['site_config/valentine/showBtn'] = document.getElementById('val_show_btn').checked;
             updates['site_config/valentine/isLocked'] = document.getElementById('val_is_locked').checked;
             updates['site_config/valentine/message'] = document.getElementById('val_message').value;
@@ -374,17 +387,25 @@
         };
         window.clearChat = () => { if(confirm("⚠️ ล้างแชททั้งหมด?")) remove(ref(db, 'chat_logs')); };
 
-        // 🔥 Real-time Preview Script (เพิ่มใหม่ตรงนี้)
+        // 🔥 Real-time Preview Script (สำหรับทั้ง 2 ช่อง)
         const msgInput = document.getElementById('conf_deep_msg');
         const msgPreview = document.getElementById('msg_preview_box');
+        
+        const valInput = document.getElementById('val_message');
+        const valPreview = document.getElementById('val_preview_box');
 
-        function updatePreview() {
+        // ฟังก์ชันอัปเดตจดหมายลับ
+        function updateLetterPreview() {
             msgPreview.innerHTML = msgInput.value ? msgInput.value : '<span style="color:#aaa; font-style:italic;">(เริ่มพิมพ์ข้อความด้านบน ตัวอย่างจะปรากฏที่นี่...)</span>';
         }
 
-        if(msgInput && msgPreview) {
-             msgInput.addEventListener('input', updatePreview);
+        // ฟังก์ชันอัปเดตวาเลนไทน์
+        function updateValPreview() {
+            valPreview.innerHTML = valInput.value ? valInput.value : '<span style="color:#aaa; font-style:italic;">(เริ่มพิมพ์ข้อความด้านบน ตัวอย่างจะปรากฏที่นี่...)</span>';
         }
+
+        if(msgInput && msgPreview) msgInput.addEventListener('input', updateLetterPreview);
+        if(valInput && valPreview) valInput.addEventListener('input', updateValPreview);
 
     </script>
 </body>
