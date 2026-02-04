@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Milk ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background: #0f0f1a; color: white; font-family: 'Sarabun', sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; transition: background 2s; }
+        
+        /* 🌑 ฉากมืดตอนแรก */
+        body.lights-on { background: radial-gradient(circle at center, #2a1a35 0%, #000000 100%); }
+
+        /* 🔮 ลูกแก้ว */
+        .crystal-ball-container { position: relative; width: 200px; height: 200px; cursor: pointer; transition: transform 0.5s; z-index: 10; }
+        .crystal-ball-container:hover { transform: scale(1.05); }
+        
+        .crystal-ball {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) inset;
+            position: relative; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 1s ease;
+        }
+
+        /* ดอกไม้ในลูกแก้ว */
+        .flower-inner {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 80px; opacity: 0.5; filter: grayscale(100%); transition: 1s;
+        }
+
+        /* ฐานลูกแก้ว */
+        .base {
+            width: 120px; height: 30px; background: #333;
+            margin: -20px auto 0; border-radius: 50%;
+            box-shadow: 0 10px 20px black;
+            position: relative; z-index: 9;
+        }
+
+        /* ✨ เอฟเฟกต์ตอนเปิดไฟ */
+        .glowing .crystal-ball {
+            background: rgba(255, 200, 200, 0.1);
+            box-shadow: 0 0 50px #ff9ff3, 0 0 100px #ff9ff3 inset;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .glowing .flower-inner {
+            opacity: 1; filter: grayscale(0%); text-shadow: 0 0 20px #ff4d4d;
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        /* ข้อความ "Have a good day" ในลูกแก้ว */
+        .ball-text {
+            position: absolute; width: 100%; text-align: center; top: 70%;
+            font-family: 'Dancing Script', cursive; font-size: 18px; color: #fff;
+            opacity: 0; transition: 1s; text-shadow: 0 0 5px gold;
+        }
+        .glowing .ball-text { opacity: 1; }
+
+        /* คำแนะนำ */
+        .hint-text { margin-top: 50px; color: #aaa; font-size: 14px; animation: pulse 1.5s infinite; }
+        
+        /* 💌 กล่องข้อความซึ้งๆ */
+        .message-card {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+            width: 80%; max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333; padding: 30px; border-radius: 20px;
+            text-align: center; opacity: 0; pointer-events: none;
+            box-shadow: 0 0 50px rgba(255, 105, 180, 0.5);
+            transition: all 1s ease; z-index: 100;
+        }
+        .message-card.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+        .message-card h2 { color: #ff4d4d; font-family: 'Dancing Script', cursive; font-size: 2rem; margin-bottom: 10px; }
+        .message-card p { line-height: 1.8; font-size: 1.1rem; color: #555; }
+        .close-btn { margin-top: 20px; background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+
+        /* ปุ่มกลับ */
+        .back-btn { position: fixed; top: 20px; left: 20px; color: white; text-decoration: none; opacity: 0.5; }
+
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        @keyframes float { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, -55%); } }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">⬅️ กลับหน้าหลัก</a>
+
+    <div class="crystal-ball-container" onclick="turnOnLight()">
+        <div class="crystal-ball" id="ball">
+            <div class="flower-inner">🌹</div>
+            <div class="ball-text">Have a good day</div>
+        </div>
+        <div class="base"></div>
+    </div>
+    
+    <p class="hint-text" id="hint">👇 แตะที่ลูกแก้วเพื่อเปิดไฟ 👇</p>
+
+    <div class="message-card" id="card">
+        <h2>To Milk... ❤️</h2>
+        <div id="final-message">
+            Loading...
+        </div>
+        <button class="close-btn" onclick="document.getElementById('card').classList.remove('show')">เก็บไว้ในใจ ❤️</button>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-love.mp3" type="audio/mpeg">
+    </audio>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
+            authDomain: "love-chat-1month.firebaseapp.com",
+            databaseURL: "https://love-chat-1month-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "love-chat-1month",
+            storageBucket: "love-chat-1month.firebasestorage.app",
+            messagingSenderId: "434980133810",
+            appId: "1:434980133810:web:12929b8f2843dd07c162ab"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // 1. เช็คสิทธิ์การเข้าถึง (สำคัญ!)
+        onValue(ref(db, 'site_config/valentine'), (snapshot) => {
+            const valConfig = snapshot.val() || {};
+            
+            // ถ้าเปิดโหมดล็อค และยังไม่ล็อกอิน -> ดีดไปหน้า Login
+            if (valConfig.isLocked) {
+                onAuthStateChanged(auth, (user) => {
+                    if (!user) {
+                        alert("🔒 หน้านี้ถูกล็อคสำหรับคนพิเศษเท่านั้น");
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+
+            // โหลดข้อความ
+            const defaultMsg = "รักอ้วนเสมอนะ ถึงเราจะไม่ได้คุยหรือไม่ได้คบกันแล้วในตอนนี้... ของชิ้นนี้ไม่ได้ดูมีค่าอะไรมากแต่เค้าตั้งใจเลือกให้อ้วนนะ...";
+            document.getElementById('final-message').innerHTML = valConfig.message || defaultMsg;
+        });
+
+        // 2. ฟังก์ชันเปิดไฟ (มินิเกม)
+        window.turnOnLight = function() {
+            const ball = document.querySelector('.crystal-ball-container');
+            const hint = document.getElementById('hint');
+            const card = document.getElementById('card');
+            const bgm = document.getElementById('bgm');
+
+            if (!ball.classList.contains('glowing')) {
+                // เปิดไฟ
+                ball.classList.add('glowing');
+                document.body.classList.add('lights-on');
+                hint.style.display = 'none';
+                
+                // เล่นเพลง (ต้อง User Interact ก่อนถึงเล่นได้)
+                bgm.volume = 0.5;
+                bgm.play().catch(e => console.log("Audio prevent"));
+
+                // รอ 2 วิค่อยโชว์ข้อความ
+                setTimeout(() => {
+                    card.classList.add('show');
+                }, 2000);
+            } else {
+                // กดซ้ำเพื่อดูข้อความอีกรอบ
+                card.classList.add('show');
+            }
+        }
+    </script>
+</body>
+</html>
