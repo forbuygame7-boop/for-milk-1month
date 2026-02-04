@@ -203,6 +203,15 @@
             currentGallery = data.gallery || [];
             renderGalleryList();
 
+            // ส่วนหน้าข้อความลับวาเลนไทน
+            document.getElementById('conf_deep_msg').value = data.deepMessage || "";
+
+            // ✅ เพิ่มส่วนนี้: โหลดค่า Valentine
+            const val = data.valentine || {};
+            document.getElementById('val_show_btn').checked = val.showBtn || false;
+            document.getElementById('val_is_locked').checked = val.isLocked || false;
+            document.getElementById('val_message').value = val.message || "รักอ้วนเสมอนะ...";
+            
             // Colors
             if(data.colors) {
                 document.getElementById('conf_bg').value = data.colors.background || "#ffffff";
@@ -365,4 +374,5 @@
     </script>
 </body>
 </html>
+
 
