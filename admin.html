@@ -118,6 +118,23 @@
         
         <h3>💌 จดหมายลับ</h3>
         <textarea id="conf_deep_msg" rows="5" placeholder="เขียนความในใจตรงนี้... (ใช้ <br> ขึ้นบรรทัดใหม่)"></textarea>
+
+        <h3 style="background:#ffe0e0; padding:10px; border-radius:10px; color:#d63031;">🌹 ตั้งค่าหน้าของขวัญ (Valentine)</h3>
+        <div style="background: #fff0f0; padding: 15px; border-radius: 10px; border: 1px solid #ffcccc;">
+            
+            <div style="display:flex; gap:20px; margin-bottom:15px;">
+                <label style="cursor:pointer; display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" id="val_show_btn"> แสดงปุ่มในหน้าแรก?
+                </label>
+                <label style="cursor:pointer; display:flex; align-items:center; gap:5px; color:red; font-weight:bold;">
+                    <input type="checkbox" id="val_is_locked"> 🔒 ล็อครหัสผ่าน (บังคับ Login)
+                </label>
+            </div>
+
+            <label>ข้อความซึ้งๆ (รองรับ HTML เช่น &lt;br&gt; เพื่อขึ้นบรรทัดใหม่):</label>
+            <textarea id="val_message" rows="6" placeholder="ใส่ข้อความที่นี่..." style="width:100%; border-color:#ffcccc;"></textarea>
+        </div>
+        <br>
         
         <h3>❤️ เกม</h3>
         <label>หัวใจสูงสุด (Max Hearts):</label>
@@ -348,3 +365,4 @@
     </script>
 </body>
 </html>
+
