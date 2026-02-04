@@ -10,30 +10,18 @@
         body { font-family: 'Sarabun', sans-serif; background: #fff0f5; color: #555; margin: 0; padding: 20px; }
         .header { text-align: center; margin-bottom: 40px; }
         .header h1 { color: #ff4d4d; margin: 0; }
-        
-        /* เส้นแกนกลาง */
         .timeline { position: relative; max-width: 800px; margin: 0 auto; }
         .timeline::after { content: ''; position: absolute; width: 4px; background-color: #ffcccc; top: 0; bottom: 0; left: 50%; margin-left: -2px; border-radius: 2px; }
-        
-        /* กล่องข้อความ */
         .container { padding: 10px 40px; position: relative; background-color: inherit; width: 50%; box-sizing: border-box; }
         .container.left { left: 0; }
         .container.right { left: 50%; }
-        
-        /* จุดกลมๆ ตรงกลาง */
         .container::after { content: '❤️'; position: absolute; width: 30px; height: 30px; right: -17px; background-color: white; border: 4px solid #ff9f43; top: 15px; border-radius: 50%; z-index: 1; text-align: center; line-height: 30px; font-size: 14px; }
         .container.right::after { left: -17px; }
-        
-        /* การ์ดเนื้อหา */
         .content { padding: 20px; background-color: white; position: relative; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .content h2 { margin: 0 0 10px 0; font-size: 1.2rem; color: #ff4d4d; }
         .content small { color: #999; display: block; margin-bottom: 10px; }
         .content img { width: 100%; border-radius: 10px; margin-top: 10px; }
-        
-        /* ปุ่มกลับ */
         .back-btn { position: fixed; bottom: 20px; right: 20px; background: #ff4d4d; color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 99; }
-
-        /* มือถือ (จอเล็ก) */
         @media screen and (max-width: 600px) {
             .timeline::after { left: 31px; }
             .container { width: 100%; padding-left: 70px; padding-right: 25px; }
@@ -42,13 +30,10 @@
         }
     </style>
 </head>
-<body>
-    <body>
-    <div id="auth-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
+<body> <div id="auth-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;">
         <h2 style="color:#ff4d4d;">🔒 กำลังตรวจสอบกุญแจ...</h2>
         <p>รอแป๊บนึงนะครับ</p>
     </div>
-
 
     <div class="header">
         <h1>เส้นทางรักของเรา 💕</h1>
@@ -62,11 +47,9 @@
     <a href="index.html" class="back-btn">⬅️ กลับหน้าหลัก</a>
 
     <script type="module">
-        // ดึงข้อมูลจาก Firebase (ใช้โค้ดเดียวกับหน้าอื่น)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
         
-        // ** ต้องใส่ Config ของตัวเองตรงนี้นะครับ **
         const firebaseConfig = {
             apiKey: "AIzaSyC9pqct58Qc61jRF-h0c2nt1ntctxF-CJc",
             authDomain: "love-chat-1month.firebaseapp.com",
@@ -88,14 +71,10 @@
         function renderTimeline(list) {
             const box = document.getElementById('timeline-box');
             box.innerHTML = '';
-            
-            // เรียงวันที่ (เก่า -> ใหม่)
             list.sort((a, b) => new Date(a.date) - new Date(b.date));
-
             list.forEach((item, index) => {
-                const side = index % 2 === 0 ? 'left' : 'right'; // สลับซ้ายขวา
+                const side = index % 2 === 0 ? 'left' : 'right'; 
                 const imgHTML = item.image ? `<img src="${item.image}">` : '';
-                
                 const html = `
                 <div class="container ${side}">
                     <div class="content">
@@ -107,7 +86,6 @@
                 </div>`;
                 box.innerHTML += html;
             });
-
             if(list.length === 0) box.innerHTML = '<p style="text-align:center;">ยังไม่มีข้อมูลใน Admin ครับ</p>';
         }
     </script>
